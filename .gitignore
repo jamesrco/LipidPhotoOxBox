@@ -1,33 +1,17 @@
-# Object files
+# Object file
 *.o
-*.ko
-*.obj
-*.elf
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
+# .history files
+*.history
+*.Rhistory
+# MATLAB temp files
+*.m~
+# RData but not *.RData
+.RData
+# .DS_Store
+*.DS_Store
+# directories & files I dont want indexed, for now
+r_process_files
+rsmDirectory
+.Rproj.user
+xset_a.RData
