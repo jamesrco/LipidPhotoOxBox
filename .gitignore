@@ -6,6 +6,8 @@
 *.Rhistory
 # MATLAB temp files
 *.m~
+# a data file that's too big
+JAZ_UV-VIS_spec_data_PAL1314_all.mat
 # RData but not *.RData
 .RData
 # .DS_Store
