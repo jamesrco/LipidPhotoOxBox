@@ -11,6 +11,9 @@
 # these were acquired using a Thermo Evolution 300 UV-VIS spectrophotometer at
 # 0.2 nm increments from 190 to 800 nm
 
+# assuming initial wd is that of the LipidPhotoOxBox repository, get current
+# working directory so we can reset it later
+
 # get current working directory so we can reset it later
 initial.wd = getwd()
 
