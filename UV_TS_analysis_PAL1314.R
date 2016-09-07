@@ -18,9 +18,16 @@
 
 # This analysis is based on NOAA's Version 2 (corrected) data product
 
+# need two libraries for the import & parsing of the individual NOAA spectra files
+library(stringr)
+library(RSEIS)
+
 # assuming initial wd is that of the LipidPhotoOxBox repository, get current
 # working directory so we can reset it later
 initial.wd = getwd()
+
+# # or, this:
+# setwd("/Users/jrcollins/Code/LipidPhotoOxBox")
 
 ##### daily UVB dosages ##### 
 
@@ -110,4 +117,57 @@ UVB_PAL1314_subsurf_hires_uW_cm2 = read.csv("UVB_spectra_0.6m_subsurface_PAL1314
 
 # NOAA data
 
-# need to track down hi-res Palmer spectra from 2013, not currently on NOAA web site
+# data is in separate files, so have to read them in sequentially
+
+setwd("data/raw/ESRL_GMD_AntUV/ver2") 
+
+# get list of files
+ver2_UV_VIS_specfiles = list.files(recursive=TRUE, full.names=FALSE, pattern="\\.[0-9]{3}")
+
+# preallocate destination matrix
+PAL1314_NOAA_AntUV_spectra_uW_cm2 = as.data.frame(matrix(data = NA, ncol = 622, nrow = length(ver2_UV_VIS_specfiles)))
+colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2) = c("Timestamp_GMT",c(seq(280,340,.2),seq(340.5,400,.5),
+                                            seq(401,600,1)))
+
+# cycle through files, parse, collect data
+
+for (i in 1:length(ver2_UV_VIS_specfiles)) {
+  
+  # first, extract base filename containing necessary metadata
+  scanFile = str_extract(ver2_UV_VIS_specfiles[i],"BB[0-9]{6}\\.[0-9]{3}$")
+  
+  # extract metadata from the filename
+  scanJuldate = as.numeric(str_extract(scanFile,"[0-9]{3}$")) # julian date
+  scanFile = sub("\\.[0-9]{3}$","",scanFile)
+  scanMin = as.numeric(str_extract(scanFile,"[0-9]{2}$"))
+  scanFile = sub("[0-9]{2}$","",scanFile)
+  scanHour = as.numeric(str_extract(scanFile,"[0-9]{2}$"))
+  scanFile = sub("[0-9]{2}$","",scanFile)
+  scanYear = as.numeric(paste0(20,str_extract(scanFile,"[0-9]{2}$")))
+  scanDay = getmoday(scanJuldate,scanYear)[2]
+  scanMonth = getmoday(scanJuldate,scanYear)[1]
+  
+  # create timestamp
+  scanTS = ISOdatetime(scanYear, scanMonth, scanDay, scanHour, scanMin, 0, tz = "GMT")
+  scanTS.char = as.character(scanTS)
+  
+  # cheap hack for case where hour and minute both = 0 (i.e., midnight)
+  if (scanHour==0 & scanMin==0) {
+    
+    scanTS.char = sub("$", " 00:00:00",scanTS.char)
+    
+  }
+    
+  # extract data from file
+  scanData = read.csv(ver2_UV_VIS_specfiles[i], header = FALSE)
+  
+  # write timestamp, relevant data to destination matrix
+  
+  PAL1314_NOAA_AntUV_spectra_uW_cm2[i,1] = scanTS.char
+  PAL1314_NOAA_AntUV_spectra_uW_cm2[i,2:622] = scanData[,2]
+  
+}
+
+# save the matrix
+
+save(PAL1314_NOAA_AntUV_spectra_uW_cm2, file = "Incident_spectra_PAL1314_uW_cm2.RData")
