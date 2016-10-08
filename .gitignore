@@ -4,14 +4,22 @@
 # .history files
 *.history
 *.Rhistory
+
 # MATLAB temp files
 *.m~
-# a data file that's too big
+
+# data files that are too big
 JAZ_UV-VIS_spec_data_PAL1314_all.mat
+JAZ_UV-VIS_full_spectra_all_PAL1314_uW_cm2.mat
+JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.csv
+JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.mat
+
 # RData but not *.RData
 .RData
+
 # .DS_Store
 *.DS_Store
+
 # directories & files I dont want indexed, for now
 r_process_files
 rsmDirectory
@@ -21,6 +29,4 @@ xset_a.RData
 /data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD300-366/*
 /data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD200-299/*
 /data/raw/Orbi_MS_data/*
-
-# types of data files from this field work
 *.JazIrrad"
