@@ -69,7 +69,7 @@ DD_UVB_1314_incident = DD_UVB_incident[DD_UVB_incident$Date>as.POSIXct('2013-06-
 # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
 
 setwd(initial.wd)
-setwd("data/nice/JAZ_UV-VIS") 
+setwd("data/nice/JAZ_UV_VIS") 
 
 DD_UVB_1314_subsurf = read.csv("Daily_int_UVB_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
          stringsAsFactors = FALSE, header = FALSE)
@@ -114,7 +114,7 @@ save(DD_UVB_xmiss_PAL1314, file = "Daily_dose_UVB_PAL1314.RData")
 # JAZ data
 
 setwd(initial.wd)
-setwd("data/nice/JAZ_UV-VIS") 
+setwd("data/nice/JAZ_UV_VIS") 
 
 # read in data, from .csv output generated in MATLAB (see the MATLAB script
 # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
@@ -210,7 +210,7 @@ save(PAL1314_NOAA_AntUV_spectra_uW_cm2, file = "Incident_UV-VIS_spectra_PAL1314_
 # load in JAZ data
 
 setwd(initial.wd)
-setwd("data/raw/JAZ_UV-VIS")
+setwd("data/raw/JAZ_UV_VIS")
 
 # read in data, from .csv output generated in MATLAB (see the MATLAB script
 # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
@@ -353,14 +353,7 @@ JAZ.caldat = as.matrix(JAZ.caldat)
 # write.csv(NOAA.caldat,file="NOAA.caldat.csv")
 # write.csv(JAZ.caldat,file="JAZ.caldat.csv")
 
-plot(NOAA.caldat,
-     JAZ.caldat,
-     pch=16,cex=0.1)
-
 plot(NOAA.caldat/JAZ.caldat,ylim = c(-3,3))
-
-abline(0,1,col="red")
-abline(fit.lm, col="blue")
 
 fit.lm = lm(JAZ.caldat~NOAA.caldat)
 fit.res = resid(fit.lm)
@@ -368,6 +361,12 @@ plot(NOAA.caldat,fit.res)
 
 fit.lm = lm(JAZ.caldat~NOAA.caldat)
 summary(fit.lm)
+
+plot(NOAA.caldat,
+     JAZ.caldat,
+     pch=16,cex=0.1)
+abline(0,1,col="red")
+abline(fit.lm, col="blue")
 
 ##### match elements of NOAA data set with JAZ scans, then calculate surface penetration ##### 
 
@@ -435,7 +434,7 @@ plot(as.numeric(colnames(PAL1314_Surf_pen)[1:(ncol(PAL1314_Surf_pen)-1)]),
 # load in JAZ profile data (made on 15 Dec 2015 at Station B, Arthur Harbor)
 
 setwd(initial.wd)
-setwd("data/raw/JAZ_UV-VIS")
+setwd("data/raw/JAZ_UV_VIS")
 
 # read in data, from .csv output generated in MATLAB (see the MATLAB script
 # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
@@ -465,7 +464,7 @@ PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2$Depth_m =
 # load in surface PAR data taken concurrently with JAZ profile
 
 setwd(initial.wd)
-setwd("data/raw/LI-193_PAR")
+setwd("data/raw/LI_193_PAR")
 
 PAL1516_Stn_B_surface_PAR_20151215_umol_s_m2 = read.csv("PAL1516_Surface_PAR_for_correlation_15Dec15.csv", 
                                                                    stringsAsFactors = FALSE, header = TRUE, skip = 3)
@@ -608,9 +607,9 @@ PAL1516_AH_Kd_20151215[1,i] =
 
 # save corrected irradiance data and Kds 
 
-save(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, file = "JAZ_UV-VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.RData")
+save(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, file = "JAZ_UV_VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.RData")
 
-write.csv(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, file = "JAZ_UV-VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.csv")
+write.csv(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, file = "JAZ_UV_VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.csv")
 
 PAL1516_AH_Kd_20151215_per_meter = t(PAL1516_AH_Kd_20151215)
 
@@ -717,6 +716,11 @@ mean.PAL1314.14Dec.NOAA.instUVB =
 
 # calculate cumulative dosage
 
+# need library caTools, first have to detach RSEIS since there's a conflict with a function name
+
+detach("package:RSEIS", unload=TRUE)
+library(caTools)
+
 # some definitions
 
 W_per_uW = 1/1000000
@@ -737,8 +741,7 @@ for (i in 1:length(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB))
   
   PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB[i] =
     
-    trapz(Exp13_timeint.s[1:i],
-          PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVB[1:i])
+    caTools::trapz(Exp13_timeint.s[1:i],PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVB[1:i])
 
 }
 
@@ -753,11 +756,11 @@ pdf(file = "14Dec_UVB_timeseries.pdf",
     width = 8, height = 6, pointsize = 12,
     bg = "white")
 
-par(mar=c(5,5,1,1))
+par(mar=c(5,5,1,5))
 
 plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB$Timestamp_GMT,
      PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVB,
-     col = depth.plot.colors[16],
+     col = "black",
      type = "l",
      ylab = expression(paste("Instantaneous UVB irradiance at 0.6 m (",mu,"W ",cm^-2," ",s^-1,")")),
      xlab = "Time (GMT)"
@@ -767,7 +770,7 @@ par(new = T)
 
 plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB$Timestamp_GMT,
      PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB.kJ_m2,
-     col = depth.plot.colors[16],
+     col = "black",
      type = "l", lty = 2,
      axes = FALSE,
      ylab = "",
