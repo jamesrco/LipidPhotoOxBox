@@ -419,7 +419,11 @@ Exp_13_pos.subset = Exp_13_pos.raw[(Exp_13_pos.raw$species==c("PC") & (
     Exp_13_pos.raw$species==c("DNPPE")
   ,]
 
-Exp_13_PC = Exp_13_pos.subset[grep("PC",Exp_13_pos.subset$compound_name),c(2,18:54)]
+Exp_13_PC = Exp_13_pos.subset[grep("PC",Exp_13_pos.subset$compound_name),c(2,18:ncol(Exp_13_pos.subset))]
+
+# append some more sample metadata
+Exp_13_PC = cbind(Exp_13_PC,Exp_13_pos.subset[grep("PC",Exp_13_pos.subset$compound_name),c(1:17)])
+
 Exp_13_DNPPE = Exp_13_pos.subset[grep("DNPPE",Exp_13_pos.subset$compound_name),c(2,18:54)]
 
 # extract QCs
@@ -437,7 +441,7 @@ Exp_13_DNPPE.samp = Exp_13_DNPPE[,-c(grep("QC_",colnames(Exp_13_DNPPE)))]
 
 # pmol o.c.
 
-Exp_13_PC.samp.pmol_oc = apply(Exp_13_PC.samp[,2:ncol(Exp_13_PC.samp)],c(1,2),splitpred,linfit_low.PC,linfit_hi.PC,1e10)
+Exp_13_PC.samp.pmol_oc = apply(Exp_13_PC.samp[,2:34],c(1,2),splitpred,linfit_low.PC,linfit_hi.PC,1e10)
 Exp_13_DNPPE.samp.pmol_oc = apply(Exp_13_DNPPE.samp[,2:ncol(Exp_13_DNPPE.samp)],c(1,2),splitpred,linfit_low.DNPPE,linfit_hi.DNPPE,1.25e9)
 
 # retrieve necessary metadata
@@ -1201,7 +1205,7 @@ segments(barCenters, bardata.mean-bardata.se, barCenters, bardata.mean+bardata.s
 
 legend("topright",treatments,fill=barcolors,xpd = TRUE, inset = c(0,-.45))
 
-### negative ion mode ###
+#### negative ion mode ###
 
 # Experiment 13
 
@@ -1260,9 +1264,85 @@ Exp_13_DNPPE.samp.RF.neg = DNPPE_pmol_added_per_samp/Exp_13_LPC.neg.samp.pmol_oc
 Exp_13_LPC.samp.pmol.total.neg = sweep(Exp_13_LPC.neg.samp.pmol_oc, 2, Exp_13_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_13_LPC.samp.pmol.mL.neg = sweep(Exp_13_LPC.samp.pmol.total.neg, 2, Exp_13_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
 
-# Exp_13_FFA.neg.samp.norm$compound_name = Exp_13_FFA.neg.samp[,1]
+# generate matrices w/summary stats
 
-# exploratory plots, all data by compound ID
+# for the FFAs
+
+Exp_13_FFA.neg.samp.norm.mean = matrix(data = NA, 
+                                          nrow = nrow(Exp_13_FFA.neg.samp.norm),
+                                          ncol = 3*length(Exp_13_PC.unique.ttps)
+)
+
+rownames(Exp_13_FFA.neg.samp.norm.mean) = Exp_13_FFA.neg.samp$compound_name
+colnames(Exp_13_FFA.neg.samp.norm.mean) = rep("",3*length(Exp_13_PC.unique.ttps))
+
+# calculate stats, populate array
+
+for (i in 1:length(Exp_13_PC.unique.ttps)) {
+  
+  current.data = Exp_13_FFA.neg.samp.norm[,Exp_13_PC.metdat$ttp.ID==Exp_13_PC.unique.ttps[i]]
+  
+  mean.current = apply(current.data,1,mean)
+  sd.current = apply(current.data,1,sd)
+  se.current = sd.current/sqrt(ncol(current.data))
+  
+  # insert into our array
+  
+  Exp_13_FFA.neg.samp.norm.mean[,3*i-2] = mean.current
+  Exp_13_FFA.neg.samp.norm.mean[,3*i-1] = sd.current
+  Exp_13_FFA.neg.samp.norm.mean[,3*i] = se.current
+  
+  # update column labels
+  
+  colnames(Exp_13_FFA.neg.samp.norm.mean)[(3*i-2)] =
+    paste0(Exp_13_PC.unique.ttps[i],".mean")
+  colnames(Exp_13_FFA.neg.samp.norm.mean)[(3*i-1)] =
+    paste0(Exp_13_PC.unique.ttps[i],".sd")
+  colnames(Exp_13_FFA.neg.samp.norm.mean)[(3*i)] =
+    paste0(Exp_13_PC.unique.ttps[i],".se")
+  
+  
+}
+
+# for the LPCs
+
+Exp_13_LPC.samp.pmol.mL.neg.mean = matrix(data = NA, 
+                                       nrow = nrow(Exp_13_LPC.samp.pmol.mL.neg),
+                                       ncol = 3*length(Exp_13_PC.unique.ttps)
+)
+
+rownames(Exp_13_LPC.samp.pmol.mL.neg.mean) = Exp_13_LPC.neg$compound_name
+colnames(Exp_13_LPC.samp.pmol.mL.neg.mean) = rep("",3*length(Exp_13_PC.unique.ttps))
+
+# calculate stats, populate array
+
+for (i in 1:length(Exp_13_PC.unique.ttps)) {
+  
+  current.data = Exp_13_LPC.samp.pmol.mL.neg[,Exp_13_PC.metdat$ttp.ID==Exp_13_PC.unique.ttps[i]]
+  
+  mean.current = apply(current.data,1,mean)
+  sd.current = apply(current.data,1,sd)
+  se.current = sd.current/sqrt(ncol(current.data))
+  
+  # insert into our array
+  
+  Exp_13_LPC.samp.pmol.mL.neg.mean[,3*i-2] = mean.current
+  Exp_13_LPC.samp.pmol.mL.neg.mean[,3*i-1] = sd.current
+  Exp_13_LPC.samp.pmol.mL.neg.mean[,3*i] = se.current
+  
+  # update column labels
+  
+  colnames(Exp_13_LPC.samp.pmol.mL.neg.mean)[(3*i-2)] =
+    paste0(Exp_13_PC.unique.ttps[i],".mean")
+  colnames(Exp_13_LPC.samp.pmol.mL.neg.mean)[(3*i-1)] =
+    paste0(Exp_13_PC.unique.ttps[i],".sd")
+  colnames(Exp_13_LPC.samp.pmol.mL.neg.mean)[(3*i)] =
+    paste0(Exp_13_PC.unique.ttps[i],".se")
+  
+  
+}
+
+# exploratory plots, all FFA data by compound ID
 
 for (i in 1:nrow(Exp_13_FFA.neg.samp.norm)) {
   
@@ -1470,3 +1550,98 @@ segments(barCenters, bardata.mean-bardata.se, barCenters, bardata.mean+bardata.s
 legend("topleft",treatments,fill=barcolors,xpd = TRUE) #inset = c(0,-.45))
 
 dev.off()
+ 
+##### some basic calculations of oxidation state based on calculations, etc.
+
+# Experiment 13
+
+# preallocate a matrix for our calculations
+
+Exp_13.ox.sums = as.data.frame(matrix(ncol = ncol(Exp_13_PC.samp.pmol.mL.norm),
+                                            nrow = 6))
+colnames(Exp_13.ox.sums) = colnames(Exp_13_PC.samp.pmol.mL.norm)
+rownames(Exp_13.ox.sums) = c("pmol_mL_ox","pmol_mL_unox","ox_state_weighted",
+                                   "total_PC_pmol_mL","frac_ox",
+                             "frac_ox_weighted")
+
+# cycle through, perform calculations
+
+for (i in 1:ncol(Exp_13.ox.sums)) {
+  
+  Exp_13.ox.sums[c("pmol_mL_ox"),i] =
+    sum(Exp_13_PC.samp.pmol.mL.norm[Exp_13_PC.samp$degree_oxidation>=1,i])
+  
+  Exp_13.ox.sums[c("pmol_mL_unox"),i] =
+    sum(Exp_13_PC.samp.pmol.mL.norm[Exp_13_PC.samp$degree_oxidation==0,i])
+  
+  Exp_13.ox.sums[c("total_PC_pmol_mL"),i] =
+    sum(Exp_13_PC.samp.pmol.mL.norm[,i])
+  
+  Exp_13.ox.sums[c("ox_state_weighted"),i] =
+    sum(Exp_13_PC.samp.pmol.mL.norm[Exp_13_PC.samp$degree_oxidation==1,i])*1 +
+    sum(Exp_13_PC.samp.pmol.mL.norm[Exp_13_PC.samp$degree_oxidation==2,i])*2 +
+    sum(Exp_13_PC.samp.pmol.mL.norm[Exp_13_PC.samp$degree_oxidation==3,i])*3 +
+    sum(Exp_13_PC.samp.pmol.mL.norm[Exp_13_PC.samp$degree_oxidation==4,i])*4
+
+  Exp_13.ox.sums[c("frac_ox"),i] =
+    Exp_13.ox.sums[c("pmol_mL_ox"),i]/Exp_13.ox.sums[c("total_PC_pmol_mL"),i]
+  
+  Exp_13.ox.sums[c("frac_ox_weighted"),i] =
+    Exp_13.ox.sums[c("ox_state_weighted"),i]/Exp_13.ox.sums[c("total_PC_pmol_mL"),i]
+  
+  
+}
+
+# now, evaluate statistical significance
+
+# subset to only first and last timepoint
+
+Exp_13.ox.sums.fl = Exp_13.ox.sums[,(Exp_13_PC.metdat$Date.time.sample.collected %in% unique(Exp_13_PC.metdat$Date.time.sample.collected)[c(1,3)])]
+
+for (i in 1:nrow(Exp_13.ox.sums.fl)) { # subset by moiety
+  
+  print(rownames(Exp_13.ox.sums.fl)[i]) # print name of this moiety
+  
+  Exp_13.ox.sums.fl.subs = as.data.frame(cbind(as.numeric(Exp_13.ox.sums.fl[i,]),Exp_13_PC.metdat.fl$ttp.ID))
+  Exp_13.ox.sums.fl.subs$V1 = as.numeric(as.character(Exp_13.ox.sums.fl.subs$V1))
+  colnames(Exp_13.ox.sums.fl.subs) = c("Value","Treatment")
+  
+  PC.mod = lm(Value ~ Treatment, data = Exp_13.ox.sums.fl.subs)
+  
+  print(anova(PC.mod))
+  PC.aov = aov(PC.mod)
+  tukey = TukeyHSD(PC.aov, conf.level = 0.95)
+  print(tukey)
+  
+  # calculate & display mean differences ± SD for selected treatment pairs
+  
+  xbar_init = mean(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
+  sd_init = sd(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
+  
+  xbar_final = mean(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("+ UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  
+  xbar_final = mean(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("- UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  
+  xbar_final = mean(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("+ UVB, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n\n")
+  
+}
+
+  
