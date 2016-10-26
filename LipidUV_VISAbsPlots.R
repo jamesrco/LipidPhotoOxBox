@@ -88,27 +88,48 @@ save(LipidAbsData, file = "PC_lipid_abs_data.RData")
 
 # make plots for liposome experiment chapter
 
-# absorbance
+# absorbance, 22:0 and 22:1
 
 absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
 absPlotLty = c("solid","dashed","dotdash") # define lty
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
-pdf(file = "PCLipidAbs.pdf",
+pdf(file = "PCLipidAbs_22-0,22-1.pdf",
     width = 8, height = 6, pointsize = 12,
     bg = "white")
 
 par(mar=c(5,5,1,1))
 plot(LipidAbsData$lambda_nm,LipidAbsData$abs_PC22_0,"l",
      col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
-     ylim = c(0,3.5), xlim = c(225,700), ylab = "Absorbance",
+     ylim = c(0,1.75), xlim = c(225,500), ylab = "Absorbance",
      xlab = "Wavelength (nm)")
 lines(LipidAbsData$lambda_nm,LipidAbsData$abs_PC22_1,
       col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
-lines(LipidAbsData$lambda_nm[seq(1,nrow(LipidAbsData),5)],
-       LipidAbsData$abs_PC22_6_dil[seq(1,nrow(LipidAbsData),5)],
-      col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5")
+
+legend(x = 450, y = 1, bty = "n",
+       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC (1:400 dilution"),
+       col = absPlotCol, lty = absPlotLty, lwd = 2)
+
+dev.off()
+
+# absorbance, 22:6
+
+absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
+absPlotLty = c("solid","dashed","dotdash") # define lty
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "PCLipidAbs_22-6.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+plot(LipidAbsData$lambda_nm[seq(1,nrow(LipidAbsData),5)],
+     LipidAbsData$abs_PC22_6_dil[seq(1,nrow(LipidAbsData),5)],"l",
+     col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5",
+     ylim = c(0,0.75), xlim = c(225,500), ylab = "Absorbance",
+     xlab = "Wavelength (nm)")
 
 legend(x = 450, y = 2, bty = "n",
        legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC (1:400 dilution"),
