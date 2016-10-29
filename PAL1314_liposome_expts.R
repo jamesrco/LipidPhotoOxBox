@@ -889,6 +889,14 @@ Exp_13_PC.fl = Exp_13_PC.samp.pmol.mL.norm[,(Exp_13_PC.metdat$Date.time.sample.c
 Exp_13_PC.metdat.fl = Exp_13_PC.metdat[(Exp_13_PC.metdat$Date.time.sample.collected %in% unique(Exp_13_PC.metdat$Date.time.sample.collected)[c(1,3)]),]
 Exp_13_PC.metdat.fl$ttp.ID = paste0(Exp_13_PC.metdat.fl$Treatment.ID,"_",Exp_13_PC.metdat.fl$Date.time.sample.collected) # create a single treatment-timepoint ID
 
+# combine the +HB and -HB controls, since have no apparent difference
+Exp_13_PC.metdat.fl$ttp.ID[Exp_13_PC.metdat.fl$ttp.ID %in% c("Dark_control_no_HB_2013-12-14 09:30:00",
+                                                 "Dark_control_plus_HB_2013-12-14 09:30:00")] = c("Dark_control_2013-12-14 09:30:00")
+
+# eliminate a bad sample
+Exp_13_PC.fl = Exp_13_PC.fl[,-c(6)]
+Exp_13_PC.metdat.fl = Exp_13_PC.metdat.fl[-c(6),]
+
 # create subsets for a given moiety and perform ANOVA, then Tukey HSD 
 
 for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
@@ -896,6 +904,7 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   print(rownames(Exp_13_PC.fl)[i]) # print name of this moiety
   
   Exp_13_PC.fl.subs = as.data.frame(cbind(as.numeric(Exp_13_PC.fl[i,]),Exp_13_PC.metdat.fl$ttp.ID))
+  
   Exp_13_PC.fl.subs$V1 = as.numeric(as.character(Exp_13_PC.fl.subs$V1))
   colnames(Exp_13_PC.fl.subs) = c("Conc_pmol_mL","Treatment")
   
@@ -908,8 +917,8 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   
   # calculate & display mean differences ± SD for selected treatment pairs
   
-  xbar_init = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
-  sd_init = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
+  xbar_init = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  sd_init = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
   
   xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
@@ -933,13 +942,37 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   delta = xbar_final-xbar_init
   uncert = sqrt(sd_final^2 + sd_init^2)
   
-  cat("+ UVB, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n\n")
+  cat("+ UVB, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  
+  xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("dark control, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  
+  xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("dark control, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n\n")
   
 }
 
 # add'l plots for Exp't 13
 
 Exp_13_PC.metdat$ttp.ID = paste0(Exp_13_PC.metdat$Treatment.ID,"_",Exp_13_PC.metdat$Date.time.sample.collected) # create a single treatment-timepoint ID
+
+# combine the +HB and -HB controls, since have no apparent difference
+Exp_13_PC.metdat$ttp.ID[Exp_13_PC.metdat$ttp.ID %in% c("Dark_control_no_HB_2013-12-14 09:30:00",
+                                                             "Dark_control_plus_HB_2013-12-14 09:30:00")] = c("Dark_control_2013-12-14 09:30:00")
+
+# eliminate the bad sample
+Exp_13_PC.metdat = Exp_13_PC.metdat[-c(9),]
+Exp_13_PC.samp.pmol.mL.norm = Exp_13_PC.samp.pmol.mL.norm[,-c(9)]
 
 # calculate mean & SD for each set of replicates
 
@@ -999,7 +1032,7 @@ barcolors <- c("black","lightgrey","darkgrey","darkgrey")
 treatments <- c("Dark","-UVB, -het. bact.","+UVB, -het. bact.","+UVB, +het. bact.")
 
 bardata.mean <- matrix(NA,4,3)
-bardata.mean[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_no_HB_2013-12-14 09:30:00.mean",
+bardata.mean[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_2013-12-14 09:30:00.mean",
                                                                                                                                                         "Dark_control_no_HB_2013-12-14 13:40:00.mean",
                                                                                                                                                         "Dark_control_no_HB_2013-12-14 17:50:00.mean")]
 bardata.mean[3,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Quartz_no_HB_2013-12-14 09:30:00.mean",
@@ -1013,7 +1046,7 @@ bardata.mean[2,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pm
                                                                                                                                                             "EPA_no_HB_2013-12-14 17:50:00.mean")]
 
 bardata.se <- matrix(NA,4,3)
-bardata.se[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_no_HB_2013-12-14 09:30:00.se",
+bardata.se[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_2013-12-14 09:30:00.se",
                                                                                                                                                             "Dark_control_no_HB_2013-12-14 13:40:00.se",
                                                                                                                                                             "Dark_control_no_HB_2013-12-14 17:50:00.se")]
 bardata.se[3,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Quartz_no_HB_2013-12-14 09:30:00.se",
@@ -1027,7 +1060,7 @@ bardata.se[2,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol
                                                                                                                                                                "EPA_no_HB_2013-12-14 17:50:00.se")]
 
 bardata.sd <- matrix(NA,4,3)
-bardata.sd[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_no_HB_2013-12-14 09:30:00.sd",
+bardata.sd[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_2013-12-14 09:30:00.sd",
                                                                                                                                                           "Dark_control_no_HB_2013-12-14 13:40:00.sd",
                                                                                                                                                           "Dark_control_no_HB_2013-12-14 17:50:00.sd")]
 bardata.sd[3,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Quartz_no_HB_2013-12-14 09:30:00.sd",
@@ -1129,7 +1162,7 @@ barcolors <- c("black","lightgrey","darkgrey","darkgrey")
 treatments <- c("Dark","-UVB, -het. bact.","+UVB, -het. bact.","+UVB, +het. bact.")
 
 bardata.mean <- matrix(NA,4,3)
-bardata.mean[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_no_HB_2013-12-14 09:30:00.mean",
+bardata.mean[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_2013-12-14 09:30:00.mean",
                                                                                                                                                             "Dark_control_no_HB_2013-12-14 13:40:00.mean",
                                                                                                                                                             "Dark_control_no_HB_2013-12-14 17:50:00.mean")]
 bardata.mean[3,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Quartz_no_HB_2013-12-14 09:30:00.mean",
@@ -1143,7 +1176,7 @@ bardata.mean[2,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pm
                                                                                                                                                                "EPA_no_HB_2013-12-14 17:50:00.mean")]
 
 bardata.se <- matrix(NA,4,3)
-bardata.se[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_no_HB_2013-12-14 09:30:00.se",
+bardata.se[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_2013-12-14 09:30:00.se",
                                                                                                                                                           "Dark_control_no_HB_2013-12-14 13:40:00.se",
                                                                                                                                                           "Dark_control_no_HB_2013-12-14 17:50:00.se")]
 bardata.se[3,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Quartz_no_HB_2013-12-14 09:30:00.se",
@@ -1157,7 +1190,7 @@ bardata.se[2,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol
                                                                                                                                                              "EPA_no_HB_2013-12-14 17:50:00.se")]
 
 bardata.sd <- matrix(NA,4,3)
-bardata.sd[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_no_HB_2013-12-14 09:30:00.sd",
+bardata.sd[1,]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Dark_control_2013-12-14 09:30:00.sd",
                                                                                                                                                           "Dark_control_no_HB_2013-12-14 13:40:00.sd",
                                                                                                                                                           "Dark_control_no_HB_2013-12-14 17:50:00.sd")]
 bardata.sd[3,2:3]<-Exp_13_PC.samp.pmol.mL.norm.mean[rownames(Exp_13_PC.samp.pmol.mL.norm.mean)=="PC 44:12 +2O",colnames(Exp_13_PC.samp.pmol.mL.norm.mean) %in% c("Quartz_no_HB_2013-12-14 09:30:00.sd",
@@ -1249,6 +1282,11 @@ Exp_13_DNPPE.neg.samp = Exp_13_DNPPE.neg[,-c(grep("QC_",colnames(Exp_13_DNPPE.ne
 Exp_13_LPC.neg.samp.pmol_oc = apply(Exp_13_LPC.neg.samp[,2:ncol(Exp_13_LPC.neg.samp)],c(1,2),splitpred,linfit_low.PC.neg,linfit_hi.PC.neg,1e10)
 Exp_13_DNPPE.samp.neg.pmol_oc = apply(Exp_13_DNPPE.neg.samp[,2:ncol(Exp_13_DNPPE.neg.samp)],c(1,2),splitpred,linfit_low.DNPPE.neg,linfit_hi.DNPPE.neg,1.25e9)
 
+# eliminate the bad sample from negative mode data as well
+Exp_13_LPC.neg.samp.pmol_oc = Exp_13_LPC.neg.samp.pmol_oc[,-c(9)]
+Exp_13_DNPPE.samp.neg.pmol_oc = Exp_13_DNPPE.samp.neg.pmol_oc[,-c(9)]
+Exp_13_FFA.neg.samp = Exp_13_FFA.neg.samp[,-c(9)]
+
 # retrieve necessary metadata
 # do.call(rbind.data.frame,...) syntax necessary to prevent coercion of factors to integers (as would happen with unlist())
 
@@ -1257,12 +1295,13 @@ Exp_13_FFA.metdat$Date.time.sample.collected = strptime(as.character(Exp_13_FFA.
 
 # scale peak area using DNPPE (recovery standard added at time of extraction)
 
-Exp_13_FFA.neg.samp.norm = Exp_13_FFA.neg.samp[,2:34]/t(Exp_13_DNPPE.neg.samp[,2:34])
+Exp_13_FFA.neg.samp.norm = Exp_13_FFA.neg.samp[,2:33]/t(Exp_13_DNPPE.neg.samp[,2:33])
 
 DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_13_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_13_DNPPE.samp.RF.neg = DNPPE_pmol_added_per_samp/Exp_13_LPC.neg.samp.pmol_oc # recovery factor
 Exp_13_LPC.samp.pmol.total.neg = sweep(Exp_13_LPC.neg.samp.pmol_oc, 2, Exp_13_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_13_LPC.samp.pmol.mL.neg = sweep(Exp_13_LPC.samp.pmol.total.neg, 2, Exp_13_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
+
 
 # generate matrices w/summary stats
 
@@ -1384,9 +1423,17 @@ Exp_13_FFA.neg.fl = Exp_13_FFA.neg.samp.norm[,(Exp_13_FFA.metdat$Date.time.sampl
 Exp_13_FFA.neg.metdat.fl = Exp_13_FFA.metdat[(Exp_13_FFA.metdat$Date.time.sample.collected %in% unique(Exp_13_FFA.metdat$Date.time.sample.collected)[c(1,3)]),]
 Exp_13_FFA.neg.metdat.fl$ttp.ID = paste0(Exp_13_FFA.neg.metdat.fl$Treatment.ID,"_",Exp_13_FFA.neg.metdat.fl$Date.time.sample.collected) # create a single treatment-timepoint ID
 
+# combine the +HB and -HB controls, since have no apparent difference
+Exp_13_FFA.neg.metdat.fl$ttp.ID[Exp_13_FFA.neg.metdat.fl$ttp.ID %in% c("Dark_control_no_HB_2013-12-14 09:30:00",
+                                                       "Dark_control_plus_HB_2013-12-14 09:30:00")] = c("Dark_control_2013-12-14 09:30:00")
+
 Exp_13_LPC.neg.fl = Exp_13_LPC.samp.pmol.mL.neg[,(Exp_13_FFA.metdat$Date.time.sample.collected %in% unique(Exp_13_FFA.metdat$Date.time.sample.collected)[c(1,3)])]
 Exp_13_LPC.neg.metdat.fl = Exp_13_FFA.metdat[(Exp_13_FFA.metdat$Date.time.sample.collected %in% unique(Exp_13_FFA.metdat$Date.time.sample.collected)[c(1,3)]),]
 Exp_13_LPC.neg.metdat.fl$ttp.ID = paste0(Exp_13_FFA.neg.metdat.fl$Treatment.ID,"_",Exp_13_FFA.neg.metdat.fl$Date.time.sample.collected) # create a single treatment-timepoint ID
+
+# combine the +HB and -HB controls, since have no apparent difference
+Exp_13_LPC.neg.metdat.fl$ttp.ID[Exp_13_LPC.neg.metdat.fl$ttp.ID %in% c("Dark_control_no_HB_2013-12-14 09:30:00",
+                                                                       "Dark_control_plus_HB_2013-12-14 09:30:00")] = c("Dark_control_2013-12-14 09:30:00")
 
 # create subsets for a given moiety and perform ANOVA, then Tukey HSD
 
@@ -1403,6 +1450,36 @@ for (i in 1:nrow(Exp_13_FFA.neg.fl)) { # subset by moiety
   FFA.aov = aov(FFA.mod)
   tukey = TukeyHSD(FFA.aov, conf.level = 0.95, "Treatment")
   print(tukey)
+  
+  
+  # calculate & display mean differences ± SD for selected treatment pairs
+  
+  xbar_init = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  sd_init = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  
+  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("+ UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  
+  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("- UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  
+  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(sd_final^2 + sd_init^2)
+  
+  cat("+ UVB, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n\n")
 
 }
 
@@ -1423,8 +1500,8 @@ for (i in 1:nrow(Exp_13_LPC.neg.fl)) { # subset by moiety
   
   # calculate & display mean differences ± SD for selected treatment pairs
   
-  xbar_init = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
-  sd_init = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
+  xbar_init = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  sd_init = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
   
   xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
@@ -1615,8 +1692,8 @@ for (i in 1:nrow(Exp_13.ox.sums.fl)) { # subset by moiety
   
   # calculate & display mean differences ± SD for selected treatment pairs
   
-  xbar_init = mean(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
-  sd_init = sd(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 09:30:00"])
+  xbar_init = mean(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  sd_init = sd(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
   
   xbar_final = mean(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13.ox.sums.fl.subs$Value[Exp_13.ox.sums.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])

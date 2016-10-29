@@ -18,9 +18,9 @@ library(gplots)
 
 # note: also need the data frames Exp_13_PC.samp and Exp_13_neg.subset later on
 
-Exp_13_PC.samp.pmol.mL.norm.HM = Exp_13_PC.samp.pmol.mL.norm.mean[,seq(1, 36, 3)]
-Exp_13_FFA.neg.samp.norm.mean.HM = Exp_13_FFA.neg.samp.norm.mean[,seq(1, 36, 3)]
-Exp_13_LPC.samp.pmol.mL.neg.mean.HM = Exp_13_LPC.samp.pmol.mL.neg.mean[,seq(1, 36, 3)]
+Exp_13_PC.samp.pmol.mL.norm.HM = Exp_13_PC.samp.pmol.mL.norm.mean[,seq(1, 33, 3)]
+Exp_13_FFA.neg.samp.norm.mean.HM = Exp_13_FFA.neg.samp.norm.mean[,seq(1, 33, 3)]
+Exp_13_LPC.samp.pmol.mL.neg.mean.HM = Exp_13_LPC.samp.pmol.mL.neg.mean[,seq(1, 33, 3)]
 
 # generate some good colnames and rownames for the heatmaps, consistent w/presentation
 # in other figures and tables
@@ -132,7 +132,7 @@ Exp_13_features.HM.foldchange.log2.sub226 = Exp_13_features.HM.foldchange.log2[
                 "LPC 22:6"), collapse = "|"), rownames(Exp_13_features.HM.foldchange.log2)),]
 
 # also, just want the -HB controls (not the +HB controls)
-Exp_13_features.HM.foldchange.log2.sub226 = Exp_13_features.HM.foldchange.log2.sub226[,-c(4:6)]
+Exp_13_features.HM.foldchange.log2.sub226 = Exp_13_features.HM.foldchange.log2.sub226[,-c(4:5)]
 
 # lastly, get rid of a duplicate 22:6 FFA (ID did not stand up to manual examination of spectra)
 Exp_13_features.HM.foldchange.log2.sub226 = Exp_13_features.HM.foldchange.log2.sub226[-c(10),]
@@ -148,33 +148,33 @@ Exp_13_features.HM.foldchange.log2.sub226.pvals =
 # manually populate based on Tukey HSD test output from PAL1314_liposome_expts.R
 # will use "1" as not significant indicator
 Exp_13_features.HM.foldchange.log2.sub226.pvals[1,] =
-  c(1,1,1,1,1,0.5,1,0.5) # PC 22:6, 22:6
+  c(1,1,1,1,1,0.1,1,0.1) # PC 22:6, 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[2,] =
-  c(1,1,1,0.5,1,0.1,1,0.5) # PC 44:12 +2O
+  c(1,1,1,0.1,1,0.1,1,0.5) # PC 44:12 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[3,] =
-  c(1,1,1,1,1,0.1,1,1) # PC 44:12 +4O
+  c(1,1,1,0.5,1,0.1,1,1) # PC 44:12 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[4,] =
   c(rep(1,8)) # PC 44:12 +1O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[5,] =
   c(rep(1,8)) # PC 44:12 +3O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[6,] =
-  c(rep(1,8)) 
+  c(rep(1,8)) # FFA 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[7,] =
-  c(rep(1,8)) 
+  c(1,1,1,1,1,0.1,1,0.5) # FFA 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[8,] =
-  c(rep(1,8)) 
+  c(1,1,1,1,1,0.5,1,0.1) # FFA 22:6 +3O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[9,] =
-  c(rep(1,8)) 
+  c(1,1,1,1,1,1,1,0.5) # FFA 22:6 +1O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[10,] =
-  c(rep(1,8))
+  c(rep(1,8)) # FFA 22:6 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[11,] =
-  c(1,1,1,1,1,0.1,1,1) # LPC 22:6 +4O
+  c(1,1,1,1,1,0.5,1,0.5) # LPC 22:6 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[12,] =
-  c(1,1,1,1,1,0.1,1,1) # LPC 22:6 +2O
+  c(1,1,1,1,1,0.5,1,0.1) # LPC 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[13,] =
   c(rep(1,8)) # LPC 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[14,] =
-  c(1,1,1,1,1,0.5,1,1) # LPC 22:6 +1O
+  c(1,1,1,1,1,1,1,0.1) # LPC 22:6 +1O
 
 # create a matrix of actual symbols to be plotted
 
@@ -205,13 +205,13 @@ Exp_13_features.HM.foldchange.log2.subparents = Exp_13_features.HM.foldchange.lo
                 "PC 16:0, 16:0,"), collapse = "|"), rownames(Exp_13_features.HM.foldchange.log2)),]
 
 # get rid of the +HB controls
-Exp_13_features.HM.foldchange.log2.subparents = Exp_13_features.HM.foldchange.log2.subparents[,-c(4:6)]
+Exp_13_features.HM.foldchange.log2.subparents = Exp_13_features.HM.foldchange.log2.subparents[,-c(4:5)]
 
 # will need to order the treatments manually to fit with dendrogram clustering
 # of bigger heatmap
 
 Exp_13_features.HM.foldchange.log2.subparents = 
-  Exp_13_features.HM.foldchange.log2.subparents[,c(2,3,6,4,8,7,5,9)]
+  Exp_13_features.HM.foldchange.log2.subparents[,c(2,3,8,6,4,5,7,9)]
 
 # put species in a more logical order
 
