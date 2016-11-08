@@ -3,7 +3,8 @@
 # Purpose: Calculate apparent quantum yields for photolysis of PUFA-containing
 # PC species examined in the PAL1314 liposome experiments 
 
-# ****** Assumes some variables created by PAL1314_liposome_expts.R, LipidUV_VISAbsPlots.R, and
+# ****** Assumes some variables created by PAL1314_liposome_expts.R,
+# LipidUV_VISAbsPlots.R, ContainerUV_VISTransPlots.R, and
 # UV_TS_analysis_PAL1314.R are already in user's workspace; these files can be
 # found at https://github.com/jamesrco/LipidPhotoOxBox
 
@@ -211,6 +212,12 @@ lines(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm,
 
 dev.off()
 
+##### pulling in tranmissivity data for the quartz and borosilicate glass ##### 
+# from object PctTransData, created by ContainerUV_VISTransPlots.R
+
+FracTrans = PctTransData[,c(1:3)]
+FracTrans[,c(2:3)] = FracTrans[,c(2:3)]/100 # change to fraction
+
 ##### d[22:6]/dt calculations, in pmol/L/hr, from Exp 13 ##### 
 
 # first, calculate d[22:6]/dt (change in concentration) using data
@@ -233,31 +240,31 @@ d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox = vector(mode = "double", length = 2)
 # dark
 d22_6_dt.Exp13.pmol_mL_hr.dark[1] = 
   (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 17:50:00.mean")]-
-  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.mean")])/
+  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")])/
   dt_Exp13_hr
 
-d22_6_dt.Exp13.pmol_mL_hr.dark[2] = (sqrt((Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 17:50:00.sd")])^2+
-                                           (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.sd")])^2))/
+d22_6_dt.Exp13.pmol_mL_hr.dark[2] = (sqrt((Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 17:50:00.se")])^2+
+                                           (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])^2))/
   dt_Exp13_hr
 
 # -UVB
 d22_6_dt.Exp13.pmol_mL_hr.noUVB[1] = 
   (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("EPA_no_HB_2013-12-14 17:50:00.mean")]-
-  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.mean")])/
+  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")])/
   dt_Exp13_hr
 
-d22_6_dt.Exp13.pmol_mL_hr.noUVB[2] = (sqrt((Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("EPA_no_HB_2013-12-14 17:50:00.sd")])^2+
-                                          (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.sd")])^2))/
+d22_6_dt.Exp13.pmol_mL_hr.noUVB[2] = (sqrt((Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("EPA_no_HB_2013-12-14 17:50:00.se")])^2+
+                                          (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])^2))/
   dt_Exp13_hr
 
 # +UVB
 d22_6_dt.Exp13.pmol_mL_hr.plusUVB[1] = 
   (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Quartz_no_HB_2013-12-14 17:50:00.mean")]-
-  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.mean")])/
+  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")])/
   dt_Exp13_hr
 
-d22_6_dt.Exp13.pmol_mL_hr.plusUVB[2] = (sqrt((Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Quartz_no_HB_2013-12-14 17:50:00.sd")])^2+
-                                             (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.sd")])^2))/
+d22_6_dt.Exp13.pmol_mL_hr.plusUVB[2] = (sqrt((Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Quartz_no_HB_2013-12-14 17:50:00.se")])^2+
+                                             (Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])^2))/
   dt_Exp13_hr
 
 # now, define control-corrected rates loss due to all photooxidation (direct+indirect),
@@ -278,7 +285,9 @@ d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1] = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.ph
 d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[2] = sqrt((d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[2])^2+
                                                        (d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[2])^2)
 
-##### calculation of total radiation received by sample over course of Exp 13 ##### 
+##### calculation of total radiation received #####
+# i.e., the radiation received by the JAZ sensor, in the deck tank, 
+# at the same depth as the vials, over course of Exp 13
 
 # integrated figures in units of photons/cm2/wavelength
 
@@ -343,7 +352,7 @@ cm_per_m = 100
 
 # ------ optional monte carlo code
 # define number of simulations
-numSim = 1000
+numSim = 5000
 
 # preallocate matrix to hold values simulated during monte carlo run
 Theta_Exp13_PC_22_6.sim = matrix(nrow = numSim, ncol = 3)
@@ -355,14 +364,19 @@ for (i in 1:numSim) {
   
   # ------ end optional monte carlo code
   
-# preallocate vector to hold Ks values
+# preallocate matrix to hold Ks values
+# first column will be for quartz vial, second for EPA vial
+  
 # Ks will be in units of mol photons/mol rxn/time (time is implied; it is the
 # 8.2 hr sampling interval of the experiment)
 
-Ks_Exp13_PC_22_6 = vector(mode = "double",
+
+Ks_Exp13_PC_22_6 = matrix(NA, ncol = 2, nrow =
                           length(PAL1314.JAZ.14Dec.sub_umol_photons_m2_total))
 
-for (j in 1:length(Ks_Exp13_PC_22_6)) { # iterate by wavelength
+colnames(Ks_Exp13_PC_22_6) = c("Ks_PC_22_6_quartz","Ks_PC_22_6_EPA")
+
+for (j in 1:nrow(Ks_Exp13_PC_22_6)) { # iterate by wavelength
   
   if (lambda_nm_JAZ[j]<800) { # since don't have any lipid absorbance data above 800 nm
     
@@ -378,18 +392,28 @@ for (j in 1:length(Ks_Exp13_PC_22_6)) { # iterate by wavelength
     
     # absorbance coefficient of Palmer seawater (the matrix) at this wavelength (and uncertainty)
     alpha_per_m = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.mean[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
-    
+#     
     # ------ optional monte carlo code
     alpha_per_m.sd = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.sd[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
     
     alpha_per_m = rnorm(1, mean = alpha_per_m, sd = alpha_per_m.sd)
     # ------ end optional monte carlo code
     
+    # vessel transmittances for this wavelength
+    
+    T_quartz = FracTrans$transmittance_quartz_pct[abs(FracTrans$lambda_nm-lambda_nm_JAZ[j])==min(abs(FracTrans$lambda_nm-lambda_nm_JAZ[j]))]
+    
+    T_EPA = FracTrans$transmittance_borosilicate_pct[abs(FracTrans$lambda_nm-lambda_nm_JAZ[j])==min(abs(FracTrans$lambda_nm-lambda_nm_JAZ[j]))]
+    
     # finally, calculate Ks for this wavelength
     # have to make some unit conversions
     
-    Ks_Exp13_PC_22_6[j] =
-      (E_mol_photons_m2*epsilon_per_M_per_cm*cm_per_m*m3_per_L*(1-10^(-alpha_per_m*(Quartz_vial_pathlength_cm/100))))/
+    Ks_Exp13_PC_22_6[j,1] =
+      (E_mol_photons_m2*T_quartz*epsilon_per_M_per_cm*cm_per_m*m3_per_L*(1-10^(-alpha_per_m*(Quartz_vial_pathlength_cm/100))))/
+      (alpha_per_m*(Quartz_vial_pathlength_cm/100))
+    
+    Ks_Exp13_PC_22_6[j,2] =
+      (E_mol_photons_m2*T_EPA*epsilon_per_M_per_cm*cm_per_m*m3_per_L*(1-10^(-alpha_per_m*(Quartz_vial_pathlength_cm/100))))/
       (alpha_per_m*(Quartz_vial_pathlength_cm/100))
     
   }
@@ -403,7 +427,7 @@ for (j in 1:length(Ks_Exp13_PC_22_6)) { # iterate by wavelength
 
 # retrieve initial concentration of PC 22:6 used in experiments, and change in concentration data
 Init_conc_PC22_6_pmol_mL = 
-  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.mean")]
+  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")]
 
 d22_6_dt.UVA = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[1]
 
@@ -413,12 +437,8 @@ d22_6_dt.UVA_UVB = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[1]
 
 # ------ optional monte carlo code
 
-# # approach 1: by assumed distribution
-# Init_conc_PC22_6_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.mean")],
-#       sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_no_HB_2013-12-14 09:30:00.sd")])
-
-# approach 2: by actual random sampling of values
-Init_conc_PC22_6_pmol_mL = sample(Exp_13_PC.samp.pmol.mL.norm[c("PC 44:12"),1:3],1)
+Init_conc_PC22_6_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")],
+       sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])
 
 d22_6_dt.UVA = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[2])
 
@@ -432,23 +452,33 @@ Theta_Exp13_PC_22_6 = vector(mode = "double", length = 3)
 names(Theta_Exp13_PC_22_6) =
   c("Theta_PC_22_6_UVA_UVB","Theta_PC_22_6_UVA","Theta_PC_22_6_UVB")
 
-# UVR
+# total UVR, use Ks for quartz vials
+
+Ks_int_TUVR = caTools::trapz(lambda_nm_JAZ[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=395.5)],Ks_Exp13_PC_22_6[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=395.5),1])
+
 Theta_Exp13_PC_22_6[1] =
   (-d22_6_dt.UVA_UVB*8.2)/
     (Init_conc_PC22_6_pmol_mL*
-       sum(Ks_Exp13_PC_22_6[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=395.5)]))
+       Ks_int_TUVR)
 
-# UVA
+# UVA, use Ks for EPA vials
+
+Ks_int_UVA = caTools::trapz(lambda_nm_JAZ[(lambda_nm_JAZ>315 & lambda_nm_JAZ<=395.5)],Ks_Exp13_PC_22_6[(lambda_nm_JAZ>315 & lambda_nm_JAZ<=395.5),2])
+
 Theta_Exp13_PC_22_6[2] =
   (-d22_6_dt.UVA*8.2)/
   (Init_conc_PC22_6_pmol_mL*
-     sum(Ks_Exp13_PC_22_6[(lambda_nm_JAZ>315 & lambda_nm_JAZ<=395.5)]))
+     Ks_int_UVA)
 
 # UVB
+
+Ks_int_UVB = caTools::trapz(lambda_nm_JAZ[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=315)],Ks_Exp13_PC_22_6[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=315),1])-
+  caTools::trapz(lambda_nm_JAZ[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=315)],Ks_Exp13_PC_22_6[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=315),2])
+
 Theta_Exp13_PC_22_6[3] =
   (-d22_6_dt.UVB*8.2)/
   (Init_conc_PC22_6_pmol_mL*
-     sum(Ks_Exp13_PC_22_6[(lambda_nm_JAZ>=290 & lambda_nm_JAZ<=315)]))
+     Ks_int_UVB)
 
 # ------ optional monte carlo code
 Theta_Exp13_PC_22_6.sim[i,] = Theta_Exp13_PC_22_6
