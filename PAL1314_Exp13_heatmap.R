@@ -148,7 +148,7 @@ Exp_13_features.HM.foldchange.log2.sub226.pvals =
 # manually populate based on Tukey HSD test output from PAL1314_liposome_expts.R
 # will use "1" as not significant indicator
 Exp_13_features.HM.foldchange.log2.sub226.pvals[1,] =
-  c(1,1,1,1,1,0.1,1,0.1) # PC 22:6, 22:6
+  c(1,1,1,0.5,1,0.1,1,0.1) # PC 22:6, 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[2,] =
   c(1,1,1,0.1,1,0.1,1,0.5) # PC 44:12 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[3,] =
@@ -160,17 +160,17 @@ Exp_13_features.HM.foldchange.log2.sub226.pvals[5,] =
 Exp_13_features.HM.foldchange.log2.sub226.pvals[6,] =
   c(rep(1,8)) # FFA 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[7,] =
-  c(1,1,1,1,1,0.1,1,0.5) # FFA 22:6 +2O
+  c(1,1,1,1,1,0.1,1,1) # FFA 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[8,] =
   c(1,1,1,1,1,0.5,1,0.1) # FFA 22:6 +3O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[9,] =
-  c(1,1,1,1,1,1,1,0.5) # FFA 22:6 +1O
+  c(rep(1,8)) # FFA 22:6 +1O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[10,] =
   c(rep(1,8)) # FFA 22:6 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[11,] =
   c(1,1,1,1,1,0.5,1,0.5) # LPC 22:6 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[12,] =
-  c(1,1,1,1,1,0.5,1,0.1) # LPC 22:6 +2O
+  c(1,1,1,0.5,1,0.5,1,0.1) # LPC 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[13,] =
   c(rep(1,8)) # LPC 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[14,] =
