@@ -919,46 +919,52 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   
   xbar_init = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
   sd_init = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
-  
-  xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  se_init = sd_init/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"]))
+
+    xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  cat("+ UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  cat("+ UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  cat("- UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  cat("- UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
+
+    delta = xbar_final-xbar_init
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
-  
-  cat("+ UVB, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  cat("+ UVB, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"]))
+
+    delta = xbar_final-xbar_init
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
-  
-  cat("dark control, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  cat("dark control, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"]))
+
+    delta = xbar_final-xbar_init
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
-  
-  cat("dark control, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n\n")
+  cat("dark control, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n\n")
   
 }
 
@@ -1285,7 +1291,7 @@ Exp_13_DNPPE.samp.neg.pmol_oc = apply(Exp_13_DNPPE.neg.samp[,2:ncol(Exp_13_DNPPE
 # eliminate the bad sample from negative mode data as well
 Exp_13_LPC.neg.samp.pmol_oc = Exp_13_LPC.neg.samp.pmol_oc[,-c(9)]
 Exp_13_DNPPE.samp.neg.pmol_oc = Exp_13_DNPPE.samp.neg.pmol_oc[,-c(9)]
-Exp_13_FFA.neg.samp = Exp_13_FFA.neg.samp[,-c(9)]
+Exp_13_FFA.neg.samp = Exp_13_FFA.neg.samp[,-c(10)]
 
 # retrieve necessary metadata
 # do.call(rbind.data.frame,...) syntax necessary to prevent coercion of factors to integers (as would happen with unlist())
@@ -1456,30 +1462,34 @@ for (i in 1:nrow(Exp_13_FFA.neg.fl)) { # subset by moiety
   
   xbar_init = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
   sd_init = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  se_init = sd_init/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"]))
   
   xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  cat("+ UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  cat("+ UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  cat("- UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  cat("- UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  cat("+ UVB, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n\n")
+  cat("+ UVB, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n\n")
 
 }
 
@@ -1502,30 +1512,34 @@ for (i in 1:nrow(Exp_13_LPC.neg.fl)) { # subset by moiety
   
   xbar_init = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
   sd_init = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
-  
-  xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  se_init = sd_init/sqrt(length(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"]))
+
+    xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
+  uncert = sqrt(se_final^2 + se_init^2)
   
-  cat("+ UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  cat("+ UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
-  
-  delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
-  
-  cat("- UVB, - HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n")
+  se_final = sd_final/sqrt(length(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
+
+    delta = xbar_final-xbar_init
+    uncert = sqrt(se_final^2 + se_init^2)
+    
+  cat("- UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
   xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
-  
-  delta = xbar_final-xbar_init
-  uncert = sqrt(sd_final^2 + sd_init^2)
-  
-  cat("+ UVB, + HB vs. initial, mean ± SD: ",delta," ± ",uncert,"\n\n")
+  se_final = sd_final/sqrt(length(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
+
+    delta = xbar_final-xbar_init
+    uncert = sqrt(se_final^2 + se_init^2)
+    
+  cat("+ UVB, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n\n")
   
 }
 
