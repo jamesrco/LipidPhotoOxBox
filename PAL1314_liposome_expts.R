@@ -63,7 +63,9 @@ getMetDat = function(fn,metadat.raw,whichdat) {
 
 ### standards ###
 
-# + mode standards
+### + mode standards  ###
+
+# initial set, from 20160421
 
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/IPL_Standards_20160421_pos.Rdata") # load processed data
 IPLstd_pos.raw = getLOBpeaklist(IPL_Standards_20160421_pos) # generate peaklist
@@ -119,7 +121,62 @@ x = DNPPEoc
 linfit_hi.DNPPE = lm(as.numeric(y)~x) # fit other linear model for higher concentrations
 points(DNPPEoc,fitted(linfit_hi.DNPPE),col="blue",pch="+")
 
-# - mode standards
+# second set of standards, from 20161107 (needed for reanalysis of Exp_03a, and
+# analysis of particulate environmental data)
+
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/6IPL_Standards_20161107_pos.RData") # load processed data
+IPLstd_pos_20161107.raw = getLOBpeaklist(x6IPL_Standards_20161107_pos) # generate peaklist
+
+# extract only the PC standards and DNPPE
+PCstds.20161107 = IPLstd_pos_20161107.raw[IPLstd_pos_20161107.raw$compound_name=="PC 32:0",]
+PCstds.20161107 = PCstds.20161107[14:25]
+PCstds.20161107 = PCstds.20161107[order(colnames(PCstds.20161107))]
+DNPPEstds.20161107 = IPLstd_pos_20161107.raw[IPLstd_pos_20161107.raw$compound_name=="DNPPE",]
+DNPPEstds.20161107 = DNPPEstds.20161107[14:25]
+DNPPEstds.20161107 = DNPPEstds.20161107[order(colnames(DNPPEstds.20161107))]
+
+# separate a QC from the standards
+PCstds_QC.20161107 = PCstds.20161107[c(length(PCstds.20161107))]
+PCstds.20161107 = PCstds.20161107[-c(length(PCstds.20161107))]
+DNPPEstds_QC.20161107 = DNPPEstds.20161107[c(length(DNPPEstds.20161107))]
+DNPPEstds.20161107 = DNPPEstds.20161107[-c(length(DNPPEstds.20161107))]
+
+# fit standard curves using standard data
+
+# PC
+
+# curve fitting & diagnostics
+
+y = PCstds.20161107[1:9]
+x = PCoc[1:9]
+linfit_low.PC.20161107 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+plot(PCoc,PCstds.20161107,pch="+")
+points(PCoc[1:9],fitted(linfit_low.PC.20161107),col="red",pch="+")
+
+# we will need some other fit for levels higher than ~ 100 pmol o.c. (not unexpected)
+y = PCstds.20161107
+x = PCoc
+linfit_hi.PC.20161107 = lm(as.numeric(y)~x)
+points(PCoc,fitted(linfit_hi.PC.20161107),col="blue",pch="+")
+
+# DNPPE
+
+# curve fitting & diagnostics
+
+y = DNPPEstds.20161107[1:7]
+x = DNPPEoc[1:7]
+linfit_low.DNPPE.20161107 = lm(as.numeric(y)~x) # fit a first linear model for the first 7 standard levels
+plot(DNPPEoc,DNPPEstds.20161107,pch="+")
+points(DNPPEoc[1:7],fitted(linfit_low.DNPPE.20161107),col="red",pch="+")
+
+y = DNPPEstds.20161107
+x = DNPPEoc
+linfit_hi.DNPPE.20161107 = lm(as.numeric(y)~x) # fit other linear model for higher concentrations
+points(DNPPEoc,fitted(linfit_hi.DNPPE.20161107),col="blue",pch="+")
+
+### - mode standards  ###
+
+# initial set, from 20160421
 
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/IPL_Standards_20160421_neg.Rdata") # load processed data
 IPLstd_neg.raw = getLOBpeaklist(IPL_Standards_20160421_neg) # generate peaklist
@@ -283,7 +340,7 @@ Exp_02a_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Exp_02a_DNPPE.samp.pmol_oc # r
 Exp_02a_PC.samp.pmol.total = sweep(Exp_02a_PC.samp.pmol_oc, 2, Exp_02a_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_02a_PC.samp.pmol.mL = sweep(Exp_02a_PC.samp.pmol.total, 2, Exp_02a_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
 
-# Experiment 3a
+# Experiment 3a, first run of samples 
 
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/Exp_03a_pos_new.RData")
 Exp_03a_pos.raw = getLOBpeaklist(Exp_03a_pos) # generate peaklist
@@ -341,6 +398,66 @@ DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_03a_PC.
 Exp_03a_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Exp_03a_DNPPE.samp.pmol_oc # recovery factor
 Exp_03a_PC.samp.pmol.total = sweep(Exp_03a_PC.samp.pmol_oc, 2, Exp_03a_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_03a_PC.samp.pmol.mL = sweep(Exp_03a_PC.samp.pmol.total, 2, Exp_03a_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
+
+# Experiment 3a, second run of samples 
+
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/Exp_03a_rerunNov16_pos.RData")
+Exp_03a_pos.rerun.raw = getLOBpeaklist(Exp_03a_rerunNov16_pos) # generate peaklist
+
+# extract only possible PC species from liposomes added to this experiment, and DNPPE
+
+Exp_03a_pos.rerun.subset = Exp_03a_pos.rerun.raw[(Exp_03a_pos.rerun.raw$species==c("PC") & (
+  (Exp_03a_pos.rerun.raw$FA_total_no_C==32 &
+     Exp_03a_pos.rerun.raw$FA_total_no_DB==0 &
+     Exp_03a_pos.rerun.raw$degree_oxidation==0) |
+    (Exp_03a_pos.rerun.raw$FA_total_no_C==36 &
+       Exp_03a_pos.rerun.raw$FA_total_no_DB==0 &
+       Exp_03a_pos.rerun.raw$degree_oxidation==0) |
+    (Exp_03a_pos.rerun.raw$FA_total_no_C==44 &
+       Exp_03a_pos.rerun.raw$FA_total_no_DB==0 &
+       Exp_03a_pos.rerun.raw$degree_oxidation==0) |
+    (Exp_03a_pos.rerun.raw$FA_total_no_C==44 &
+       Exp_03a_pos.rerun.raw$FA_total_no_DB %in% c(10,11,12) &
+       Exp_03a_pos.rerun.raw$degree_oxidation>=0))) |
+    Exp_03a_pos.rerun.raw$species==c("DNPPE")
+  ,]
+
+# eliminate a group incorrectly ID'd as PC 22:6, 22:6
+Exp_03a_pos.rerun.subset = Exp_03a_pos.rerun.subset[-2,]
+
+Exp_03a_PC.rerun = Exp_03a_pos.rerun.subset[grep("PC",Exp_03a_pos.rerun.subset$compound_name),c(2,16:51)]
+Exp_03a_DNPPE.rerun = Exp_03a_pos.rerun.subset[grep("DNPPE",Exp_03a_pos.rerun.subset$compound_name),c(2,16:51)]
+
+# extract QCs
+
+Exp_03a_PC.QC.rerun = Exp_03a_PC.rerun[,c(1,grep("QC_",colnames(Exp_03a_PC.rerun)))]
+Exp_03a_PC.QC.rerun = Exp_03a_PC.QC.rerun[Exp_03a_PC.QC.rerun$compound_name=="PC 32:0",] # subset to just PC 16:0/16:0
+Exp_03a_DNPPE.QC.rerun = Exp_03a_DNPPE.rerun[,c(1,grep("QC_",colnames(Exp_03a_DNPPE.rerun)))]
+
+# eliminate QCs from list of data
+
+Exp_03a_PC.samp.rerun = Exp_03a_PC.rerun[,-c(grep("QC_",colnames(Exp_03a_PC.rerun)))]
+Exp_03a_DNPPE.samp.rerun = Exp_03a_DNPPE.rerun[,-c(grep("QC_",colnames(Exp_03a_DNPPE.rerun)))]
+
+# calculate concentrations
+
+# pmol o.c.
+
+Exp_03a_PC.samp.pmol_oc.rerun = apply(Exp_03a_PC.samp.rerun[,2:ncol(Exp_03a_PC.samp.rerun)],c(1,2),splitpred,linfit_low.PC.20161107,linfit_hi.PC.20161107,1e10)
+Exp_03a_DNPPE.samp.pmol_oc.rerun = apply(Exp_03a_DNPPE.samp.rerun[,2:ncol(Exp_03a_DNPPE.samp.rerun)],c(1,2),splitpred,linfit_low.DNPPE.20161107,linfit_hi.DNPPE.20161107,1.25e9)
+
+# retrieve necessary metadata
+# do.call(rbind.data.frame,...) syntax necessary to prevent coercion of factors to integers (as would happen with unlist())
+
+Exp_03a_PC.metdat.rerun = do.call(rbind.data.frame,lapply(colnames(Exp_03a_PC.samp.pmol_oc.rerun),getMetDat,meta.raw,c(2:7,14)))
+Exp_03a_PC.metdat.rerun$Date.time.sample.collected = strptime(as.character(Exp_03a_PC.metdat.rerun$Date.time.sample.collected),"%m/%d/%y %H:%M")
+
+# scale pmol o.c. to initial pmol per sample using DNPPE (recovery standard added at time of extraction)
+
+DNPPE_pmol_added_per_samp.rerun = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_03a_PC.metdat.rerun$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+Exp_03a_DNPPE.samp.RF.rerun = DNPPE_pmol_added_per_samp.rerun/Exp_03a_DNPPE.samp.pmol_oc.rerun # recovery factor
+Exp_03a_PC.samp.pmol.total.rerun = sweep(Exp_03a_PC.samp.pmol_oc.rerun, 2, Exp_03a_DNPPE.samp.RF.rerun, "*") # apply RF to samples, calculate total # pmol each species in given sample
+Exp_03a_PC.samp.pmol.mL.rerun = sweep(Exp_03a_PC.samp.pmol.total.rerun, 2, Exp_03a_PC.metdat.rerun$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
 
 # Experiment 12
 
@@ -528,7 +645,7 @@ for (i in 1:ncol(Exp_02a_PC.samp.pmol.mL.norm)) {
   
 }
 
-# Experiment 3a
+# Experiment 3a, initial run
 
 Exp_03a_PC.samp.pmol.mL.norm = Exp_03a_PC.samp.pmol.mL
 rownames(Exp_03a_PC.samp.pmol.mL.norm) = Exp_03a_PC.samp[,1]
@@ -544,6 +661,13 @@ for (i in 1:ncol(Exp_03a_PC.samp.pmol.mL.norm)) {
   Exp_03a_PC.samp.pmol.mL.norm[,i] = Exp_03a_PC.samp.pmol.mL[,i]*cf
   
 }
+
+# Experiment 3a, rerun
+
+# don't need to make this adjustment since standard were run right with the samples
+
+Exp_03a_PC.samp.pmol.mL.norm.rerun = Exp_03a_PC.samp.pmol.mL.rerun
+rownames(Exp_03a_PC.samp.pmol.mL.norm.rerun) = Exp_03a_PC.rerun[,1]
 
 # Experiment 12
 
@@ -659,7 +783,7 @@ for (i in 1:nrow(Exp_02a_PC.samp.pmol.mL.norm)) {
   
 }
 
-# Experiment 3a
+# Experiment 3a, initial run
 
 # exploratory plots, all data by compound ID
 
@@ -684,6 +808,39 @@ for (i in 1:nrow(Exp_03a_PC.samp.pmol.mL.norm)) {
   title(main = paste0("Exp 3a: ",rownames(Exp_03a_PC.samp.pmol.mL.norm)[i]))
   legend(x="topright",
          legend=unique(Exp_03a_PC.metdat$Treatment.ID),
+         pch=c(1:j),
+         col=c(1:j),
+         bty="n",
+         cex=0.7,
+         pt.cex=0.7)
+  
+}
+
+# Experiment 3a, rerun
+
+# exploratory plots, all data by compound ID
+
+for (i in 1:nrow(Exp_03a_PC.samp.pmol.mL.norm.rerun)) {
+  
+  for (j in 1:length(unique(Exp_03a_PC.metdat.rerun$Treatment.ID))) {
+    
+    if (j==1) {
+      plot(Exp_03a_PC.metdat.rerun[Exp_03a_PC.metdat.rerun$Treatment.ID==unique(Exp_03a_PC.metdat.rerun$Treatment.ID)[j],c("Date.time.sample.collected")],
+           Exp_03a_PC.samp.pmol.mL.norm.rerun[i,Exp_03a_PC.metdat.rerun$Treatment.ID==unique(Exp_03a_PC.metdat.rerun$Treatment.ID)[j]],pch=j,col=j,
+           ylab="Concentration (pmol/mL)",
+           xlab="Time",
+           ylim=c(min(Exp_03a_PC.samp.pmol.mL.norm.rerun[i,]),max(Exp_03a_PC.samp.pmol.mL.norm.rerun[i,]))
+      )
+    }  else {
+      points(Exp_03a_PC.metdat.rerun[Exp_03a_PC.metdat.rerun$Treatment.ID==unique(Exp_03a_PC.metdat.rerun$Treatment.ID)[j],c("Date.time.sample.collected")],
+             Exp_03a_PC.samp.pmol.mL.norm.rerun[i,Exp_03a_PC.metdat.rerun$Treatment.ID==unique(Exp_03a_PC.metdat.rerun$Treatment.ID)[j]],pch=j,col=j)
+    }
+    
+  }
+  
+  title(main = paste0("Exp 3a: ",rownames(Exp_03a_PC.samp.pmol.mL.norm.rerun)[i]))
+  legend(x="topright",
+         legend=unique(Exp_03a_PC.metdat.rerun$Treatment.ID),
          pch=c(1:j),
          col=c(1:j),
          bty="n",
@@ -818,10 +975,10 @@ for (i in 1:nrow(Exp_02a_PC.fl)) { # subset by moiety
   
 }
 
-# Experiment 3a
+# Experiment 3a, initial run
 
 # print name of experiment
-print("Experiment 3a")
+print("Experiment 3a, initial run")
 
 # subset to only first and last timepoint
 
@@ -840,6 +997,37 @@ for (i in 1:nrow(Exp_03a_PC.fl)) { # subset by moiety
   colnames(Exp_03a_PC.fl.subs) = c("Conc_pmol_mL","Treatment")
   
  Exp_03a_PC.fl.subs= Exp_03a_PC.fl.subs[-2,]
+  
+  PC.mod = lm(Conc_pmol_mL ~ Treatment, data = Exp_03a_PC.fl.subs)
+  print(anova(PC.mod))
+  PC.aov = aov(PC.mod)
+  tukey = TukeyHSD(PC.aov)
+  print(tukey)
+  
+}
+
+# Experiment 3a, rerun
+
+# print name of experiment
+print("Experiment 3a, rerun")
+
+# subset to only first and last timepoint
+
+Exp_03a_PC.fl.rerun = Exp_03a_PC.samp.pmol.mL.norm.rerun[,(Exp_03a_PC.metdat.rerun$Date.time.sample.collected %in% unique(Exp_03a_PC.metdat.rerun$Date.time.sample.collected)[c(1,3)])]
+Exp_03a_PC.metdat.fl.rerun = Exp_03a_PC.metdat.rerun[(Exp_03a_PC.metdat.rerun$Date.time.sample.collected %in% unique(Exp_03a_PC.metdat.rerun$Date.time.sample.collected)[c(1,3)]),]
+Exp_03a_PC.metdat.fl.rerun$ttp.ID = paste0(Exp_03a_PC.metdat.fl.rerun$Treatment.ID,"_",Exp_03a_PC.metdat.fl.rerun$Date.time.sample.collected) # create a single treatment-timepoint ID
+
+# create subsets for a given moiety and perform ANOVA, then Tukey HSD 
+
+for (i in 1:nrow(Exp_03a_PC.fl.rerun)) { # subset by moiety
+  
+  print(rownames(Exp_03a_PC.fl.rerun)[i]) # print name of this moiety
+  
+  Exp_03a_PC.fl.subs = as.data.frame(cbind(as.numeric(Exp_03a_PC.fl.rerun[i,]),Exp_03a_PC.metdat.fl.rerun$ttp.ID))
+  Exp_03a_PC.fl.subs$V1 = as.numeric(as.character(Exp_03a_PC.fl.subs$V1))
+  colnames(Exp_03a_PC.fl.subs) = c("Conc_pmol_mL","Treatment")
+  
+  Exp_03a_PC.fl.subs= Exp_03a_PC.fl.subs[-2,]
   
   PC.mod = lm(Conc_pmol_mL ~ Treatment, data = Exp_03a_PC.fl.subs)
   print(anova(PC.mod))
@@ -1021,6 +1209,7 @@ for (i in 1:length(Exp_13_PC.unique.ttps)) {
   
   
 }
+
 
 # bar plots
 
@@ -1735,4 +1924,49 @@ for (i in 1:nrow(Exp_13.ox.sums.fl)) { # subset by moiety
   
 }
 
+##### some basic calculations for Exp_03a
+
+Exp_03a_PC.metdat.rerun$ttp.ID = paste0(Exp_03a_PC.metdat.rerun$Treatment.ID,"_",Exp_03a_PC.metdat.rerun$Date.time.sample.collected) # create a single treatment-timepoint ID
+
+# calculate mean & SD for each set of replicates
+
+# preallocate array
+
+Exp_03a_PC.rerun.unique.ttps = unique(Exp_03a_PC.metdat.rerun$ttp.ID)
+
+Exp_03a_PC.samp.pmol.mL.norm.rerun.mean = matrix(data = NA, 
+                                          nrow = nrow(Exp_03a_PC.samp.pmol.mL.norm.rerun),
+                                          ncol = 3*length(Exp_03a_PC.rerun.unique.ttps)
+)
+
+rownames(Exp_03a_PC.samp.pmol.mL.norm.rerun.mean) = rownames(Exp_03a_PC.samp.pmol.mL.norm.rerun)
+colnames(Exp_03a_PC.samp.pmol.mL.norm.rerun.mean) = rep("",3*length(Exp_03a_PC.rerun.unique.ttps))
+
+# calculate stats, populate array
+
+for (i in 1:length(Exp_03a_PC.rerun.unique.ttps)) {
+  
+  current.data = Exp_03a_PC.samp.pmol.mL.norm.rerun[,Exp_03a_PC.metdat.rerun$ttp.ID==Exp_03a_PC.rerun.unique.ttps[i]]
+  
+  mean.current = apply(current.data,1,mean)
+  sd.current = apply(current.data,1,sd)
+  se.current = sd.current/sqrt(ncol(current.data))
+  
+  # insert into our array
+  
+  Exp_03a_PC.samp.pmol.mL.norm.rerun.mean[,3*i-2] = mean.current
+  Exp_03a_PC.samp.pmol.mL.norm.rerun.mean[,3*i-1] = sd.current
+  Exp_03a_PC.samp.pmol.mL.norm.rerun.mean[,3*i] = se.current
+  
+  # update column labels
+  
+  colnames(Exp_03a_PC.samp.pmol.mL.norm.rerun.mean)[(3*i-2)] =
+    paste0(Exp_03a_PC.rerun.unique.ttps[i],".mean")
+  colnames(Exp_03a_PC.samp.pmol.mL.norm.rerun.mean)[(3*i-1)] =
+    paste0(Exp_03a_PC.rerun.unique.ttps[i],".sd")
+  colnames(Exp_03a_PC.samp.pmol.mL.norm.rerun.mean)[(3*i)] =
+    paste0(Exp_03a_PC.rerun.unique.ttps[i],".se")
+  
+  
+}
   
