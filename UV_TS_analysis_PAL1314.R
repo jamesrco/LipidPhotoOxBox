@@ -782,3 +782,13 @@ mtext(side = 4,
       expression(paste("Cumulative UVB dose received at 0.6 m (kJ ",m^-2,")")))
 
 dev.off()
+
+### pull out JAZ data subset for 2 December 2013 (Exp_03a)
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.02Dec = 
+  PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2[
+    PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT>=
+      as.POSIXct('2013-12-02 11:40:00', tz = "GMT") &  # 8:40 local time
+      PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT<=
+      as.POSIXct('2013-12-02 21:28:00', tz = "GMT") # 18:28 local time
+    ,]
