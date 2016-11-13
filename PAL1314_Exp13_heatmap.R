@@ -19,7 +19,7 @@ library(gplots)
 # note: also need the data frames Exp_13_PC.samp and Exp_13_neg.subset later on
 
 Exp_13_PC.samp.pmol.mL.norm.HM = Exp_13_PC.samp.pmol.mL.norm.mean[,seq(1, 33, 3)]
-Exp_13_FFA.neg.samp.norm.mean.HM = Exp_13_FFA.neg.samp.norm.mean[,seq(1, 33, 3)]
+Exp_13_FFA.neg.samp.pmol.mL.mean.HM = Exp_13_FFA.neg.samp.pmol.mL.mean[,seq(1, 33, 3)]
 Exp_13_LPC.samp.pmol.mL.neg.mean.HM = Exp_13_LPC.samp.pmol.mL.neg.mean[,seq(1, 33, 3)]
 
 # generate some good colnames and rownames for the heatmaps, consistent w/presentation
@@ -43,7 +43,7 @@ colnames(Exp_13_PC.samp.pmol.mL.norm.HM) =
 colnames(Exp_13_PC.samp.pmol.mL.norm.HM) = 
   gsub(c("_2013-12-14 17:50:00.mean"),c(", + 8 h"),colnames(Exp_13_PC.samp.pmol.mL.norm.HM))
 
-colnames(Exp_13_FFA.neg.samp.norm.mean.HM) = colnames(Exp_13_PC.samp.pmol.mL.norm.HM)
+colnames(Exp_13_FFA.neg.samp.pmol.mL.mean.HM) = colnames(Exp_13_PC.samp.pmol.mL.norm.HM)
 colnames(Exp_13_LPC.samp.pmol.mL.neg.mean.HM) = colnames(Exp_13_PC.samp.pmol.mL.norm.HM)
 
 # swap bulk acyl C numbers for more specific notation
@@ -63,8 +63,8 @@ rownames(Exp_13_PC.samp.pmol.mL.norm.HM) = apply(cbind(rownames(Exp_13_PC.samp.p
 rownames(Exp_13_PC.samp.pmol.mL.norm.HM) = apply(cbind(rownames(Exp_13_PC.samp.pmol.mL.norm.HM),rep("min.",13)),1,paste,collapse = " ")
 
 # **** for FFA and LPC, taking a manual shortcut (bad bad bad)
-rownames(Exp_13_FFA.neg.samp.norm.mean.HM) = apply(cbind(rownames(Exp_13_FFA.neg.samp.norm.mean.HM), as.character(round(Exp_13_neg.subset$peakgroup_rt/60,1)[c(2,3,5:9,12:18,20)])),1,paste,collapse = ", RT ")
-rownames(Exp_13_FFA.neg.samp.norm.mean.HM) = apply(cbind(rownames(Exp_13_FFA.neg.samp.norm.mean.HM),rep("min.",15)),1,paste,collapse = " ")
+rownames(Exp_13_FFA.neg.samp.pmol.mL.mean.HM) = apply(cbind(rownames(Exp_13_FFA.neg.samp.pmol.mL.mean.HM), as.character(round(Exp_13_neg.subset$peakgroup_rt/60,1)[c(2,3,5:9,12:18,20)])),1,paste,collapse = ", RT ")
+rownames(Exp_13_FFA.neg.samp.pmol.mL.mean.HM) = apply(cbind(rownames(Exp_13_FFA.neg.samp.pmol.mL.mean.HM),rep("min.",15)),1,paste,collapse = " ")
 
 rownames(Exp_13_LPC.samp.pmol.mL.neg.mean.HM) = apply(cbind(rownames(Exp_13_LPC.samp.pmol.mL.neg.mean.HM), as.character(round(Exp_13_neg.subset$peakgroup_rt/60,1)[c(4,10,11,19)])),1,paste,collapse = ", RT ")
 rownames(Exp_13_LPC.samp.pmol.mL.neg.mean.HM) = apply(cbind(rownames(Exp_13_LPC.samp.pmol.mL.neg.mean.HM),rep("min.",4)),1,paste,collapse = " ")
@@ -72,7 +72,7 @@ rownames(Exp_13_LPC.samp.pmol.mL.neg.mean.HM) = apply(cbind(rownames(Exp_13_LPC.
 # change to matrices
 
 Exp_13_PC.samp.pmol.mL.norm.HM = as.matrix(Exp_13_PC.samp.pmol.mL.norm.HM)
-Exp_13_FFA.neg.samp.norm.mean.HM = as.matrix(Exp_13_FFA.neg.samp.norm.mean.HM)
+Exp_13_FFA.neg.samp.pmol.mL.mean.HM = as.matrix(Exp_13_FFA.neg.samp.pmol.mL.mean.HM)
 Exp_13_LPC.samp.pmol.mL.neg.mean.HM = as.matrix(Exp_13_LPC.samp.pmol.mL.neg.mean.HM)
 
 # # fix NA's and small values
@@ -83,7 +83,7 @@ Exp_13_LPC.samp.pmol.mL.neg.mean.HM = as.matrix(Exp_13_LPC.samp.pmol.mL.neg.mean
 # calculate fold-change relative to initial
 
 Exp_13_PC.samp.pmol.mL.norm.HM.foldchange <- sweep(Exp_13_PC.samp.pmol.mL.norm.HM, 1, Exp_13_PC.samp.pmol.mL.norm.HM[,1], "/")
-Exp_13_FFA.neg.samp.norm.mean.HM.foldchange <- sweep(Exp_13_FFA.neg.samp.norm.mean.HM, 1, Exp_13_FFA.neg.samp.norm.mean.HM[,1], "/")
+Exp_13_FFA.neg.samp.pmol.mL.mean.HM.foldchange <- sweep(Exp_13_FFA.neg.samp.pmol.mL.mean.HM, 1, Exp_13_FFA.neg.samp.pmol.mL.mean.HM[,1], "/")
 Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange <- sweep(Exp_13_LPC.samp.pmol.mL.neg.mean.HM, 1, Exp_13_LPC.samp.pmol.mL.neg.mean.HM[,1], "/")
 
 # # return any initial values (first row) that were originally NA's back to NA's
@@ -93,7 +93,7 @@ Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange <- sweep(Exp_13_LPC.samp.pmol.mL.
 # transform into log2 fold change
 
 Exp_13_PC.samp.pmol.mL.norm.HM.foldchange.log2 <- log2(Exp_13_PC.samp.pmol.mL.norm.HM.foldchange)
-Exp_13_FFA.neg.samp.norm.mean.HM.foldchange.log2 <- log2(Exp_13_FFA.neg.samp.norm.mean.HM.foldchange)
+Exp_13_FFA.neg.samp.pmol.mL.mean.HM.foldchange.log2 <- log2(Exp_13_FFA.neg.samp.pmol.mL.mean.HM.foldchange)
 Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange.log2 <- log2(Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange)
 
 # screenedpeaks_exptmeans.full_PC.byttp.rev <- screenedpeaks_exptmeans.full_PC.byttp[dim(screenedpeaks_exptmeans.full_PC.byttp):1,]
@@ -103,7 +103,7 @@ Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange.log2 <- log2(Exp_13_LPC.samp.pmol
 # first, combine all features into single matrix
 
 Exp_13_features.HM.foldchange.log2 = rbind(Exp_13_PC.samp.pmol.mL.norm.HM.foldchange.log2,
-      Exp_13_FFA.neg.samp.norm.mean.HM.foldchange.log2,
+                                           Exp_13_FFA.neg.samp.pmol.mL.mean.HM.foldchange.log2,
       Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange.log2)
 
 # generate breaks and colors
@@ -148,40 +148,41 @@ Exp_13_features.HM.foldchange.log2.sub226.pvals =
 # manually populate based on Tukey HSD test output from PAL1314_liposome_expts.R
 # will use "1" as not significant indicator
 Exp_13_features.HM.foldchange.log2.sub226.pvals[1,] =
-  c(1,1,1,0.5,1,0.1,1,0.1) # PC 22:6, 22:6
+  c(1,1,1,0.05,1,0.01,1,0.01) # PC 22:6, 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[2,] =
-  c(1,1,1,0.1,1,0.1,1,0.5) # PC 44:12 +2O
+  c(1,1,1,0.01,1,0.01,1,0.05) # PC 44:12 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[3,] =
-  c(1,1,1,0.5,1,0.1,1,1) # PC 44:12 +4O
+  c(1,1,1,0.05,1,0.01,1,1) # PC 44:12 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[4,] =
   c(rep(1,8)) # PC 44:12 +1O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[5,] =
   c(rep(1,8)) # PC 44:12 +3O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[6,] =
-  c(rep(1,8)) # FFA 22:6
+  c(rep(1,8)) # PC 44:12 +3O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[7,] =
-  c(1,1,1,1,1,0.1,1,1) # FFA 22:6 +2O
+  c(rep(1,8)) # FFA 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[8,] =
-  c(1,1,1,1,1,0.5,1,0.1) # FFA 22:6 +3O
+  c(1,1,1,1,1,0.0001,1,0.05) # FFA 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[9,] =
-  c(rep(1,8)) # FFA 22:6 +1O
+  c(1,1,1,1,1,0.05,1,1) # FFA 22:6 +3O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[10,] =
-  c(rep(1,8)) # FFA 22:6 +4O
+  c(1,1,1,1,1,0.01,1,1) # FFA 22:6 +10
 Exp_13_features.HM.foldchange.log2.sub226.pvals[11,] =
-  c(1,1,1,1,1,0.5,1,0.5) # LPC 22:6 +4O
+  c(1,1,1,1,1,0.05,1,0.05) # LPC 22:6 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[12,] =
-  c(1,1,1,0.5,1,0.5,1,0.1) # LPC 22:6 +2O
+  c(1,1,1,0.05,1,0.05,1,0.01) # LPC 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[13,] =
   c(rep(1,8)) # LPC 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[14,] =
-  c(1,1,1,1,1,1,1,0.1) # LPC 22:6 +1O
+  c(1,1,1,1,1,1,1,0.01) # LPC 22:6 +1O
 
 # create a matrix of actual symbols to be plotted
 
 Exp_13_features.HM.sigsymbols = Exp_13_features.HM.foldchange.log2.sub226.pvals
 Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==1]=""
-Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.5]="+"
-Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.1]="*"
+Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.05]="+"
+Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.01]="*"
+Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.0001]="***"
 
 par(oma=c(0,0,0,0)) # set margins
 
