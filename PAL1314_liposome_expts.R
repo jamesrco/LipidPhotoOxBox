@@ -87,7 +87,7 @@ DNPPEstds = DNPPEstds[-c(1,length(DNPPEstds))]
 # fit standard curves using standard data
 
 # necessary vectors 
-PCoc = c(0.246,0.493,0.986,1.971,3.943,7.885,15.770,31.541,63.082,126.163,252.326) # level (pmol o.c.) of PC standards (assuming 20 uL injection, from HFF spreadsheet)
+PCoc = c(0.246,0.493,0.986,1.971,3.943,7.885,15.770,31.541,63.082,126.163,252.326) # level (pmol o.c.) of PC standards (assuming 20 uL injection, from HFF spreadsheet; MGDG at ~ 16k pmol)
 DNPPEoc = c(0.651,1.301,2.603,5.205,10.410,20.820,41.640,83.280,166.561,0.000,0.000) # level (pmol o.c.) of DNPPE standards (assuming 20 uL injection, based on 4k standard at 0.051 mg/mL DNPPE)
 
 # PC
@@ -227,6 +227,46 @@ y = DNPPEstds.neg
 x = DNPPEoc
 linfit_hi.DNPPE.neg = lm(as.numeric(y)~x) # fit other linear model for higher concentrations
 points(DNPPEoc,fitted(linfit_hi.DNPPE.neg),col="blue",pch="+")
+
+# DHA standards, run on 20161109
+# needed for analysis of Exp_13 data
+
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/DHA_Standards_20161109_neg.RData") # load processed data
+DHA_std.raw = getLOBpeaklist(DHA_Standards_20161109_neg) # generate peaklist
+
+# extract only the DHA standards
+DHAstds.neg = DHA_std.raw[DHA_std.raw$compound_name=="FFA 22:6",]
+DHAstds.neg = DHAstds.neg[13:23]
+DHAstds.neg = DHAstds.neg[order(colnames(DHAstds.neg))]
+
+# fit standard curves using standard data
+
+# curve fitting & diagnostics
+
+# calculate levels (pmol o.c.) of DHA standards used (assuming 20 uL injection)
+
+# specify highest concentration standard used 
+DHA_20161109_pmol_mL_highest_pmol_mL = 14323.2
+
+# calculate amount in 20 uL injection
+DHA_20161109_pmol_oc_highest = DHA_20161109_pmol_mL_highest_pmol_mL*.02
+
+# preallocate vector
+DHAoc = rep(NA,11)
+DHAoc[1] = DHA_20161109_pmol_oc_highest
+
+# calculate conc's in serial dilution
+for (i in 2:length((DHAoc))) {
+  DHAoc[i] = DHAoc[i-1]/2
+}
+
+DHAoc = rev(DHAoc)
+
+y = DHAstds.neg
+x = DHAoc
+linfit.DHA.neg = lm(as.numeric(y)~x-1) # fit a linear model, force through origin
+plot(DHAoc,DHAstds.neg,pch="+")
+points(DHAoc,fitted(linfit.DHA.neg),col="red",pch="+")
 
 ### load in & perform initial analysis of experimental data ###
 
@@ -1407,10 +1447,6 @@ legend("topleft",treatments,fill=barcolors,xpd = TRUE) #inset = c(0,-.45))
 
 dev.off()
 
-
-
-
-
 # PC 22:6 +4O
 
 par(oma = c(1, 2, 4, 1))
@@ -1471,16 +1507,16 @@ Exp_13_FFA.neg.samp = Exp_13_FFA.neg[,-c(grep("QC_",colnames(Exp_13_FFA.neg)))]
 Exp_13_LPC.neg.samp = Exp_13_LPC.neg[,-c(grep("QC_",colnames(Exp_13_LPC.neg)))]
 Exp_13_DNPPE.neg.samp = Exp_13_DNPPE.neg[,-c(grep("QC_",colnames(Exp_13_DNPPE.neg)))]
 
-# can't calculate absolute conc's for FFA since didnt run any FFA standards
-# calculate concentrations
+# eliminate bad sample from negative mode data as well
+Exp_13_LPC.neg.samp = Exp_13_LPC.neg.samp[,-c(10)]
+Exp_13_FFA.neg.samp = Exp_13_FFA.neg.samp[,-c(10)]
+Exp_13_DNPPE.neg.samp = Exp_13_DNPPE.neg.samp[,-c(10)]
 
+# pmol o.c.
+
+Exp_13_FFA.neg.samp.pmol_oc = apply(Exp_13_FFA.neg.samp[,2:ncol(Exp_13_FFA.neg.samp)],c(1,2),splitpred,linfit.DHA.neg,linfit.DHA.neg,1e10)
 Exp_13_LPC.neg.samp.pmol_oc = apply(Exp_13_LPC.neg.samp[,2:ncol(Exp_13_LPC.neg.samp)],c(1,2),splitpred,linfit_low.PC.neg,linfit_hi.PC.neg,1e10)
 Exp_13_DNPPE.samp.neg.pmol_oc = apply(Exp_13_DNPPE.neg.samp[,2:ncol(Exp_13_DNPPE.neg.samp)],c(1,2),splitpred,linfit_low.DNPPE.neg,linfit_hi.DNPPE.neg,1.25e9)
-
-# eliminate the bad sample from negative mode data as well
-Exp_13_LPC.neg.samp.pmol_oc = Exp_13_LPC.neg.samp.pmol_oc[,-c(9)]
-Exp_13_DNPPE.samp.neg.pmol_oc = Exp_13_DNPPE.samp.neg.pmol_oc[,-c(9)]
-Exp_13_FFA.neg.samp = Exp_13_FFA.neg.samp[,-c(10)]
 
 # retrieve necessary metadata
 # do.call(rbind.data.frame,...) syntax necessary to prevent coercion of factors to integers (as would happen with unlist())
@@ -1488,33 +1524,34 @@ Exp_13_FFA.neg.samp = Exp_13_FFA.neg.samp[,-c(10)]
 Exp_13_FFA.metdat = do.call(rbind.data.frame,lapply(colnames(Exp_13_FFA.neg.samp),getMetDat,meta.raw,c(2:7,14)))
 Exp_13_FFA.metdat$Date.time.sample.collected = strptime(as.character(Exp_13_FFA.metdat$Date.time.sample.collected),"%m/%d/%y %H:%M")
 
-# scale peak area using DNPPE (recovery standard added at time of extraction)
+# scale peak areas using DNPPE (recovery standard added at time of extraction)
 
-Exp_13_FFA.neg.samp.norm = Exp_13_FFA.neg.samp[,2:33]/t(Exp_13_DNPPE.neg.samp[,2:33])
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_13_FFA.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+Exp_13_DNPPE.samp.RF.neg = DNPPE_pmol_added_per_samp/Exp_13_DNPPE.samp.neg.pmol_oc # recovery factor
 
-DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_13_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
-Exp_13_DNPPE.samp.RF.neg = DNPPE_pmol_added_per_samp/Exp_13_LPC.neg.samp.pmol_oc # recovery factor
-Exp_13_LPC.samp.pmol.total.neg = sweep(Exp_13_LPC.neg.samp.pmol_oc, 2, Exp_13_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
-Exp_13_LPC.samp.pmol.mL.neg = sweep(Exp_13_LPC.samp.pmol.total.neg, 2, Exp_13_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
+Exp_13_LPC.samp.pmol.total.neg = sweep(Exp_13_LPC.neg.samp.pmol_oc, 2, Exp_13_DNPPE.samp.RF.neg, "*") # apply RF to samples, calculate total # pmol each species in given sample
+Exp_13_LPC.samp.pmol.mL.neg = sweep(Exp_13_LPC.samp.pmol.total.neg, 2, Exp_13_FFA.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
 
+Exp_13_FFA.neg.samp.total.neg = sweep(Exp_13_FFA.neg.samp.pmol_oc, 2, Exp_13_DNPPE.samp.RF.neg, "*") # apply RF to samples, calculate total # pmol each species in given sample
+Exp_13_FFA.neg.samp.pmol.mL = sweep(Exp_13_FFA.neg.samp.total.neg, 2, Exp_13_FFA.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
 
 # generate matrices w/summary stats
 
 # for the FFAs
 
-Exp_13_FFA.neg.samp.norm.mean = matrix(data = NA, 
-                                          nrow = nrow(Exp_13_FFA.neg.samp.norm),
+Exp_13_FFA.neg.samp.pmol.mL.mean = matrix(data = NA, 
+                                          nrow = nrow(Exp_13_FFA.neg.samp.pmol.mL),
                                           ncol = 3*length(Exp_13_PC.unique.ttps)
 )
 
-rownames(Exp_13_FFA.neg.samp.norm.mean) = Exp_13_FFA.neg.samp$compound_name
-colnames(Exp_13_FFA.neg.samp.norm.mean) = rep("",3*length(Exp_13_PC.unique.ttps))
+rownames(Exp_13_FFA.neg.samp.pmol.mL.mean) = Exp_13_FFA.neg.samp$compound_name
+colnames(Exp_13_FFA.neg.samp.pmol.mL.mean) = rep("",3*length(Exp_13_PC.unique.ttps))
 
 # calculate stats, populate array
 
 for (i in 1:length(Exp_13_PC.unique.ttps)) {
   
-  current.data = Exp_13_FFA.neg.samp.norm[,Exp_13_PC.metdat$ttp.ID==Exp_13_PC.unique.ttps[i]]
+  current.data = Exp_13_FFA.neg.samp.pmol.mL[,Exp_13_PC.metdat$ttp.ID==Exp_13_PC.unique.ttps[i]]
   
   mean.current = apply(current.data,1,mean)
   sd.current = apply(current.data,1,sd)
@@ -1522,17 +1559,17 @@ for (i in 1:length(Exp_13_PC.unique.ttps)) {
   
   # insert into our array
   
-  Exp_13_FFA.neg.samp.norm.mean[,3*i-2] = mean.current
-  Exp_13_FFA.neg.samp.norm.mean[,3*i-1] = sd.current
-  Exp_13_FFA.neg.samp.norm.mean[,3*i] = se.current
+  Exp_13_FFA.neg.samp.pmol.mL.mean[,3*i-2] = mean.current
+  Exp_13_FFA.neg.samp.pmol.mL.mean[,3*i-1] = sd.current
+  Exp_13_FFA.neg.samp.pmol.mL.mean[,3*i] = se.current
   
   # update column labels
   
-  colnames(Exp_13_FFA.neg.samp.norm.mean)[(3*i-2)] =
+  colnames(Exp_13_FFA.neg.samp.pmol.mL.mean)[(3*i-2)] =
     paste0(Exp_13_PC.unique.ttps[i],".mean")
-  colnames(Exp_13_FFA.neg.samp.norm.mean)[(3*i-1)] =
+  colnames(Exp_13_FFA.neg.samp.pmol.mL.mean)[(3*i-1)] =
     paste0(Exp_13_PC.unique.ttps[i],".sd")
-  colnames(Exp_13_FFA.neg.samp.norm.mean)[(3*i)] =
+  colnames(Exp_13_FFA.neg.samp.pmol.mL.mean)[(3*i)] =
     paste0(Exp_13_PC.unique.ttps[i],".se")
   
   
@@ -1578,20 +1615,20 @@ for (i in 1:length(Exp_13_PC.unique.ttps)) {
 
 # exploratory plots, all FFA data by compound ID
 
-for (i in 1:nrow(Exp_13_FFA.neg.samp.norm)) {
+for (i in 1:nrow(Exp_13_FFA.neg.samp.pmol.mL)) {
   
   for (j in 1:length(unique(Exp_13_FFA.metdat$Treatment.ID))) {
     
     if (j==1) {
       plot(Exp_13_FFA.metdat[Exp_13_FFA.metdat$Treatment.ID==unique(Exp_13_FFA.metdat$Treatment.ID)[j],c("Date.time.sample.collected")],
-           Exp_13_FFA.neg.samp.norm[i,Exp_13_FFA.metdat$Treatment.ID==unique(Exp_13_FFA.metdat$Treatment.ID)[j]],pch=j,col=j,
-           ylab="Normalized peak area",
+           Exp_13_FFA.neg.samp.pmol.mL[i,Exp_13_FFA.metdat$Treatment.ID==unique(Exp_13_FFA.metdat$Treatment.ID)[j]],pch=j,col=j,
+           ylab="pmol/mL",
            xlab="Time",
-           ylim=c(min(Exp_13_FFA.neg.samp.norm[i,]),max(Exp_13_FFA.neg.samp.norm[i,]))
+           ylim=c(min(Exp_13_FFA.neg.samp.pmol.mL[i,]),max(Exp_13_FFA.neg.samp.pmol.mL[i,]))
       )
     }  else {
       points(Exp_13_FFA.metdat[Exp_13_FFA.metdat$Treatment.ID==unique(Exp_13_FFA.metdat$Treatment.ID)[j],c("Date.time.sample.collected")],
-             Exp_13_FFA.neg.samp.norm[i,Exp_13_FFA.metdat$Treatment.ID==unique(Exp_13_FFA.metdat$Treatment.ID)[j]],pch=j,col=j)
+             Exp_13_FFA.neg.samp.pmol.mL[i,Exp_13_FFA.metdat$Treatment.ID==unique(Exp_13_FFA.metdat$Treatment.ID)[j]],pch=j,col=j)
     }
     
   }
@@ -1614,7 +1651,7 @@ print("Experiment 13 - Negative Ion Mode")
 
 # subset to only first and last timepoint
 
-Exp_13_FFA.neg.fl = Exp_13_FFA.neg.samp.norm[,(Exp_13_FFA.metdat$Date.time.sample.collected %in% unique(Exp_13_FFA.metdat$Date.time.sample.collected)[c(1,3)])]
+Exp_13_FFA.neg.fl = Exp_13_FFA.neg.samp.pmol.mL[,(Exp_13_FFA.metdat$Date.time.sample.collected %in% unique(Exp_13_FFA.metdat$Date.time.sample.collected)[c(1,3)])]
 Exp_13_FFA.neg.metdat.fl = Exp_13_FFA.metdat[(Exp_13_FFA.metdat$Date.time.sample.collected %in% unique(Exp_13_FFA.metdat$Date.time.sample.collected)[c(1,3)]),]
 Exp_13_FFA.neg.metdat.fl$ttp.ID = paste0(Exp_13_FFA.neg.metdat.fl$Treatment.ID,"_",Exp_13_FFA.neg.metdat.fl$Date.time.sample.collected) # create a single treatment-timepoint ID
 
@@ -1638,9 +1675,9 @@ for (i in 1:nrow(Exp_13_FFA.neg.fl)) { # subset by moiety
   
   Exp_13_FFA.neg.fl.subs = as.data.frame(cbind(as.numeric(Exp_13_FFA.neg.fl[i,]),Exp_13_FFA.neg.metdat.fl$ttp.ID))
   Exp_13_FFA.neg.fl.subs$V1 = as.numeric(as.character(Exp_13_FFA.neg.fl.subs$V1))
-  colnames(Exp_13_FFA.neg.fl.subs) = c("Normalized_peak_area","Treatment")
+  colnames(Exp_13_FFA.neg.fl.subs) = c("Conc_pmol_mL","Treatment")
   
-  FFA.mod = lm(Normalized_peak_area ~ Treatment, data = Exp_13_FFA.neg.fl.subs)
+  FFA.mod = lm(Conc_pmol_mL ~ Treatment, data = Exp_13_FFA.neg.fl.subs)
   print(anova(FFA.mod))
   FFA.aov = aov(FFA.mod)
   tukey = TukeyHSD(FFA.aov, conf.level = 0.95, "Treatment")
@@ -1649,31 +1686,31 @@ for (i in 1:nrow(Exp_13_FFA.neg.fl)) { # subset by moiety
   
   # calculate & display mean differences ± SD for selected treatment pairs
   
-  xbar_init = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
-  sd_init = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
-  se_init = sd_init/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"]))
+  xbar_init = mean(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  sd_init = sd(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"])
+  se_init = sd_init/sqrt(length(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Dark_control_2013-12-14 09:30:00"]))
   
-  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
-  sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
-  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"]))
+  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_no_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("+ UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
-  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
-  sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
-  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
+  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("- UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
   
-  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
-  sd_final = sd(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
-  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Normalized_peak_area[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
+  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  sd_final = sd(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
   
   delta = xbar_final-xbar_init
   uncert = sqrt(se_final^2 + se_init^2)
