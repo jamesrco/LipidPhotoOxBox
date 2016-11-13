@@ -792,3 +792,8 @@ PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.02Dec =
       PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT<=
       as.POSIXct('2013-12-02 21:28:00', tz = "GMT") # 18:28 local time
     ,]
+
+# ... and create a vector of times in seconds, with t = 0 being timepoint at beginning of experiment
+
+Exp03a_timeint.s = as.numeric(rev(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.02Dec$Timestamp_GMT[nrow(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.02Dec)]-
+                                   PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.02Dec$Timestamp_GMT))
