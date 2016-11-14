@@ -164,17 +164,17 @@ Exp_13_features.HM.foldchange.log2.sub226.pvals[7,] =
 Exp_13_features.HM.foldchange.log2.sub226.pvals[8,] =
   c(1,1,1,1,1,0.0001,1,0.05) # FFA 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[9,] =
-  c(1,1,1,1,1,0.05,1,1) # FFA 22:6 +3O
+  c(1,1,1,1,1,0.0001,1,1) # FFA 22:6 +3O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[10,] =
   c(1,1,1,1,1,0.01,1,1) # FFA 22:6 +10
 Exp_13_features.HM.foldchange.log2.sub226.pvals[11,] =
-  c(1,1,1,1,1,0.05,1,0.05) # LPC 22:6 +4O
+  c(1,1,1,1,1,0.001,1,1) # LPC 22:6 +4O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[12,] =
-  c(1,1,1,0.05,1,0.05,1,0.01) # LPC 22:6 +2O
+  c(1,1,1,0.05,1,0.001,1,0.05) # LPC 22:6 +2O
 Exp_13_features.HM.foldchange.log2.sub226.pvals[13,] =
-  c(rep(1,8)) # LPC 22:6
+  c(1,1,1,1,1,0.05,1,1) # LPC 22:6
 Exp_13_features.HM.foldchange.log2.sub226.pvals[14,] =
-  c(1,1,1,1,1,1,1,0.01) # LPC 22:6 +1O
+  c(1,1,1,1,1,0.01,1,1) # LPC 22:6 +1O
 
 # create a matrix of actual symbols to be plotted
 
