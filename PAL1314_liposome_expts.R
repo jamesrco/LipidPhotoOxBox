@@ -13,9 +13,9 @@ library(chemCal)
 
 # set wd
 
-### load some necessary metadata; define functions ###
-
 setwd("/Users/jrcollins/Code/LipidPhotoOxBox/")
+
+### load some necessary metadata; define functions ###
 
 # load in metadata
 
