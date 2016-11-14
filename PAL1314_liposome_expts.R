@@ -23,7 +23,8 @@ meta.raw = read.csv("Exactive data - PAL 1314 and LMG1401 samples.csv")
 
 # some chemical data
 
-DNPPE_mg_mL = 0.0565 # concentration DNPPE used for PAL1314 Antarctic work, mg/mL
+DNPPE_mg_mL_1314 = 0.0565 # concentration DNPPE used in liquid/liquid extractions
+# during  PAL1314 Antarctic work, mg/mL
 DNPPE_MW = 875.081 # MW DNPPE, g/mol
 
 # define a two-step function "splitpred" to compute pmol o.c. from raw values for PC and DNPPE, using one of two linear standard curves depending on magnitude of concentration (defined by cutoff value)
@@ -88,7 +89,7 @@ DNPPEstds = DNPPEstds[-c(1,length(DNPPEstds))]
 
 # necessary vectors 
 PCoc = c(0.246,0.493,0.986,1.971,3.943,7.885,15.770,31.541,63.082,126.163,252.326) # level (pmol o.c.) of PC standards (assuming 20 uL injection, from HFF spreadsheet; MGDG at ~ 16k pmol)
-DNPPEoc = c(0.651,1.301,2.603,5.205,10.410,20.820,41.640,83.280,166.561,0.000,0.000) # level (pmol o.c.) of DNPPE standards (assuming 20 uL injection, based on 4k standard at 0.051 mg/mL DNPPE)
+DNPPEoc_20160331 = c(0.4553,0.9106,1.8212,3.6425,7.285,14.570,29.14025,58.2805,116.561,0.000,0.000) # level (pmol o.c.) of DNPPE standards (assuming 20 uL injection, based on 4k standard at 0.051 mg/mL DNPPE; this is DNPPE conc. from aliquots dated 3/31/16) 
 
 # PC
 
@@ -111,15 +112,15 @@ points(PCoc,fitted(linfit_hi.PC),col="blue",pch="+")
 # curve fitting & diagnostics
 
 y = DNPPEstds[1:7]
-x = DNPPEoc[1:7]
+x = DNPPEoc_20160331[1:7]
 linfit_low.DNPPE = lm(as.numeric(y)~x) # fit a first linear model for the first 7 standard levels
-plot(DNPPEoc,DNPPEstds,pch="+")
-points(DNPPEoc[1:7],fitted(linfit_low.DNPPE),col="red",pch="+")
+plot(DNPPEoc_20160331,DNPPEstds,pch="+")
+points(DNPPEoc_20160331[1:7],fitted(linfit_low.DNPPE),col="red",pch="+")
 
 y = DNPPEstds
-x = DNPPEoc
+x = DNPPEoc_20160331
 linfit_hi.DNPPE = lm(as.numeric(y)~x) # fit other linear model for higher concentrations
-points(DNPPEoc,fitted(linfit_hi.DNPPE),col="blue",pch="+")
+points(DNPPEoc_20160331,fitted(linfit_hi.DNPPE),col="blue",pch="+")
 
 # second set of standards, from 20161107 (needed for reanalysis of Exp_03a, and
 # analysis of particulate environmental data)
@@ -164,15 +165,15 @@ points(PCoc,fitted(linfit_hi.PC.20161107),col="blue",pch="+")
 # curve fitting & diagnostics
 
 y = DNPPEstds.20161107[1:7]
-x = DNPPEoc[1:7]
+x = DNPPEoc_20160331[1:7]
 linfit_low.DNPPE.20161107 = lm(as.numeric(y)~x) # fit a first linear model for the first 7 standard levels
-plot(DNPPEoc,DNPPEstds.20161107,pch="+")
-points(DNPPEoc[1:7],fitted(linfit_low.DNPPE.20161107),col="red",pch="+")
+plot(DNPPEoc_20160331,DNPPEstds.20161107,pch="+")
+points(DNPPEoc_20160331[1:7],fitted(linfit_low.DNPPE.20161107),col="red",pch="+")
 
 y = DNPPEstds.20161107
-x = DNPPEoc
+x = DNPPEoc_20160331
 linfit_hi.DNPPE.20161107 = lm(as.numeric(y)~x) # fit other linear model for higher concentrations
-points(DNPPEoc,fitted(linfit_hi.DNPPE.20161107),col="blue",pch="+")
+points(DNPPEoc_20160331,fitted(linfit_hi.DNPPE.20161107),col="blue",pch="+")
 
 ### - mode standards  ###
 
@@ -218,15 +219,15 @@ points(PCoc,fitted(linfit_hi.PC.neg),col="blue",pch="+")
 # curve fitting & diagnostics
 
 y = DNPPEstds.neg[1:7]
-x = DNPPEoc[1:7]
+x = DNPPEoc_20160331[1:7]
 linfit_low.DNPPE.neg = lm(as.numeric(y)~x) # fit a first linear model for the first 7 standard levels
-plot(DNPPEoc,DNPPEstds.neg,pch="+")
-points(DNPPEoc[1:7],fitted(linfit_low.DNPPE.neg),col="red",pch="+")
+plot(DNPPEoc_20160331,DNPPEstds.neg,pch="+")
+points(DNPPEoc_20160331[1:7],fitted(linfit_low.DNPPE.neg),col="red",pch="+")
 
 y = DNPPEstds.neg
-x = DNPPEoc
+x = DNPPEoc_20160331
 linfit_hi.DNPPE.neg = lm(as.numeric(y)~x) # fit other linear model for higher concentrations
-points(DNPPEoc,fitted(linfit_hi.DNPPE.neg),col="blue",pch="+")
+points(DNPPEoc_20160331,fitted(linfit_hi.DNPPE.neg),col="blue",pch="+")
 
 # DHA standards, run on 20161109
 # needed for analysis of Exp_13 data
@@ -1157,8 +1158,9 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("+ UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
-  xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  cat("+ UVB, - HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+
+    xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
   
@@ -1166,8 +1168,9 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("- UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
-  xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  cat("- UVB, - HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+
+    xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
 
@@ -1175,8 +1178,9 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("+ UVB, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
-  xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"])
+  cat("+ UVB, + HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+
+    xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_no_HB_2013-12-14 17:50:00"]))
 
@@ -1184,8 +1188,9 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("dark control, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
-  xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"])
+  cat("dark control, - HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+
+    xbar_final = mean(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_PC.fl.subs$Conc_pmol_mL[Exp_13_PC.fl.subs$Treatment=="Dark_control_plus_HB_2013-12-14 17:50:00"]))
 
@@ -1193,8 +1198,9 @@ for (i in 1:nrow(Exp_13_PC.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("dark control, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n\n")
-  
-}
+  cat("dark control, + HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n\n")
+
+  }
 
 # add'l plots for Exp't 13
 
@@ -1698,7 +1704,8 @@ for (i in 1:nrow(Exp_13_FFA.neg.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("+ UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
+  cat("+ UVB, - HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+    
   xbar_final = mean(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
@@ -1707,8 +1714,9 @@ for (i in 1:nrow(Exp_13_FFA.neg.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("- UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
-  xbar_final = mean(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  cat("- UVB, - HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+
+    xbar_final = mean(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_FFA.neg.fl.subs$Conc_pmol_mL[Exp_13_FFA.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
   
@@ -1716,8 +1724,9 @@ for (i in 1:nrow(Exp_13_FFA.neg.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("+ UVB, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n\n")
+  cat("+ UVB, + HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n\n")
 
-}
+  }
 
 
 for (i in 1:nrow(Exp_13_LPC.neg.fl)) { # subset by moiety
@@ -1748,8 +1757,9 @@ for (i in 1:nrow(Exp_13_LPC.neg.fl)) { # subset by moiety
   uncert = sqrt(se_final^2 + se_init^2)
   
   cat("+ UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
-  xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
+  cat("+ UVB, - HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+
+    xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="EPA_no_HB_2013-12-14 17:50:00"]))
 
@@ -1757,8 +1767,9 @@ for (i in 1:nrow(Exp_13_LPC.neg.fl)) { # subset by moiety
     uncert = sqrt(se_final^2 + se_init^2)
     
   cat("- UVB, - HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
-  
-  xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
+  cat("- UVB, - HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n")
+
+    xbar_final = mean(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   sd_final = sd(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"])
   se_final = sd_final/sqrt(length(Exp_13_LPC.neg.fl.subs$Conc_pmol_mL[Exp_13_LPC.neg.fl.subs$Treatment=="Quartz_plus_HB_2013-12-14 17:50:00"]))
 
@@ -1766,6 +1777,7 @@ for (i in 1:nrow(Exp_13_LPC.neg.fl)) { # subset by moiety
     uncert = sqrt(se_final^2 + se_init^2)
     
   cat("+ UVB, + HB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n\n")
+  cat("+ UVB, + HB rate, pmol per mL per hr, mean ± uncertainty: ",delta/8.2," ± ",uncert/8.2,"\n\n")
   
 }
 
