@@ -63,10 +63,14 @@ getMetDat = function(fn,metadat.raw,whichdat) {
 
 ### + mode standards  ###
 
-# standards from 20161107, for PAL1314 particulate data
+### standards from 20161107  ###
+
+# QE003063-QE003073
+
+# standards from 20161107, for PAL1314 & LMG1401 particulate data
 # these didn't include any betaine standards
 
-load("data/nice/Orbi_MS_data/LOBSTAHS_processed/6IPL_Standards_20161107_pos.RData") # load processed data
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/6IPL_Standards_20161107_pos.RData") # load processed standard data
 IPLstd_pos_20161107.raw = getLOBpeaklist(x6IPL_Standards_20161107_pos) # generate peaklist
 
 # extract standards for each species, and DNPPE
@@ -276,3 +280,39 @@ points(rev(Stds_20161107_oc$pmol_oc_DNPPE)[1:9],fitted(polyfit_low.DNPPE.2016110
 
 polyfit_hi.DNPPE.20161107 = polyfit_low.DNPPE.20161107
 DNPPE_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DNPPE",8]
+
+### standards from 20160421  ###
+
+# QE001265-QE001276
+
+# maybe not needed for environmental samples
+# these were really run for the main batch of the liposome experiment data
+
+### standards from 20161005  ###
+
+# QE002850-QE002859
+
+# these were the closest set of standards (temporally) to PAL1314 and LMG1401 
+# dissolved phase environmental samples, the Marchetti Antarctic diatom extracts,
+# the KM1605 UV-ox experiment, and all the PAL1516 particulate samples, including
+# all SPE prefilters
+
+# these standards contain DGTS/DGTA, but the DGTS/DGTA has a crazy low response factor
+# also don't know exact concentration of DGTS/DGTA... must check w Helen
+
+# Kevin Becker also ran TAG standards for these around the same time, will use these later
+# TAG standards are QE002840-QE002847
+
+
+
+### pull in data ####
+
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples.RData")
+PAL1314_LMG1401_0.2um_enviro_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_enviro_samples_pos) # generate peaklist
+
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_dissolved_phase_enviro_samples,Marchetti_diatom_cultures_particulate.20161029.RData")
+PAL1314_LMG1401_dissolved_pos = getLOBpeaklist(Pooled_environmental_samples_20161029) # generate peaklist
+
+# split this one into two data frames
+
+Marchetti_diatom_cultures_pos = 
