@@ -11,6 +11,7 @@
 
 library(LOBSTAHS)
 library(chemCal)
+library(stats)
 
 # set wd
 
@@ -22,6 +23,8 @@ setwd("/Users/jrcollins/Code/LipidPhotoOxBox/")
 
 DNPPE_mg_mL_1314 = 0.0565 # concentration DNPPE added in liquid/liquid extractions
 # during PAL1314 Antarctic work, mg/mL
+DNPPE_mg_mL_BD_extracts_2016 = 0.051 # concentration of the DNPPE added during B&D extractions
+# in Van Mooy Lab in 2016
 DNPPE_MW = 875.081 # MW DNPPE, g/mol
 
 # define a two-step function "splitpred" to compute pmol o.c. from raw values for PC and DNPPE, using one of two linear standard curves depending on magnitude of concentration (defined by cutoff value)
@@ -297,8 +300,10 @@ DNPPE_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20
 # the KM1605 UV-ox experiment, and all the PAL1516 particulate samples, including
 # all SPE prefilters
 
-# these standards contain DGTS/DGTA, but the DGTS/DGTA has a crazy low response factor
-# also don't know exact concentration of DGTS/DGTA... must check w Helen
+# these standards contain DGTS 16:0, 16:0 (from Avanti), but the DGTS has a
+# crazy low response factor
+# per HFF, DGTS was added to 4000 pmol/mL MGDG standard to achieve 4000 pmol/mL
+# concentration 
 
 # Kevin Becker also ran TAG standards around the same time, will use them later
 # TAG standards are QE002840-QE002847
@@ -333,24 +338,24 @@ Std_peakareas.20161005 = Std_peakareas.20161005[,-c(ncol(Std_peakareas.20161005)
 # DNPPE: 4k standard at 0.051 mg/mL
 # MGDG: 8k pmol/mL in highest concentration standard
 
-# create df, populate first row (and row 2, for DNPPE)
+# create df, populate first row (and row 2, for DNPPE and DGTS)
 Stds_20161005_oc = as.data.frame(matrix(NA,10,9))
 colnames(Stds_20161005_oc) = c("pmol_mL_MGDG","pmol_oc_PG","pmol_oc_PE",
                                "pmol_oc_PC","pmol_oc_MGDG","pmol_oc_SQDG",
-                               "pmol_oc_DGDG","pmol_oc_DNPPE","pmol_oc_DGTS_DGTA")
-Stds_20161005_oc[1,] = c(8000,125.0650,126.1630,126.1630,159.4195,250.8130,127.0895,0.000,125)
-# 125 for DGTS/A is a placeholder right now; need to confirm w/Helen
+                               "pmol_oc_DGDG","pmol_oc_DNPPE","pmol_oc_DGTS")
+Stds_20161005_oc[1,] = c(8000,125.0650,126.1630,126.1630,159.4195,250.8130,127.0895,0.000,0.000)
 
 Stds_20161005_oc$pmol_oc_DNPPE[2] = c(116.56)
+Stds_20161005_oc$pmol_oc_DGTS[2] = c(79.7097500)
 
 # fill out the rest of the matrix
 for (i in 2:nrow(Stds_20161005_oc)) {
   
-  Stds_20161005_oc[i,c(1:7,9)] = Stds_20161005_oc[i-1,c(1:7,9)]/2
+  Stds_20161005_oc[i,c(1:7)] = Stds_20161005_oc[i-1,c(1:7)]/2
   
   if (i>2) {
     
-    Stds_20161005_oc[i,8] = Stds_20161005_oc[i-1,8]/2
+    Stds_20161005_oc[i,8:9] = Stds_20161005_oc[i-1,8:9]/2
     
   }
   
@@ -369,7 +374,7 @@ y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PG 32:0",c(1:7)]
 #x = 8*(1-exp(-0.008*rev(Stds_20161005_oc$pmol_oc_PG)[c(1:8,10)])^1)
 x = rev(Stds_20161005_oc$pmol_oc_PG)[c(1:7)]
 
-linfit_low.PG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.PG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_PG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PG 32:0",],
      pch="+",
@@ -393,7 +398,7 @@ PG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PE 32:0",c(1:8)]
 x = rev(Stds_20161005_oc$pmol_oc_PE)[c(1:8)]
-linfit_low.PE.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.PE.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_PE),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PE 32:0",],
      pch="+",
@@ -415,21 +420,25 @@ PE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 # curve fitting & diagnostics
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",c(1:8,10)]
-x = rev(Stds_20161005_oc$pmol_oc_PC)[c(1:8,10)]
-linfit_low.PC.20161005 = lm(as.numeric(y)~x) # fit a linear model for the entire range,
+y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",c(1:8)]
+x = rev(Stds_20161005_oc$pmol_oc_PC)[c(1:8)]
+linfit_low.PC.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the entire range,
 # while skipping the 9th standard because something was wonky with it
 plot(rev(Stds_20161005_oc$pmol_oc_PC),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",],
      pch="+",
      ylab = "Peak area, PC 32:0",
      xlab = "pmol o.c., PC 32:0")
-points(rev(Stds_20161005_oc$pmol_oc_PC)[c(1:8,10)],fitted(linfit_low.PC.20161005),col="red",pch="+")
+points(rev(Stds_20161005_oc$pmol_oc_PC)[c(1:8)],fitted(linfit_low.PC.20161005),col="red",pch="+")
 
-# can define the high-range curve to be the same as the low-range curve, in this case
+# high range
 
-linfit_hi.PC.20161005 = linfit_low.PC.20161005
-PC_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",9]
+y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",c(8,10)]
+x = rev(Stds_20161005_oc$pmol_oc_PC)[c(8,10)]
+linfit_hi.PC.20161005 = lm(as.numeric(y)~x)
+points(rev(Stds_20161005_oc$pmol_oc_PC)[c(8,10)],fitted(linfit_hi.PC.20161005),col="blue",pch="+")
+
+PC_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",8]
 
 # MGDG
 
@@ -437,7 +446,7 @@ PC_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",1:8]
 x = rev(Stds_20161005_oc$pmol_oc_MGDG)[1:8]
-linfit_low.MGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 10 standard levels
+linfit_low.MGDG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_MGDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",],
      pch="+",
@@ -458,22 +467,42 @@ MGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 # curve fitting & diagnostics
 # something appears to be very weird with the SQDG in these standards
-# will generate one linear curve while ommitting the 8th and 9th points
+# will generate one curve while ommitting the 8th and 9th points
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(1:7,10)]
-x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)]
-linfit_low.SQDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+# x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)]
+x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)]*1/(4 + (rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)])*.01)
+hyperfit_low.SQDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_SQDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",],
      pch="+",
      ylab = "Peak area, SQDG 34:3",
      xlab = "pmol o.c., SQDG 34:3")
-points(rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)],fitted(linfit_low.SQDG.20161005),col="red",pch="+")
+points(rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)],fitted(hyperfit_low.SQDG.20161005),col="red",pch="+")
 
 # can define the high-range curve to be the same as the low-range curve, in this case
 
-linfit_hi.SQDG.20161005 = linfit_low.SQDG.20161005
+hyperfit_hi.SQDG.20161005 = hyperfit_low.SQDG.20161005
 SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",9]
+
+# xhat=c((4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(1)])[c("Prediction")]))/
+#          (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(1)])[c("Prediction")])*0.01),
+#        (4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(2)])[c("Prediction")]))/
+#          (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(3)])[c("Prediction")])*0.01),
+#        (4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(3)])[c("Prediction")]))/
+#          (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(3)])[c("Prediction")])*0.01),
+#        (4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(4)])[c("Prediction")]))/
+#          (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(4)])[c("Prediction")])*0.01),
+#        (4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(5)])[c("Prediction")]))/
+#          (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(5)])[c("Prediction")])*0.01),
+#        (4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(6)])[c("Prediction")]))/
+#          (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(6)])[c("Prediction")])*0.01),
+#        (4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(7)])[c("Prediction")]))/
+#          (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(7)])[c("Prediction")])*0.01),
+# (4*as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(10)])[c("Prediction")]))/
+#   (1-as.numeric(inverse.predict(hyperfit_low.SQDG.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(10)])[c("Prediction")])*0.01))
+
+# points(xhat,fitted(hyperfit_low.SQDG.20161005),col="green",pch="o")
 
 # DGDG
 
@@ -481,7 +510,7 @@ SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 # just need one curve here, as long as we omit the second-highest level
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",c(1:8,10)]
-x = 1/(4 + (rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8,10)])*.01)
+x = rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8,10)]*1/(4 + (rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8,10)])*.01)
 hyperfit_low.DGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",],
@@ -503,7 +532,7 @@ DGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DNPPE",c(1:7,9)]
 x = rev(Stds_20161005_oc$pmol_oc_DNPPE)[c(1:7,9)]
-linfit_low.DNPPE.20161005 = lm(as.numeric(y)~x) # fit a first-degee inverse polynomial model
+linfit_low.DNPPE.20161005 = lm(as.numeric(y)~x-1) # fit a first-degee inverse polynomial model
 plot(rev(Stds_20161005_oc$pmol_oc_DNPPE),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DNPPE",],
      pch="+",
@@ -517,37 +546,216 @@ points(rev(Stds_20161005_oc$pmol_oc_DNPPE)[c(1:7,9)],fitted(linfit_low.DNPPE.201
 linfit_hi.DNPPE.20161005= linfit_low.DNPPE.20161005
 DNPPE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DNPPE",8]
 
-# DGTS & A
+# DGTS
 
 # curve fitting & diagnostics
-# will fit a linear curve to first 8 points; hard to tell what's going on at
-# greater concentrations
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(1:8)]
-x = rev(Stds_20161005_oc$pmol_oc_DGTS_DGTA)[c(1:8)]
-linfit_low.DGTS_DGTA.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
-plot(rev(Stds_20161005_oc$pmol_oc_DGTS_DGTA),
+y = as.numeric(Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(1:9)])
+x = rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:9)]
+
+expfit_low.DGTS_DGTA.20161005 = lm(y ~ exp(0.02*x)) # fit a model for the first 9 standard levels
+plot(rev(Stds_20161005_oc$pmol_oc_DGTS),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",],
      pch="+",
      ylab = "Peak area, DGTS_DGTA 32:0",
      xlab = "pmol o.c., DGTS_DGTA 32:0")
-points(rev(Stds_20161005_oc$pmol_oc_DGTS_DGTA)[c(1:8)],fitted(linfit_low.DGTS_DGTA.20161005),col="red",pch="+")
+points(rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:9)],fitted(expfit_low.DGTS_DGTA.20161005),col="red",pch="+")
 
-# will define the high-range curve for now as "NA," so we don't accidentally
-# invoke it outside of its known linear range 
+# can define the high-range curve to be the same as the low-range curve, in this case
 
-linfit_hi.DGTS_DGTA.20161005 = NA
+expfit_hi.DGTS_DGTA.20161005 = expfit_low.DGTS_DGTA.20161005
 DGTS_DGTA_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",8]
+# 
+# xhat=c(log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(1)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(2)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(3)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(4)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(5)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(6)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(7)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(8)])[c("Prediction")]))/.02,
+#        log(as.numeric(inverse.predict(expfit_low.DGTS_DGTA.20161005,Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(9)])[c("Prediction")]))/.02)
+# 
+# points(xhat,fitted(expfit_low.DGTS_DGTA.20161005),col="green",pch="o")
 
 ### pull in data ####
 
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples.RData")
 PAL1314_LMG1401_0.2um_enviro_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_enviro_samples_pos) # generate peaklist
 
-load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_dissolved_phase_enviro_samples,Marchetti_diatom_cultures_particulate.20161029.RData")
-PAL1314_LMG1401_dissolved_pos = getLOBpeaklist(Pooled_environmental_samples_20161029) # generate peaklist
+??
 
-# split this one into two data frames, since it really contains two data sets
-Marchetti_diatom_cultures_pos = PAL1314_LMG1401_dissolved_pos[,15:21]
-PAL1314_LMG1401_dissolved_pos = PAL1314_LMG1401_dissolved_pos[,-c(15:21)]
+### Marchetti diatom cultures ####
 
+# will use the 20161005 standards
+
+# extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
+
+Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos[
+  (Marchetti_diatom_cultures_pos$lipid_class %in% c("IP_DAG","DNPPE") & 
+     Marchetti_diatom_cultures_pos$degree_oxidation==0),]
+
+# convert anything < 1e6 intensity to NA, assuming it's either noise
+# or something so low in concentraton as to be irrelevant from a total lipid
+# perspective
+
+Marchetti_diatom_cultures_pos.unox_IPL[,12:18] =
+  replace(Marchetti_diatom_cultures_pos.unox_IPL[,12:18],
+          Marchetti_diatom_cultures_pos.unox_IPL[,12:18]<1000000,
+          NA)
+
+# get rid of DGCC data since we don't have any standards for these right now
+
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC = Marchetti_diatom_cultures_pos.unox_IPL[
+  Marchetti_diatom_cultures_pos.unox_IPL$species!="DGCC",]
+
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC
+
+# define classes for which concentrations are to be calculated, the models, and
+# the cutoffs in case of split prediction
+
+Marchetti_diatom.conc_classes = as.data.frame(matrix(NA,8,4))
+colnames(Marchetti_diatom.conc_classes) =
+  c("Lipid_class","Model.low","Model.hi","Cutoff_PA")
+
+Marchetti_diatom.conc_classes[,1] =
+  c("PG","PE","PC","MGDG","SQDG","DGDG","DGTS_DGTA","DNPPE")
+
+Marchetti_diatom.conc_classes[,2] =
+  c("linfit_low.PG.20161005","linfit_low.PE.20161005","linfit_low.PC.20161005",
+    "linfit_low.MGDG.20161005","hyperfit_low.SQDG.20161005",
+    "hyperfit_low.DGDG.20161005","expfit_low.DGTS_DGTA.20161005",
+    "linfit_low.DNPPE.20161005")
+
+Marchetti_diatom.conc_classes[,3] =
+  c("linfit_hi.PG.20161005","linfit_hi.PE.20161005","linfit_hi.PC.20161005",
+    "linfit_hi.MGDG.20161005","hyperfit_hi.SQDG.20161005",
+    "hyperfit_hi.DGDG.20161005","expfit_hi.DGTS_DGTA.20161005",
+    "linfit_hi.DNPPE.20161005")
+
+Marchetti_diatom.conc_classes[,4] =
+c(PG_std_breakpoint.20161005,PE_std_breakpoint.20161005,PC_std_breakpoint.20161005,
+MGDG_std_breakpoint.20161005,SQDG_std_breakpoint.20161005,DGDG_std_breakpoint.20161005,
+DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161005)
+
+# first, calculate pmol o.c.
+# preallocate matrix for result
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC
+
+# calculate for each lipid class, using appropriate standard curve
+
+for (i in 1:nrow(Marchetti_diatom.conc_classes)) {
+  
+  # first, calculate pmol o.c.
+  
+  pmol.oc.thisclass =
+    apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
+      Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
+        Marchetti_diatom.conc_classes$Lipid_class[i],12:18],c(1,2),splitpred,
+      eval(parse(text = Marchetti_diatom.conc_classes$Model.low[i])),
+      eval(parse(text = Marchetti_diatom.conc_classes$Model.hi[i])),
+      Marchetti_diatom.conc_classes$Cutoff_PA[i])
+  
+  # further treatment will vary, depending on whether we fitted a linear curve or not
+  
+  if (grepl("hyperfit*",Marchetti_diatom.conc_classes$Model.low[i])) {
+    
+    pmol.oc.thisclass = (4*pmol.oc.thisclass)/(1-pmol.oc.thisclass*0.01)
+    
+  } else if (grepl("expfit*",Marchetti_diatom.conc_classes$Model.low[i])) {
+    
+    pmol.oc.thisclass = log(pmol.oc.thisclass)/0.02
+    
+  }
+  
+  # store result as appropriate
+  
+  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
+    Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
+      Marchetti_diatom.conc_classes$Lipid_class[i],12:18] = pmol.oc.thisclass
+  
+}
+  
+# now, scale pmol o.c. to pmol per sample using DNPPE (recovery standard added at time of extraction)
+
+DNPPE_BD_Marchetti_diatoms_uL = 20 # amount DNPPE added per sample in uL, per VML B&D protocol
+
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_BD_extracts_2016*(1/DNPPE_MW)*(10^9)*(1/10^3)*DNPPE_BD_Marchetti_diatoms_uL
+
+Marchetti_diatom_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
+  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$compound_name=="DNPPE",12:18]  # recovery factor
+
+# create final results data frame
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18] = sweep(as.matrix(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18]), 2, as.numeric(Marchetti_diatom_DNPPE.samp.RF), "*") # apply RF to samples, calculate total # pmol each species in given sample
+
+# need to simplify the dataset a bit and do some QA
+
+# reduce features with abundance < 50 pmol to NA, at least in the first 5 cultures; this criterion still retains >95% of all mass in these species
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:16] =
+  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:16],
+          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:16]<50,
+          NA)
+
+# need to be a little less restrictive with the Thalassiosira cultures, since
+# thr 50 pmol cutoff would eliminate ~ 1/3 of all peak area
+# for these, can use a cutoff of 15 pmol to retain >95% of all mass
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,17:18] =
+  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,17:18],
+          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,17:18]<15,
+          NA)
+
+# now remove elements for which there is no data in any sample (includes elements
+# just reduced to NA)
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
+  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18],1,sum,na.rm = T)>0,]
+
+# now, finally, need to remove some duplicate features still apparently present
+
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$match_ID %in% c(4910,964,4616,5409,852,285,
+                                                                                                                                                                                               
+                                                                                                                                                                                               )),]
+
+# some basic data analysis
+
+# bar plots by species of lipid class distribution (molar basis)
+
+# get list of IP DAG classes present
+Marchetti_diatoms.IP_DAGclasses =
+  unique(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species)
+Marchetti_diatoms.IP_DAGclasses = Marchetti_diatoms.IP_DAGclasses[Marchetti_diatoms.IP_DAGclasses!=c("DNPPE")]
+
+# preallocate matrix for results
+Marchetti_diatoms.IP_DAGtotals = as.data.frame(matrix(NA,length(Marchetti_diatoms.IP_DAGclasses)+1,7))
+rownames(Marchetti_diatoms.IP_DAGtotals) = c(Marchetti_diatoms.IP_DAGclasses,"Total")
+colnames(Marchetti_diatoms.IP_DAGtotals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[12:18]
+
+# calculate overall and class-specific totals
+Marchetti_diatoms.IP_DAGtotals[c("Total"),]=
+  apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18],2,sum,na.rm=T)
+
+for (i in 1:(nrow(Marchetti_diatoms.IP_DAGtotals)-1)) {
+  
+  Marchetti_diatoms.IP_DAGtotals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==rownames(Marchetti_diatoms.IP_DAGtotals)[i],12:18],2,sum,na.rm=T)
+  
+}
+
+# make a plot for thesis appendix A
+# some of the samples are actually duplicates, so can eliminate some
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "Marchetti_diatom_IP-DAG_dist.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
+prop = prop.table(as.table(as.matrix(Marchetti_diatoms.IP_DAGtotals[1:7,c(1,3,5,7)])),margin=2)
+barplot(prop, col=rainbow(length(rownames(prop))), width=2, density=c(70,60,50,35,30,20,15),las=2,
+        ylab = "Relative molar abundance",
+        xlab = "Species",
+        names.arg = c("Actinocyclus	actinochilus UNC 1403","Chaetoceros sp. UNC 1408",
+                      "Fragilariopsis cylindrus UNC1301","Thalassiosira antarctica UNC1401"))
+legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop))), density=c(70,60,50,35,30,20,15), legend=rownames(prop))
+
+dev.off()
