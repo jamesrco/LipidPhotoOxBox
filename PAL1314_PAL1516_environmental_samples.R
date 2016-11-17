@@ -583,7 +583,8 @@ DGTS_DGTA_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakarea
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples.RData")
 PAL1314_LMG1401_0.2um_enviro_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_enviro_samples_pos) # generate peaklist
 
-??
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_pos.RData")
+Marchetti_diatom_cultures_pos = getLOBpeaklist(Marchetti_diatom_cultures_pos) # generate peaklist
 
 ### Marchetti diatom cultures ####
 
@@ -595,21 +596,19 @@ Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos[
   (Marchetti_diatom_cultures_pos$lipid_class %in% c("IP_DAG","DNPPE") & 
      Marchetti_diatom_cultures_pos$degree_oxidation==0),]
 
-# convert anything < 1e6 intensity to NA, assuming it's either noise
+# convert anything < 1e5 intensity to NA, assuming it's either noise
 # or something so low in concentraton as to be irrelevant from a total lipid
 # perspective
 
-Marchetti_diatom_cultures_pos.unox_IPL[,12:18] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL[,12:18],
-          Marchetti_diatom_cultures_pos.unox_IPL[,12:18]<1000000,
+Marchetti_diatom_cultures_pos.unox_IPL[,14:20] =
+  replace(Marchetti_diatom_cultures_pos.unox_IPL[,14:20],
+          Marchetti_diatom_cultures_pos.unox_IPL[,14:20]<100000,
           NA)
 
 # get rid of DGCC data since we don't have any standards for these right now
 
 Marchetti_diatom_cultures_pos.unox_IPL.noDGCC = Marchetti_diatom_cultures_pos.unox_IPL[
   Marchetti_diatom_cultures_pos.unox_IPL$species!="DGCC",]
-
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC
 
 # define classes for which concentrations are to be calculated, the models, and
 # the cutoffs in case of split prediction
@@ -651,7 +650,7 @@ for (i in 1:nrow(Marchetti_diatom.conc_classes)) {
   pmol.oc.thisclass =
     apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
       Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
-        Marchetti_diatom.conc_classes$Lipid_class[i],12:18],c(1,2),splitpred,
+        Marchetti_diatom.conc_classes$Lipid_class[i],14:20],c(1,2),splitpred,
       eval(parse(text = Marchetti_diatom.conc_classes$Model.low[i])),
       eval(parse(text = Marchetti_diatom.conc_classes$Model.hi[i])),
       Marchetti_diatom.conc_classes$Cutoff_PA[i])
@@ -672,7 +671,7 @@ for (i in 1:nrow(Marchetti_diatom.conc_classes)) {
   
   Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
     Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
-      Marchetti_diatom.conc_classes$Lipid_class[i],12:18] = pmol.oc.thisclass
+      Marchetti_diatom.conc_classes$Lipid_class[i],14:20] = pmol.oc.thisclass
   
 }
   
@@ -683,38 +682,41 @@ DNPPE_BD_Marchetti_diatoms_uL = 20 # amount DNPPE added per sample in uL, per VM
 DNPPE_pmol_added_per_samp = DNPPE_mg_mL_BD_extracts_2016*(1/DNPPE_MW)*(10^9)*(1/10^3)*DNPPE_BD_Marchetti_diatoms_uL
 
 Marchetti_diatom_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$compound_name=="DNPPE",12:18]  # recovery factor
+  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$compound_name=="DNPPE",14:20]  # recovery factor
 
 # create final results data frame
 Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18] = sweep(as.matrix(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18]), 2, as.numeric(Marchetti_diatom_DNPPE.samp.RF), "*") # apply RF to samples, calculate total # pmol each species in given sample
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20] = sweep(as.matrix(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20]), 2, as.numeric(Marchetti_diatom_DNPPE.samp.RF), "*") # apply RF to samples, calculate total # pmol each species in given sample
 
 # need to simplify the dataset a bit and do some QA
 
-# reduce features with abundance < 50 pmol to NA, at least in the first 5 cultures; this criterion still retains >95% of all mass in these species
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:16] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:16],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:16]<50,
+# reduce features with abundance < 25 pmol to NA, at least in the first 5 cultures; this criterion still retains >97% of all mass in these species
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18] =
+  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18],
+          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18]<25,
           NA)
 
 # need to be a little less restrictive with the Thalassiosira cultures, since
-# thr 50 pmol cutoff would eliminate ~ 1/3 of all peak area
-# for these, can use a cutoff of 15 pmol to retain >95% of all mass
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,17:18] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,17:18],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,17:18]<15,
+# the 50 pmol cutoff would eliminate ~ 1/3 of all peak area
+# for these, can use a cutoff of 10 pmol to retain >97% of all mass
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20] =
+  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20],
+          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20]<10,
           NA)
 
 # now remove elements for which there is no data in any sample (includes elements
 # just reduced to NA)
 Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18],1,sum,na.rm = T)>0,]
+  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],1,sum,na.rm = T)>0,]
+
+# can remove DNPPE at this point
+Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
+  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$compound_name=="DNPPE"),]
 
 # now, finally, need to remove some duplicate features still apparently present
 
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$match_ID %in% c(4910,964,4616,5409,852,285,
-                                                                                                                                                                                               
-                                                                                                                                                                                               )),]
+# Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$match_ID %in% 
+#                                                                                                                         c(4910,964,4616,5409,852,285)),]
 
 # some basic data analysis
 
@@ -728,17 +730,21 @@ Marchetti_diatoms.IP_DAGclasses = Marchetti_diatoms.IP_DAGclasses[Marchetti_diat
 # preallocate matrix for results
 Marchetti_diatoms.IP_DAGtotals = as.data.frame(matrix(NA,length(Marchetti_diatoms.IP_DAGclasses)+1,7))
 rownames(Marchetti_diatoms.IP_DAGtotals) = c(Marchetti_diatoms.IP_DAGclasses,"Total")
-colnames(Marchetti_diatoms.IP_DAGtotals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[12:18]
+colnames(Marchetti_diatoms.IP_DAGtotals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
 
 # calculate overall and class-specific totals
 Marchetti_diatoms.IP_DAGtotals[c("Total"),]=
-  apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,12:18],2,sum,na.rm=T)
+  apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],2,sum,na.rm=T)
 
 for (i in 1:(nrow(Marchetti_diatoms.IP_DAGtotals)-1)) {
   
-  Marchetti_diatoms.IP_DAGtotals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==rownames(Marchetti_diatoms.IP_DAGtotals)[i],12:18],2,sum,na.rm=T)
+  Marchetti_diatoms.IP_DAGtotals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==rownames(Marchetti_diatoms.IP_DAGtotals)[i],14:20],2,sum,na.rm=T)
   
 }
+
+# put in rough descending order of abundance of first species listed 
+
+Marchetti_diatoms.IP_DAGtotals = Marchetti_diatoms.IP_DAGtotals[c(4,3,1,2,7,6,5),]
 
 # make a plot for thesis appendix A
 # some of the samples are actually duplicates, so can eliminate some
@@ -759,3 +765,146 @@ barplot(prop, col=rainbow(length(rownames(prop))), width=2, density=c(70,60,50,3
 legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop))), density=c(70,60,50,35,30,20,15), legend=rownames(prop))
 
 dev.off()
+
+# bar plots by degree of unsaturation (rough categories, molar basis)
+
+# without deliving into the frag spectra or running FAMES, can't tell what the
+# distribution of 2x bonds looks like between the two acyl groups
+# however, can make a few categories w/certainty assuming max unsaturation will be 
+# 6 double bonds (based on known pathways of FA biosynthesis in diatoms)
+
+# define some categories
+Marchetti_diatoms.sat_classes = c("Both sn1, sn2 fully saturated","Neither sn1 nor sn2 is more than di-unsaturated",
+                                  "Contain other species of middling unsaturation",
+                                  "sn1, sn2 both have ≥ 3 double bonds","sn1, sn2 both have/PUFAs ≥ 5 DB")
+
+# need also to define these in terms of numbers that will be used to extract data
+Marchetti_diatoms.sat_numbers = c(0,2,9,11)
+
+# preallocate matrix for results
+Marchetti_diatoms.sat_totals = as.data.frame(matrix(NA,length(Marchetti_diatoms.sat_classes),7))
+rownames(Marchetti_diatoms.sat_totals) = c(Marchetti_diatoms.sat_classes)
+colnames(Marchetti_diatoms.sat_totals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
+
+# calculate saturation class totals
+
+for (i in 1:(nrow(Marchetti_diatoms.sat_totals))) {
+  
+  if (i==1) {
+    
+    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB==Marchetti_diatoms.sat_numbers[i],14:20],
+                                             2,sum,na.rm=T)
+    
+  } else if (i > 1 & i < 5) {
+    
+    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[(
+      Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
+        Marchetti_diatoms.sat_numbers[i-1] & 
+        Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB<
+        Marchetti_diatoms.sat_numbers[i]),14:20],
+      2,sum,na.rm=T)
+    
+  } else if (i==5) {
+    
+    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=Marchetti_diatoms.sat_numbers[i-1],14:20],
+                                             2,sum,na.rm=T)
+    
+  }
+  
+}
+
+# make a plot
+# some of the samples are actually duplicates, so can eliminate some
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "Marchetti_diatom_satur_dist.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
+prop = prop.table(as.table(as.matrix(Marchetti_diatoms.sat_totals[1:5,c(1,3,5,7)])),margin=2)
+barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
+        ylab = "Relative molar abundance",
+        xlab = "Species",
+        names.arg = c("Actinocyclus	actinochilus UNC 1403","Chaetoceros sp. UNC 1408",
+                      "Fragilariopsis cylindrus UNC1301","Thalassiosira antarctica UNC1401"))
+legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
+
+dev.off()
+
+# maybe a plot like this of just PC
+
+# preallocate matrix for results
+Marchetti_diatoms.sat_totals.PC = as.data.frame(matrix(NA,length(Marchetti_diatoms.sat_classes),7))
+rownames(Marchetti_diatoms.sat_totals.PC) = c(Marchetti_diatoms.sat_classes)
+colnames(Marchetti_diatoms.sat_totals.PC) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
+
+# calculate saturation class totals just for PC
+
+for (i in 1:(nrow(Marchetti_diatoms.sat_totals.PC))) {
+  
+  if (i==1) {
+    
+    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[
+      (Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB==
+         Marchetti_diatoms.sat_numbers[i] & 
+         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==
+         "PC"),
+      14:20],2,sum,na.rm=T)
+    
+  } else if (i > 1 & i < 5) {
+    
+    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[
+      (Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
+         Marchetti_diatoms.sat_numbers[i-1] & 
+         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB<
+         Marchetti_diatoms.sat_numbers[i] &
+         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==
+         "PC"),
+      14:20],2,sum,na.rm=T)
+    
+  } else if (i==5) {
+    
+    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[
+      (Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
+         Marchetti_diatoms.sat_numbers[i-1] & 
+         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==
+         "PC"),
+      14:20],2,sum,na.rm=T)
+    
+  }
+  
+}
+
+# make a plot
+# some of the samples are actually duplicates, so can eliminate some
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "Marchetti_diatom_satur_dist_PConly.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
+prop = prop.table(as.table(as.matrix(Marchetti_diatoms.sat_totals.PC[1:5,c(1,3,5,7)])),margin=2)
+barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
+        ylab = "Relative molar abundance",
+        xlab = "Species",
+        names.arg = c("Actinocyclus	actinochilus UNC 1403","Chaetoceros sp. UNC 1408",
+                      "Fragilariopsis cylindrus UNC1301","Thalassiosira antarctica UNC1401"))
+legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
+
+dev.off()
+
+# additional calculations
+
+# % peak area accounted for by DGCC (didn't have a DGCC standard at time of analysis)
+
+Marchetti_diatom_cultures_pos.unox_IPL.noDNPPE = Marchetti_diatom_cultures_pos.unox_IPL[
+  Marchetti_diatom_cultures_pos.unox_IPL$species!="DNPPE",]
+
+Marchetti_cultures.peaksums = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDNPPE[,14:20],2,sum,na.rm=T)
+Marchetti_cultures.DGCC.peaksums = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDNPPE[Marchetti_diatom_cultures_pos.unox_IPL.noDNPPE$species=="DGCC",14:20],2,sum,na.rm=T)
+
+Marchetti_cultures.DGCC.peaksums/Marchetti_cultures.peaksums
