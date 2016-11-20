@@ -1265,179 +1265,146 @@ Marchetti_cultures.DGCC.peaksums/Marchetti_cultures.peaksums
 
 # dataset includes putative IDs of species w/odd-chain FA's
 
-load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_pos_nooddFA.RData")
-Marchetti_diatom_cultures_pos = getLOBpeaklist(Marchetti_diatom_cultures_pos) # generate peaklist
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA.RData")
+PAL1314_LMG1401_partic_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_samples_pos_withoddFA) # generate peaklist
 
-# will use the 20161005 standards
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples_nooddFA.RData")
+PAL1314_LMG1401_partic_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_enviro_samples_pos) # generate peaklist
+
+# will use the 20161107 standards, with the 20161005 for DGTS 
 
 # extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
 
-Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos[
-  (Marchetti_diatom_cultures_pos$lipid_class %in% c("IP_DAG","DNPPE") & 
-     Marchetti_diatom_cultures_pos$degree_oxidation==0),]
+PAL1314_LMG1401_partic_pos.unox_IPL = PAL1314_LMG1401_partic_pos[
+  (PAL1314_LMG1401_partic_pos$lipid_class %in% c("IP_DAG","DNPPE") & 
+     PAL1314_LMG1401_partic_pos$degree_oxidation==0),]
 
 # # convert anything < 1e5 intensity to NA, assuming it's either noise
 # # or something so low in concentraton as to be irrelevant from a total lipid
 # # perspective
 # 
-# Marchetti_diatom_cultures_pos.unox_IPL[,14:20] =
-#   replace(Marchetti_diatom_cultures_pos.unox_IPL[,14:20],
-#           Marchetti_diatom_cultures_pos.unox_IPL[,14:20]<10000,
+# PAL1314_LMG1401_partic_pos.unox_IPL[,13:17] =
+#   replace(PAL1314_LMG1401_partic_pos.unox_IPL[,13:17],
+#           PAL1314_LMG1401_partic_pos.unox_IPL[,13:17]<10000,
 #           NA)
 
 # get rid of DGCC data since we don't have any standards for these right now
 
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC = Marchetti_diatom_cultures_pos.unox_IPL[
-  Marchetti_diatom_cultures_pos.unox_IPL$species!="DGCC",]
-
-# # assuming only odd-chain FA will be a C15 (based on knowledge of diatom FA biosynthesis),
-# # can eliminate some putative odd-chain IDs
-# 
-# for (i in 1:nrow(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC)) {
-#   
-#   if (!is.na(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC$FA_total_no_C[i])) {
-#     
-#     if (!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC$FA_total_no_C[i] %% 2 == 0)) {
-#       
-#       # we have an odd-chain species, evaluate
-#       
-#       if (Marchetti_diatom_cultures_pos.unox_IPL.noDGCC$FA_total_no_C[i]>37) {
-#         
-#         # i.e., >= 22 + 15 
-#         
-#         # bulk C number greater than this would be an impossible combination,
-#         # given what we know about diatom FA biosynthesis
-#         
-#         # so, set these to zero
-#         
-#         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC[i,c(14:20)] = 0
-#         
-#       }
-#       
-#     }
-#     
-#   }
-#   
-# }
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC = PAL1314_LMG1401_partic_pos.unox_IPL[
+  PAL1314_LMG1401_partic_pos.unox_IPL$species!="DGCC",]
 
 # define classes for which concentrations are to be calculated, the models, and
 # the cutoffs in case of split prediction
 
-Marchetti_diatom.conc_classes = as.data.frame(matrix(NA,8,4))
-colnames(Marchetti_diatom.conc_classes) =
+PAL1314_LMG1401_partic.conc_classes = as.data.frame(matrix(NA,8,4))
+colnames(PAL1314_LMG1401_partic.conc_classes) =
   c("Lipid_class","Model.low","Model.hi","Cutoff_PA")
 
-Marchetti_diatom.conc_classes[,1] =
+PAL1314_LMG1401_partic.conc_classes[,1] =
   c("PG","PE","PC","MGDG","SQDG","DGDG","DGTS_DGTA","DNPPE")
 
-Marchetti_diatom.conc_classes[,2] =
-  c("linfit_low.PG.20161005","linfit_low.PE.20161005","linfit_low.PC.20161005",
-    "linfit_low.MGDG.20161005","linfit_low.SQDG.20161005",
-    "linfit_low.DGDG.20161005","linfit_low.DGTS_DGTA.20161005",
-    "linfit_low.DNPPE.20161005")
+PAL1314_LMG1401_partic.conc_classes[,2] =
+  c("linfit_low.PG.20161107","linfit_low.PE.20161107","linfit_low.PC.20161107",
+    "linfit_low.MGDG.20161107","linfit_low.SQDG.20161107",
+    "linfit_low.DGDG.20161107","linfit_low.DGTS_DGTA.20161005",
+    "linfit_low.DNPPE.20161107")
 
-Marchetti_diatom.conc_classes[,3] =
-  c("linfit_hi.PG.20161005","linfit_hi.PE.20161005","linfit_hi.PC.20161005",
-    "linfit_hi.MGDG.20161005","linfit_hi.SQDG.20161005",
-    "linfit_hi.DGDG.20161005","linfit_hi.DGTS_DGTA.20161005",
-    "linfit_hi.DNPPE.20161005")
+PAL1314_LMG1401_partic.conc_classes[,3] =
+  c("linfit_hi.PG.20161107","linfit_hi.PE.20161107","linfit_hi.PC.20161107",
+    "linfit_hi.MGDG.20161107","linfit_hi.SQDG.20161107",
+    "linfit_hi.DGDG.20161107","linfit_hi.DGTS_DGTA.20161005",
+    "linfit_hi.DNPPE.20161107")
 
-Marchetti_diatom.conc_classes[,4] =
-  c(PG_std_breakpoint.20161005,PE_std_breakpoint.20161005,PC_std_breakpoint.20161005,
-    MGDG_std_breakpoint.20161005,SQDG_std_breakpoint.20161005,DGDG_std_breakpoint.20161005,
-    DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161005)
+PAL1314_LMG1401_partic.conc_classes[,4] =
+  c(PG_std_breakpoint.20161107,PE_std_breakpoint.20161107,PC_std_breakpoint.20161107,
+    MGDG_std_breakpoint.20161107,SQDG_std_breakpoint.20161107,DGDG_std_breakpoint.20161107,
+    DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161107)
+
+# PAL1314_LMG1401_partic.conc_classes[,2] =
+#   c("linfit_low.PG.20161005","linfit_low.PE.20161005","linfit_low.PC.20161005",
+#     "linfit_low.MGDG.20161005","linfit_low.SQDG.20161005",
+#     "linfit_low.DGDG.20161005","linfit_low.DGTS_DGTA.20161005",
+#     "linfit_low.DNPPE.20161005")
 # 
-# Marchetti_diatom.conc_classes[,2] =
-#   c("linfit_low.PG.20161107","linfit_low.PE.20161107","linfit_low.PC.20161107",
-#     "linfit_low.MGDG.20161107","linfit_low.SQDG.20161107",
-#     "linfit_low.DGDG.20161107","linfit_low.DGTS_DGTA.20161005",
-#     "linfit_low.DNPPE.20161107")
+# PAL1314_LMG1401_partic.conc_classes[,3] =
+#   c("linfit_hi.PG.20161005","linfit_hi.PE.20161005","linfit_hi.PC.20161005",
+#     "linfit_hi.MGDG.20161005","linfit_hi.SQDG.20161005",
+#     "linfit_hi.DGDG.20161005","linfit_hi.DGTS_DGTA.20161005",
+#     "linfit_hi.DNPPE.20161005")
 # 
-# Marchetti_diatom.conc_classes[,3] =
-#   c("linfit_hi.PG.20161107","linfit_hi.PE.20161107","linfit_hi.PC.20161107",
-#     "linfit_hi.MGDG.20161107","linfit_hi.SQDG.20161107",
-#     "linfit_hi.DGDG.20161107","linfit_hi.DGTS_DGTA.20161005",
-#     "linfit_hi.DNPPE.20161107")
-# 
-# Marchetti_diatom.conc_classes[,4] =
-#   c(PG_std_breakpoint.20161107,PE_std_breakpoint.20161107,PC_std_breakpoint.20161107,
-#     MGDG_std_breakpoint.20161107,SQDG_std_breakpoint.20161107,DGDG_std_breakpoint.20161107,
-#     DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161107)
+# PAL1314_LMG1401_partic.conc_classes[,4] =
+#   c(PG_std_breakpoint.20161005,PE_std_breakpoint.20161005,PC_std_breakpoint.20161005,
+#     MGDG_std_breakpoint.20161005,SQDG_std_breakpoint.20161005,DGDG_std_breakpoint.20161005,
+#     DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161005)
 
 # first, calculate pmol o.c.
 # preallocate matrix for result
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc = PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC
 
 # calculate for each lipid class, using appropriate standard curve
 
-for (i in 1:nrow(Marchetti_diatom.conc_classes)) {
+for (i in 1:nrow(PAL1314_LMG1401_partic.conc_classes)) {
   
   # first, calculate pmol o.c.
   
   pmol.oc.thisclass =
-    apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
-      Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
-        Marchetti_diatom.conc_classes$Lipid_class[i],14:20],c(1,2),splitpred,
-      eval(parse(text = Marchetti_diatom.conc_classes$Model.low[i])),
-      eval(parse(text = Marchetti_diatom.conc_classes$Model.hi[i])),
-      Marchetti_diatom.conc_classes$Cutoff_PA[i])
+    apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc[
+      PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc$species==
+        PAL1314_LMG1401_partic.conc_classes$Lipid_class[i],13:17],c(1,2),splitpred,
+      eval(parse(text = PAL1314_LMG1401_partic.conc_classes$Model.low[i])),
+      eval(parse(text = PAL1314_LMG1401_partic.conc_classes$Model.hi[i])),
+      PAL1314_LMG1401_partic.conc_classes$Cutoff_PA[i])
   
   # store result as appropriate
   
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
-    Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
-      Marchetti_diatom.conc_classes$Lipid_class[i],14:20] = pmol.oc.thisclass
+  PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc[
+    PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc$species==
+      PAL1314_LMG1401_partic.conc_classes$Lipid_class[i],13:17] = pmol.oc.thisclass
   
 }
 
 # now, scale pmol o.c. to pmol per sample using DNPPE (recovery standard added at time of extraction)
 
 DNPPE_BD_Marchetti_diatoms_uL = 20 # amount DNPPE added per sample in uL, per VML B&D protocol
+# same amount as for the Marchetti diatom cultures
 
 DNPPE_pmol_added_per_samp = DNPPE_mg_mL_BD_extracts_2016*(1/DNPPE_MW)*(10^9)*(1/10^3)*DNPPE_BD_Marchetti_diatoms_uL
 
-Marchetti_diatom_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$compound_name=="DNPPE",14:20]  # recovery factor
+PAL1314_LMG1401_partic.samp.RF = DNPPE_pmol_added_per_samp/PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc[
+  PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc$compound_name=="DNPPE",13:17]  # recovery factor
 
 # create final results data frame
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20] = sweep(as.matrix(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20]), 2, as.numeric(Marchetti_diatom_DNPPE.samp.RF), "*") # apply RF to samples, calculate total # pmol each species in given sample
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total = PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.oc
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17] = sweep(as.matrix(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17]), 2, as.numeric(PAL1314_LMG1401_partic.samp.RF), "*") # apply RF to samples, calculate total # pmol each species in given sample
 
 # need to simplify the dataset a bit and do some QA
 
 # eliminate features w/calibrated mass < 0 
 
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20]<0,
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17] =
+  replace(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],
+          PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17]<0,
           NA)
 
 # determine what peak area cutoff we impose that still retains >95% of the ID'd mass in each sample
 
-apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18],2,function (x) sum(x[x>=30], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 60 does it for cols 14-18
-
-apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20],2,function (x) sum(x[x>=4], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 10 does it for cols 19-20
+apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],2,function (x) sum(x[x>=3e6], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 30 does it
 
 # apply these constraints
 
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18]<30,
-          NA)
-
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20]<4,
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17] =
+  replace(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],
+          PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17]<3e6,
           NA)
 
 # now remove elements for which there is no data in any sample (includes elements
 # just reduced to NA)
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],1,sum,na.rm = T)>0,]
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total = 
+  PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],1,sum,na.rm = T)>0,]
 
 # can remove DNPPE at this point
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$compound_name=="DNPPE"),]
+PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total = 
+  PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[!(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total$compound_name=="DNPPE"),]
 
 # now, finally, need to remove some duplicate features still apparently present
 
@@ -1449,45 +1416,43 @@ Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total =
 # bar plots by species of lipid class distribution (molar basis)
 
 # get list of IP DAG classes present
-Marchetti_diatoms.IP_DAGclasses =
-  unique(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species)
-Marchetti_diatoms.IP_DAGclasses = Marchetti_diatoms.IP_DAGclasses[Marchetti_diatoms.IP_DAGclasses!=c("DNPPE")]
+PAL1314_LMG1401_partic.IP_DAGclasses =
+  unique(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total$species)
+PAL1314_LMG1401_partic.IP_DAGclasses = PAL1314_LMG1401_partic.IP_DAGclasses[PAL1314_LMG1401_partic.IP_DAGclasses!=c("DNPPE")]
 
 # preallocate matrix for results
-Marchetti_diatoms.IP_DAGtotals = as.data.frame(matrix(NA,length(Marchetti_diatoms.IP_DAGclasses)+1,7))
-rownames(Marchetti_diatoms.IP_DAGtotals) = c(Marchetti_diatoms.IP_DAGclasses,"Total")
-colnames(Marchetti_diatoms.IP_DAGtotals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
+PAL1314_LMG1401_partic.IP_DAGtotals = as.data.frame(matrix(NA,length(PAL1314_LMG1401_partic.IP_DAGclasses)+1,5))
+rownames(PAL1314_LMG1401_partic.IP_DAGtotals) = c(PAL1314_LMG1401_partic.IP_DAGclasses,"Total")
+colnames(PAL1314_LMG1401_partic.IP_DAGtotals) = colnames(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total)[13:17]
 
 # calculate overall and class-specific totals
-Marchetti_diatoms.IP_DAGtotals[c("Total"),]=
-  apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],2,sum,na.rm=T)
+PAL1314_LMG1401_partic.IP_DAGtotals[c("Total"),]=
+  apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],2,sum,na.rm=T)
 
-for (i in 1:(nrow(Marchetti_diatoms.IP_DAGtotals)-1)) {
+for (i in 1:(nrow(PAL1314_LMG1401_partic.IP_DAGtotals)-1)) {
   
-  Marchetti_diatoms.IP_DAGtotals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==rownames(Marchetti_diatoms.IP_DAGtotals)[i],14:20],2,sum,na.rm=T)
+  PAL1314_LMG1401_partic.IP_DAGtotals[i,] = apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total$species==rownames(PAL1314_LMG1401_partic.IP_DAGtotals)[i],13:17],2,sum,na.rm=T)
   
 }
 
 # put in rough descending order of abundance of first species listed 
 
-Marchetti_diatoms.IP_DAGtotals = Marchetti_diatoms.IP_DAGtotals[order(Marchetti_diatoms.IP_DAGtotals[,1],decreasing = TRUE),]
+PAL1314_LMG1401_partic.IP_DAGtotals = PAL1314_LMG1401_partic.IP_DAGtotals[order(PAL1314_LMG1401_partic.IP_DAGtotals[,1],decreasing = TRUE),]
 
-# make a plot for thesis appendix A
-# some of the samples are actually duplicates, so can eliminate some
+# make a plot for thesis
 
-par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
-
-pdf(file = "Marchetti_diatom_IP-DAG_dist.pdf",
-    width = 8, height = 6, pointsize = 12,
-    bg = "white")
+# par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+# 
+# pdf(file = "PAL1314_LMG1401_partic_IP-DAG_dist.pdf",
+#     width = 8, height = 6, pointsize = 12,
+#     bg = "white")
 
 par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(Marchetti_diatoms.IP_DAGtotals[2:8,c(1,3,5,7)])),margin=2)
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401_partic.IP_DAGtotals[2:8,])),margin=2)
 barplot(prop, col=rainbow(length(rownames(prop))), width=2, density=c(70,60,50,35,30,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = c("Actinocyclus	actinochilus UNC 1403","Chaetoceros sp. UNC 1408",
-                      "Fragilariopsis cylindrus UNC1301","Thalassiosira antarctica UNC1401")
+        names.arg = colnames(PAL1314_LMG1401_partic.IP_DAGtotals)
 )
 legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop))), density=c(70,60,50,35,30,20,15), legend=rownames(prop))
 
