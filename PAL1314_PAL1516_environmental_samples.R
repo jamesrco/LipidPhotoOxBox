@@ -849,7 +849,7 @@ colnames(Marchetti_diatom.frag_lookup_classes) =
 Marchetti_diatom.frag_lookup_classes[,1] =
   c("CNL","CNL","PI","CNL","CNL","CNL","PI","PI")
 Marchetti_diatom.frag_lookup_classes[,2] =
-  c(189.040224,141.019094,184.073321,197.089937,359.142212,261.051837,104.106690,236.149249)
+  c(189.040224,141.019094,184.073321,197.089937,261.051837,359.142212,104.106690,236.149249)
 
 # pull in the xsAnnotate object & list containing the xcmsRaw objects
 
@@ -1011,8 +1011,9 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos_withoddFA))) {
         
         # retrieve data from ms2 scans which have the correct precursor mz (i.e., the mz of this instance of the LOBSTAHS-ID'd compound (peak) we are currently considering) AND were acquired within the RT window (raw min/max) of the peak
         
-        # will use search window of 4 ppm
-        ms2_lkup_window.ppm = 4
+        # will use search window of 40(!) ppm
+        # confirmed this is necessary based on manual inspection of data
+        ms2_lkup_window.ppm = 40
         
         # first, gather possibly relevant precursor scans based strictly on mass difference
         
@@ -1090,13 +1091,13 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos_withoddFA))) {
 
             # apply some logic for product ion scenario: assume that for a product ion-based ID to be "good", we must observe a feature with the mz of the diagnostic ion (+/- some mz tolerance) as one of the top N peaks (by intensity) in at least one of the relevant ms2 scans
             
-            # so, extract the top N (right now, 10) most intense features in each scan
+            # so, extract the top N (right now, 20) most intense features in each scan
             
-            top10.features = lapply(relevant_ms2data,get.topN,10)
+            top_features.PI = lapply(relevant_ms2data,get.topN,20)
             
             # evaluate: do the list(s) of the top N most intense fragments contain the diagnostic ion?
             
-            PI.eval_result = lapply(top10.features, eval.PIspecies, species = this.IDclass, ppm = 7)
+            PI.eval_result = lapply(top_features.PI, eval.PIspecies, species = this.IDclass, ppm = 12)
             
             # record result
             
@@ -1118,13 +1119,13 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos_withoddFA))) {
             
             ### scenario 2: class type is diagnosed via constant neutral loss ###
             
-            # assume it's a good ID in this case as long as an ion corresponding to the diagnostic CNL is one of the top N (35, for now) peaks (by intensity) in the + mode ms2 spectrum
+            # assume it's a good ID in this case as long as an ion corresponding to the diagnostic CNL is one of the top N (50, for now) peaks (by intensity) in the + mode ms2 spectrum
             
-            top35.features = lapply(relevant_ms2data,get.topN,35)
+            top_features.CNL = lapply(relevant_ms2data,get.topN,50)
             
             # evaluate & record
             
-            CNL.eval_result = lapply(top35.features, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 7)
+            CNL.eval_result = lapply(top_features.CNL, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 12)
             
             if (is.na(Marchetti_diatom.fragdata_results[i,samp_ID])) {
               
@@ -1272,6 +1273,33 @@ for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
   }
   
 }
+
+# flag for removal any IP-DAG in this dataset (diatom cultures) w/total no. C < 28, assuming C14 is shortest-chain FA 
+
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<28] = 1
+
+# also flag for removaL:
+# 1. any IP-DAG w/ < 30 total C and any double bonds
+# 2. any IP-DAG w/ < 32 total C and > 4 DB
+# 3. any IP-DAG w/ > 12 DB
+# 4. any IP-DAG w/ > 44 total C
+
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<30 &
+    Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>0
+  ] = 1
+
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<32 &
+    Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>4
+  ] = 1
+
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C>44] = 1
+
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>12] = 1
 
 # if desired, write the results to a csv file
 
@@ -1452,27 +1480,52 @@ Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total =
 write.csv(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total,
           file="Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total.csv")
 
+# *** at this point, manual curation (based on consideration of all available LOBSTAHS result codes) should be performed on the data exported to Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total.csv
+# below, we reimport the results, which are contained in .csv file UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann.csv (exported from first worksheet of the .xlsx file UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.xlsx after curation was finished)
+# the field rm.flag_manual contains the results of the manual annotation and should be combined with annotations that were already in rm.flag_auto at time of saving the .csv file above
+
+# import & extract codes from the curation, combine with codes in rm.flag_auto, then apply to the dataset to produce our final list of IDs
+
+Marchetti_cultures_man_annot = read.csv("data/nice/LOBSTAHS_lipid_identities/UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann.csv",
+         skip = 0)
+
+Marchetti_diatom_cultures_pos.pmol_total.fully_annotated = 
+  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total
+Marchetti_diatom_cultures_pos.pmol_total.fully_annotated$rm.flag_auto =
+  Marchetti_cultures_man_annot$rm.flag_auto
+Marchetti_diatom_cultures_pos.pmol_total.fully_annotated$rm.flag_manual =
+  Marchetti_cultures_man_annot$rm.flag_manual
+
+Marchetti_diatom_cultures_pos.pmol_total.final = 
+  Marchetti_diatom_cultures_pos.pmol_total.fully_annotated[
+    !apply(Marchetti_diatom_cultures_pos.pmol_total.fully_annotated[,c("rm.flag_auto","rm.flag_manual")],1,sum,na.rm = T),]
+
+# export these final IDs
+
+write.csv(Marchetti_diatom_cultures_pos.pmol_total.final,
+          file = "UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.final.csv")
+
 # some basic data analysis
 
 # bar plots by species of lipid class distribution (molar basis)
 
 # get list of IP DAG classes present
 Marchetti_diatoms.IP_DAGclasses =
-  unique(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species)
+  unique(Marchetti_diatom_cultures_pos.pmol_total.final$species)
 Marchetti_diatoms.IP_DAGclasses = Marchetti_diatoms.IP_DAGclasses[Marchetti_diatoms.IP_DAGclasses!=c("DNPPE")]
 
 # preallocate matrix for results
 Marchetti_diatoms.IP_DAGtotals = as.data.frame(matrix(NA,length(Marchetti_diatoms.IP_DAGclasses)+1,7))
 rownames(Marchetti_diatoms.IP_DAGtotals) = c(Marchetti_diatoms.IP_DAGclasses,"Total")
-colnames(Marchetti_diatoms.IP_DAGtotals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
+colnames(Marchetti_diatoms.IP_DAGtotals) = colnames(Marchetti_diatom_cultures_pos.pmol_total.final)[14:20]
 
 # calculate overall and class-specific totals
 Marchetti_diatoms.IP_DAGtotals[c("Total"),]=
-  apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],2,sum,na.rm=T)
+  apply(Marchetti_diatom_cultures_pos.pmol_total.final[,14:20],2,sum,na.rm=T)
 
 for (i in 1:(nrow(Marchetti_diatoms.IP_DAGtotals)-1)) {
   
-  Marchetti_diatoms.IP_DAGtotals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==rownames(Marchetti_diatoms.IP_DAGtotals)[i],14:20],2,sum,na.rm=T)
+  Marchetti_diatoms.IP_DAGtotals[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[Marchetti_diatom_cultures_pos.pmol_total.final$species==rownames(Marchetti_diatoms.IP_DAGtotals)[i],14:20],2,sum,na.rm=T)
   
 }
 
@@ -1540,7 +1593,7 @@ Marchetti_diatoms.sat_numbers = c(0,2,9,11)
 # preallocate matrix for results
 Marchetti_diatoms.sat_totals = as.data.frame(matrix(NA,length(Marchetti_diatoms.sat_classes),7))
 rownames(Marchetti_diatoms.sat_totals) = c(Marchetti_diatoms.sat_classes)
-colnames(Marchetti_diatoms.sat_totals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
+colnames(Marchetti_diatoms.sat_totals) = colnames(Marchetti_diatom_cultures_pos.pmol_total.final)[14:20]
 
 # calculate saturation class totals
 
@@ -1548,21 +1601,21 @@ for (i in 1:(nrow(Marchetti_diatoms.sat_totals))) {
   
   if (i==1) {
     
-    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB==Marchetti_diatoms.sat_numbers[i],14:20],
+    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB==Marchetti_diatoms.sat_numbers[i],14:20],
                                              2,sum,na.rm=T)
     
   } else if (i > 1 & i < 5) {
     
-    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[(
-      Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
+    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[(
+      Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=
         Marchetti_diatoms.sat_numbers[i-1] & 
-        Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB<
+        Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB<
         Marchetti_diatoms.sat_numbers[i]),14:20],
       2,sum,na.rm=T)
     
   } else if (i==5) {
     
-    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=Marchetti_diatoms.sat_numbers[i-1],14:20],
+    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=Marchetti_diatoms.sat_numbers[i-1],14:20],
                                              2,sum,na.rm=T)
     
   }
@@ -1615,7 +1668,7 @@ dev.off()
 # preallocate matrix for results
 Marchetti_diatoms.sat_totals.PC = as.data.frame(matrix(NA,length(Marchetti_diatoms.sat_classes),7))
 rownames(Marchetti_diatoms.sat_totals.PC) = c(Marchetti_diatoms.sat_classes)
-colnames(Marchetti_diatoms.sat_totals.PC) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
+colnames(Marchetti_diatoms.sat_totals.PC) = colnames(Marchetti_diatom_cultures_pos.pmol_total.final)[14:20]
 
 # calculate saturation class totals just for PC
 
@@ -1623,30 +1676,30 @@ for (i in 1:(nrow(Marchetti_diatoms.sat_totals.PC))) {
   
   if (i==1) {
     
-    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[
-      (Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB==
+    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[
+      (Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB==
          Marchetti_diatoms.sat_numbers[i] & 
-         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==
+         Marchetti_diatom_cultures_pos.pmol_total.final$species==
          "PC"),
       14:20],2,sum,na.rm=T)
     
   } else if (i > 1 & i < 5) {
     
-    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[
-      (Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
+    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[
+      (Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=
          Marchetti_diatoms.sat_numbers[i-1] & 
-         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB<
+         Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB<
          Marchetti_diatoms.sat_numbers[i] &
-         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==
+         Marchetti_diatom_cultures_pos.pmol_total.final$species==
          "PC"),
       14:20],2,sum,na.rm=T)
     
   } else if (i==5) {
     
-    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[
-      (Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
+    Marchetti_diatoms.sat_totals.PC[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[
+      (Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=
          Marchetti_diatoms.sat_numbers[i-1] & 
-         Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$species==
+         Marchetti_diatom_cultures_pos.pmol_total.final$species==
          "PC"),
       14:20],2,sum,na.rm=T)
     
