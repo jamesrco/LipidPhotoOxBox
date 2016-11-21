@@ -1032,9 +1032,9 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
         
         valid.precursors_pos.ind =
           possible.precursors_pos.ind[Marchetti_xsR[[samp_ID]]@msnRt[possible.precursors_pos.ind]>
-                                        (RT_min_pos.raw-10) &
+                                        (RT_min_pos.raw-20) &
                                         Marchetti_xsR[[samp_ID]]@msnRt[possible.precursors_pos.ind]<
-                                        (RT_max_pos.raw+10)]
+                                        (RT_max_pos.raw+20)]
         
         # to get the actual QE scan numbers corresponding to this index, run the below:
         # Marchetti_xsR[[j]]@msnAcquisitionNum[valid.precursors_pos.ind]
@@ -1102,7 +1102,7 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
             
             # evaluate: do the list(s) of the top N most intense fragments contain the diagnostic ion?
             
-            PI.eval_result = lapply(top10.features, eval.PIspecies, species = this.IDclass, ppm = 4)
+            PI.eval_result = lapply(top10.features, eval.PIspecies, species = this.IDclass, ppm = 7)
             
             # record result
             
@@ -1130,7 +1130,7 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
             
             # evaluate & record
             
-            CNL.eval_result = lapply(top20.features, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 4)
+            CNL.eval_result = lapply(top20.features, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 7)
             
             if (is.na(Marchetti_diatom.fragdata_results[i,samp_ID])) {
               
