@@ -139,7 +139,7 @@ for (i in 2:nrow(Stds_20161107_oc)) {
 
 y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="PG 32:0",1:9]
 x = rev(Stds_20161107_oc$pmol_oc_PG)[1:9]
-linfit_low.PG.20161107 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.PG.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_PG),
      Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="PG 32:0",],
      pch="+",
@@ -163,7 +163,7 @@ PG_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="PE 32:0",1:9]
 x = rev(Stds_20161107_oc$pmol_oc_PE)[1:9]
-linfit_low.PE.20161107 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.PE.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_PE),
      Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="PE 32:0",],
      pch="+",
@@ -187,7 +187,7 @@ PE_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="PC 32:0",1:10]
 x = rev(Stds_20161107_oc$pmol_oc_PC)[1:10]
-linfit_low.PC.20161107 = lm(as.numeric(y)~x) # fit a linear model for the first 10 standard levels
+linfit_low.PC.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_PC),
      Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="PC 32:0",],
      pch="+",
@@ -210,7 +210,7 @@ PC_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="MGDG 36:0",1:9]
 x = rev(Stds_20161107_oc$pmol_oc_MGDG)[1:9]
-linfit_low.MGDG.20161107 = lm(as.numeric(y)~x) # fit a linear model for the first 10 standard levels
+linfit_low.MGDG.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_MGDG),
      Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="MGDG 36:0",],
      pch="+",
@@ -233,7 +233,7 @@ MGDG_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="SQDG 34:3",1:9]
 x = rev(Stds_20161107_oc$pmol_oc_SQDG)[1:9]
-linfit_low.SQDG.20161107 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.SQDG.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_SQDG),
      Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="SQDG 34:3",],
      pch="+",
@@ -258,7 +258,7 @@ SQDG_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DGDG 36:4",c(1:9,11)]
 x = rev(Stds_20161107_oc$pmol_oc_DGDG)[c(1:9,11)]
-linfit_low.DGDG.20161107 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.DGDG.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_DGDG),
      Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DGDG 36:4",],
      pch="+",
@@ -299,7 +299,7 @@ DGDG_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DNPPE",1:8]
 x = rev(Stds_20161107_oc$pmol_oc_DNPPE)[1:8]
-linfit_low.DNPPE.20161107 = lm(as.numeric(y)~x) # fit a linear model to first 8 points
+linfit_low.DNPPE.20161107 = lm(as.numeric(y)~x-1) # fit a linear model to first 8 points
 plot(rev(Stds_20161107_oc$pmol_oc_DNPPE),
      Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DNPPE",],
      pch="+",
@@ -407,7 +407,7 @@ y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PG 32:0",c(1:7)]
 #x = 8*(1-exp(-0.008*rev(Stds_20161005_oc$pmol_oc_PG)[c(1:8,10)])^1)
 x = rev(Stds_20161005_oc$pmol_oc_PG)[c(1:7)]
 
-linfit_low.PG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.PG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_PG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PG 32:0",],
      pch="+",
@@ -431,7 +431,7 @@ PG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PE 32:0",c(1:8)]
 x = rev(Stds_20161005_oc$pmol_oc_PE)[c(1:8)]
-linfit_low.PE.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
+linfit_low.PE.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_PE),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PE 32:0",],
      pch="+",
@@ -455,7 +455,7 @@ PE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",c(1:8)]
 x = rev(Stds_20161005_oc$pmol_oc_PC)[c(1:8)]
-linfit_low.PC.20161005 = lm(as.numeric(y)~x) # fit a linear model for the entire range,
+linfit_low.PC.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the entire range,
 # while skipping the 9th standard because something was wonky with it
 plot(rev(Stds_20161005_oc$pmol_oc_PC),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",],
@@ -479,7 +479,7 @@ PC_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",1:8]
 x = rev(Stds_20161005_oc$pmol_oc_MGDG)[1:8]
-linfit_low.MGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 10 standard levels
+linfit_low.MGDG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_MGDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",],
      pch="+",
@@ -505,7 +505,7 @@ MGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(1:7)]
 # x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)]
 x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7)]
-linfit_low.SQDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
+linfit_low.SQDG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_SQDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",],
      pch="+",
@@ -589,7 +589,7 @@ SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",c(1:8)]
 x = rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8)]
-linfit_low.DGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
+linfit_low.DGDG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",],
      pch="+",
@@ -614,7 +614,7 @@ DGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DNPPE",c(1:7,9)]
 x = rev(Stds_20161005_oc$pmol_oc_DNPPE)[c(1:7,9)]
-linfit_low.DNPPE.20161005 = lm(as.numeric(y)~x) # fit linear model
+linfit_low.DNPPE.20161005 = lm(as.numeric(y)~x-1) # fit linear model
 plot(rev(Stds_20161005_oc$pmol_oc_DNPPE),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DNPPE",],
      pch="+",
@@ -635,7 +635,7 @@ DNPPE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20
 y = as.numeric(Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(1:8)])
 x = rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:8)]
 
-linfit_low.DGTS_DGTA.20161005 = lm(as.numeric(y)~x) # fit a model for the first 8 standard levels
+linfit_low.DGTS_DGTA.20161005 = lm(as.numeric(y)~x-1) # fit a model for the first 8 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGTS),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",],
      pch="+",
@@ -825,13 +825,7 @@ text(ECNs, RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_pos_withoddFA_LOBSet.RData")
 Marchetti_diatom_cultures_pos_withoddFA = getLOBpeaklist(Marchetti_diatom_cultures_pos_withoddFA) # generate peaklist
 
-# first, extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
-
-Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos_withoddFA[
-  (Marchetti_diatom_cultures_pos_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
-     Marchetti_diatom_cultures_pos_withoddFA$degree_oxidation==0),]
-
-## ***** experimental trial of use of msn data using series of xcmsRaw objects ***** ##
+### ***** experimental trial of use of msn data using series of xcmsRaw objects ***** ####
 
 # now, use fragmentation spectra for basic confirmation of putative LOBSTAHS IDs
 
@@ -869,8 +863,8 @@ Marchetti_xsR = UNC_Marchetti_diatom_cultures_pos_xcmsRaw
 # Marchetti_diatom.detected_pos_ion_fragSpec: to keep track of how many valid ms2 fragmentation spectra were detected for the feature in positive ion mode
 # Marchetti_diatom.fragdata_results: number of ms2 spectra in which the PI or CNL criteria were validated
 
-Marchetti_diatom.detected_pos_ion_fragments = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos.unox_IPL),ncol=7))
-Marchetti_diatom.fragdata_results = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos.unox_IPL),ncol=7))
+Marchetti_diatom.detected_pos_ion_fragments = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos_withoddFA),ncol=7))
+Marchetti_diatom.fragdata_results = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos_withoddFA),ncol=7))
 
 # necessary functions that will allow us to extract the correct ms2 spectra, evaluate transitions, etc
 
@@ -968,13 +962,13 @@ sumfrag = function(x) {
 
 # iterate through the IP-DAG IDs by sample, retrieve necessary data from the xsAnnotate and xcmsRaw objects, evaluate, and record the results
 
-for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
+for (i in 1:(nrow(Marchetti_diatom_cultures_pos_withoddFA))) {
   # iterate through each LOBSTAHS ID
   
   # retrieve LOBSTAHS compound ID, lipid species
   
-  this.ID = Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i]
-  this.IDclass = Marchetti_diatom_cultures_pos.unox_IPL$species[i]
+  this.ID = Marchetti_diatom_cultures_pos_withoddFA$compound_name[i]
+  this.IDclass = Marchetti_diatom_cultures_pos_withoddFA$species[i]
   
   if (this.IDclass %in% rownames(Marchetti_diatom.frag_lookup_classes)) {
     # an escape if the lipid class isn't accounted for in our input parameter table
@@ -982,7 +976,7 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
     # retrieve underlying positive-mode xcms group and peak data
     
     xcms.peakIDs_thisgroup_pos =
-      Marchetti_diatoms_xsA_pos@xcmsSet@groupidx[[Marchetti_diatom_cultures_pos.unox_IPL$xcms_peakgroup[i]]]
+      Marchetti_diatoms_xsA_pos@xcmsSet@groupidx[[Marchetti_diatom_cultures_pos_withoddFA$xcms_peakgroup[i]]]
     
     xcms.peakdata_thisgroup_pos =
       as.data.frame(Marchetti_diatoms_xsA_pos@xcmsSet@peaks[xcms.peakIDs_thisgroup_pos,])
@@ -1157,43 +1151,44 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
   
 }
 
-
-# append summary, presence/absence results to Marchetti_diatom_cultures_pos.unox_IPL matrix
+# append summary, presence/absence results to Marchetti_diatom_cultures_pos_withoddFA matrix
 
 Marchetti_diatom.fragdata_result.summary =
   apply(Marchetti_diatom.fragdata_results, 1, sumfrag)
-Marchetti_diatom_cultures_pos.unox_IPL$ms2_conf =
+Marchetti_diatom_cultures_pos_withoddFA$ms2_conf =
   Marchetti_diatom.fragdata_result.summary
 
 Marchetti_diatom.fragdata_presence.summary =
   apply(Marchetti_diatom.detected_pos_ion_fragments, 1, sumfrag)
-Marchetti_diatom_cultures_pos.unox_IPL$ms2_present =
+Marchetti_diatom_cultures_pos_withoddFA$ms2_present =
   Marchetti_diatom.fragdata_presence.summary
+
+### ***** additional confirmation by presence in negative mode data ***** ####
 
 # as an additional means of confirmation, check to see whether the same IDs were made in negative ion mode
 
 # preallocate a matrix to keep track of results
-Marchetti_diatom.neg_mode_conf = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos.unox_IPL),ncol=1))
+Marchetti_diatom.neg_mode_conf = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos_withoddFA),ncol=1))
 
 # load negative mode LOBSet
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet.RData")
 Marchetti_diatom_cultures_neg_withoddFA = getLOBpeaklist(UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet) # generate peaklist
 
-# extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
-
-Marchetti_diatom_cultures_neg.unox_IPL = Marchetti_diatom_cultures_neg_withoddFA[
-  (Marchetti_diatom_cultures_neg_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
-     Marchetti_diatom_cultures_neg_withoddFA$degree_oxidation==0),]
+# # extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
+# 
+# Marchetti_diatom_cultures_neg.unox_IPL = Marchetti_diatom_cultures_neg_withoddFA[
+#   (Marchetti_diatom_cultures_neg_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
+#      Marchetti_diatom_cultures_neg_withoddFA$degree_oxidation==0),]
 
 # iterate through the positive mode dataset and compare, then record results
 
-for (i in 1:nrow(Marchetti_diatom_cultures_pos.unox_IPL)) {
+for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
   
   # any matches by compound ID
   
-  compound_ID.matches = Marchetti_diatom_cultures_neg.unox_IPL[Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i] == Marchetti_diatom_cultures_neg.unox_IPL$compound_name,]
-    
-  if (any(abs(Marchetti_diatom_cultures_pos.unox_IPL$peakgroup_rt[i]-
+  compound_ID.matches = Marchetti_diatom_cultures_neg_withoddFA[Marchetti_diatom_cultures_pos_withoddFA$compound_name[i] == Marchetti_diatom_cultures_neg_withoddFA$compound_name,]
+  
+  if (any(abs(Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt[i]-
               compound_ID.matches$peakgroup_rt)<20)) {
     
     # the negative ion mode match belongs to a peakgroup that has a retention time within 15 seconds of the positive ion mode peakgroup --> call it good
@@ -1210,8 +1205,85 @@ for (i in 1:nrow(Marchetti_diatom_cultures_pos.unox_IPL)) {
 
 # append cross-mode comparison results to the positive mode ID table
 
-Marchetti_diatom_cultures_pos.unox_IPL$neg_mode.conf =
+Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf =
   Marchetti_diatom.neg_mode_conf[,1]
+
+# create a field (and populate partially) to assist in curation of the dataset:
+# which records will be retained, which will be excised moving forward
+
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto = NA
+
+# flag for removal certain entire classes which we aren't concerned with at the moment
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$lipid_class %in% 
+    c("TAG","pigment","PUA","IP_MAG")] = 1
+
+# flag for retention IDs that are *definitely* valid 
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$ms2_conf>0 &
+    Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf>0] = 0
+
+# flag for retention IDs that passed the ms2 criterion but weren't made in the negative mode data
+# (essentially, we are deferring to the superior diagnostic power of the fragmentation spectra)
+Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+  Marchetti_diatom_cultures_pos_withoddFA$ms2_conf>0 &
+    (is.na(Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf) || 
+       Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf == 0)] = 0
+
+# flag for removal any putative isomer of an ID we we've already declared valid
+
+for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
+  
+  if (!is.na(Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[i])) {
+    
+      if (Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[i] == 0) {
+      
+      Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+        Marchetti_diatom_cultures_pos_withoddFA$match_ID!=
+          Marchetti_diatom_cultures_pos_withoddFA$match_ID[i] &
+        Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz==
+        Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz[i] &
+        Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt==
+        Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt[i] &
+        is.na(Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto)] = 1
+    }
+    
+  }
+  
+}
+
+# flag for removal any putative isomer of an ID we suspect is valid by additional presence in negative mode data (but which did not necessarily pass the ms2 criterion)
+
+for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
+  
+  if (Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf[i] == 1 &
+      (is.na(Marchetti_diatom_cultures_pos_withoddFA$ms2_conf[i]) || 
+       Marchetti_diatom_cultures_pos_withoddFA$ms2_conf[i] == 0)) {
+    
+    Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+      Marchetti_diatom_cultures_pos_withoddFA$match_ID!=
+        Marchetti_diatom_cultures_pos_withoddFA$match_ID[i] &
+        Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz==
+        Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz[i] &
+        Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt==
+        Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt[i] &
+        is.na(Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto)] = 1
+    
+  }
+  
+}
+
+# if desired, write the results to a csv file
+
+write.csv(Marchetti_diatom_cultures_pos_withoddFA, file = "Marchetti_diatom_cultures_pos_withoddFA.csv")
+
+#### further pre-processing ####
+
+# now, extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
+
+Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos_withoddFA[
+  (Marchetti_diatom_cultures_pos_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
+     Marchetti_diatom_cultures_pos_withoddFA$degree_oxidation==0),]
 
 # # convert anything < 1e5 intensity to NA, assuming it's either noise
 # # or something so low in concentraton as to be irrelevant from a total lipid
@@ -1376,10 +1448,9 @@ Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total =
 Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
   Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$compound_name=="DNPPE"),]
 
-# now, finally, need to remove some duplicate features still apparently present
-
-# Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$match_ID %in% 
-#                                                                                                                         c(4910,964,4616,5409,852,285)),]
+# another opportunity to write results to file
+write.csv(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total,
+          file="Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total.csv")
 
 # some basic data analysis
 
