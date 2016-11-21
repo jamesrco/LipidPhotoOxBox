@@ -1124,13 +1124,13 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
             
             ### scenario 2: class type is diagnosed via constant neutral loss ###
             
-            # assume it's a good ID in this case as long as an ion corresponding to the diagnostic CNL is one of the top N (20, for now) peaks (by intensity) in the + mode ms2 spectrum
+            # assume it's a good ID in this case as long as an ion corresponding to the diagnostic CNL is one of the top N (35, for now) peaks (by intensity) in the + mode ms2 spectrum
             
-            top20.features = lapply(relevant_ms2data,get.topN,20)
+            top35.features = lapply(relevant_ms2data,get.topN,35)
             
             # evaluate & record
             
-            CNL.eval_result = lapply(top20.features, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 7)
+            CNL.eval_result = lapply(top35.features, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 7)
             
             if (is.na(Marchetti_diatom.fragdata_results[i,samp_ID])) {
               
