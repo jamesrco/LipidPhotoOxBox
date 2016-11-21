@@ -818,24 +818,286 @@ text(ECNs, RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
 
 ### Marchetti diatom cultures ####
 
+# will use the 20161005 standards for these files
+
 ## pull in data ###
 
-# will use dataset with only even-chain-length fatty acids, based on known pathways of diatom
-# FA biosynthesis
-# 
-# load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_pos_withoddFA.RData")
-# Marchetti_diatom_cultures_pos = getLOBpeaklist(Marchetti_diatom_cultures_pos_withoddFA) # generate peaklist
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_pos_withoddFA_LOBSet.RData")
+Marchetti_diatom_cultures_pos_withoddFA = getLOBpeaklist(Marchetti_diatom_cultures_pos_withoddFA) # generate peaklist
 
-load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_pos_nooddFA.RData")
-Marchetti_diatom_cultures_pos = getLOBpeaklist(Marchetti_diatom_cultures_pos) # generate peaklist
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet.RData")
+Marchetti_diatom_cultures_neg_withoddFA = getLOBpeaklist(UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet) # generate peaklist
 
-# will use the 20161005 standards
+# load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_pos_nooddFA.RData")
+# Marchetti_diatom_cultures_pos = getLOBpeaklist(Marchetti_diatom_cultures_pos) # generate peaklist
 
-# extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
+# first, extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
 
-Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos[
-  (Marchetti_diatom_cultures_pos$lipid_class %in% c("IP_DAG","DNPPE") & 
-     Marchetti_diatom_cultures_pos$degree_oxidation==0),]
+Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos_withoddFA[
+  (Marchetti_diatom_cultures_pos_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
+     Marchetti_diatom_cultures_pos_withoddFA$degree_oxidation==0),]
+
+Marchetti_diatom_cultures_neg.unox_IPL = Marchetti_diatom_cultures_neg_withoddFA[
+  (Marchetti_diatom_cultures_neg_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
+     Marchetti_diatom_cultures_neg_withoddFA$degree_oxidation==0),]
+
+## ***** experimental trial of use of msn data via xcmsFragments ***** ##
+
+# now, use fragmentation spectra for basic confirmation of putative LOBSTAHS IDs
+
+# *** requires six total files: (1) annotated xcmsSet objects for data in both ion modes and (2) xcmsFragments objects for data in both ion modes that accompany (3) LOBSet objects for both ion modes containing the putative lipid IDs (same sample names, xcms settings, etc.) ***
+
+# first, define types and values of MS fragmentation experiments for each IP-DAG class
+# (i.e., constant neutral loss (CNL) or product ion (PI))
+
+# create empty data frame
+Marchetti_diatom.frag_lookup_classes = as.data.frame(matrix(NA,8,2))
+rownames(Marchetti_diatom.frag_lookup_classes) = 
+  c("PG","PE","PC","MGDG","SQDG","DGDG","DGCC","DGTS_DGTA")
+colnames(Marchetti_diatom.frag_lookup_classes) =
+  c("Frag_exp_type","mz_value")
+
+# now, populate our data frame with necessary values
+# per Popendorf et al., Lipids (2013) 48:185–195
+
+Marchetti_diatom.frag_lookup_classes[,1] =
+  c("CNL","CNL","PI","CNL","CNL","CNL","PI","PI")
+Marchetti_diatom.frag_lookup_classes[,2] =
+  c(189.04,141.02,184.07,197.09,359.14,261.05,236.15,104.11)
+
+# pull in the xsAnnotate & xcmsFragments objects
+
+load("data/nice/Orbi_MS_data/xcmsFragments_objects/UNC_Marchetti_diatom_cultures_pos_withoddFA_xcmsFragments.RData")
+Marchetti_diatoms_xF_pos = UNC_Marchetti_diatom_cultures_pos_withoddFA_xcmsFragments # rename so easier to work with
+
+load("data/nice/Orbi_MS_data/xsAnnotate_objects/UNC_Marchetti_diatom_cultures_pos_withoddFA_xsAnnotate.RData")
+Marchetti_diatoms_xsA_pos = UNC_Marchetti_diatom_cultures_pos_withoddFA_xsAnnotate # rename so easier to work with
+
+load("data/nice/Orbi_MS_data/xcmsFragments_objects/UNC_Marchetti_diatom_cultures_neg_withoddFA_xcmsFragments.RData")
+Marchetti_diatoms_xF_neg = UNC_Marchetti_diatom_cultures_neg_withoddFA_xcmsFragments # rename so easier to work with
+
+load("data/nice/Orbi_MS_data/xsAnnotate_objects/UNC_Marchetti_diatom_cultures_neg_withoddFA_xsAnnotate.RData")
+Marchetti_diatoms_xsA_neg = UNC_Marchetti_diatom_cultures_neg_withoddFA_xsAnnotate # rename so easier to work with
+
+# preallocate three matrices for our results
+# Marchetti_diatom.detect_pos_ion_fragments: will use a binary indicator to show whether fragmentation spectra were detected for the feature in positive ion mode
+# Marchetti_diatom.detect_neg_ion_fragments: will use a binary indicator to show whether the feature was detected in negative ion mode, and whether negative mode fragmentation spectra were also detected 
+# Marchetti_diatom.fragdata_results: 1 will indicate the ID in that sample passed the basic fragment check, 0 will indicate it did not
+
+Marchetti_diatom.detect_pos_ion_fragments = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos.unox_IPL),ncol=7))
+Marchetti_diatom.detect_neg_ion_fragments = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos.unox_IPL),ncol=7))
+Marchetti_diatom.fragdata_results = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos.unox_IPL),ncol=7))
+
+# iterate through the IP-DAG IDs by sample, retrieve necessary data from the xsAnnotate and xcmsFragments objects, evaluate, and record the results
+
+for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
+  # iterate through each LOBSTAHS ID
+  
+  # retrieve LOBSTAHS compound ID, lipid species
+  
+  this.ID = Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i]
+  this.IDclass = Marchetti_diatom_cultures_pos.unox_IPL$species[i]
+  
+  # first, determine whether this ID was also made in the negative ion mode data; will diagnose this by presence of same compound ID around the same corrected retention time (+/- 20 seconds)
+  # if yes, pull out the corresponding data from the negative-mode xsAnnotate and xcmsFragments objects
+  
+  negmode.match = Marchetti_diatom_cultures_neg.unox_IPL[Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i]==Marchetti_diatom_cultures_neg.unox_IPL$compound_name & abs(Marchetti_diatom_cultures_neg.unox_IPL$peakgroup_rt-Marchetti_diatom_cultures_pos.unox_IPL$peakgroup_rt[i])<20,]
+  
+  if (nrow(negmode.match)>0) {
+    
+    # there appears to be a corresponding feature in the negative ion mode data
+    
+    # pull out the negative mode xcms peakgroup and fragment data for this feature 
+    # unlist/lapply syntax necessary in case there are multiple possible matches
+    
+    xcms.peakIDs_thisgroup_neg =
+      unlist(lapply(negmode.match$xcms_peakgroup, function(x) Marchetti_diatoms_xsA_neg@xcmsSet@groupidx[[x]]))
+    
+    xcms.peakdata_thisgroup_neg =
+      as.data.frame(Marchetti_diatoms_xsA_neg@xcmsSet@peaks[xcms.peakIDs_thisgroup_neg,])
+    
+  }
+  
+  # retrieve underlying positive-mode xcms group and peak data
+  
+  xcms.peakIDs_thisgroup_pos =
+    Marchetti_diatoms_xsA_pos@xcmsSet@groupidx[[Marchetti_diatom_cultures_pos.unox_IPL$xcms_peakgroup[i]]]
+  
+  xcms.peakdata_thisgroup_pos =
+    as.data.frame(Marchetti_diatoms_xsA_pos@xcmsSet@peaks[xcms.peakIDs_thisgroup_pos,])
+  
+  # now, iterate through the instances of this putatively identified compound in each sample; evaluate
+  
+  for (j in 1:ncol(Marchetti_diatom_cultures_pos.unox_IPL[,14:20])) {
+    
+    ### first, pull out positive and negative ion mode fragmentation spectra for the feature, if they exist ###
+    
+    ### positive mode
+    
+    # retrieve daughter + mode ms2 spectra for this peak, if they exist (positive-mode data is necessary for a PI-based confirmation)
+    fragspectra_thispeak_pos = Marchetti_diatoms_xF_pos@peaks[
+      Marchetti_diatoms_xF_pos@peaks[,c("MSnParentPeakID")]==
+        xcms.peakIDs_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==j],]
+    
+    if (length(fragspectra_thispeak_pos)>0) {
+      #  there is positive-mode ms2 data for this parent scan
+      
+      # record this fact appropriately & extract
+      
+      Marchetti_diatom.detect_pos_ion_fragments[i,j] = 1
+      
+      # reshape the fragment spec data to get it in a consistent format
+      # (if only one entry, will need to be transposed)
+      # while we're at it, rank the fragments by intensity, if they're not already in order (and there is more than 1 fragment); we will need them ranked later on
+      
+      if (length(fragspectra_thispeak_pos)==9) {
+        
+        fragspectra_thispeak_pos = t(as.matrix(fragspectra_thispeak_pos))
+        fragspectra_thispeak_pos.ranked = fragspectra_thispeak_pos
+        
+      } else if (length(fragspectra_thispeak_pos)>9) {
+        
+        fragspectra_thispeak_pos = as.matrix(fragspectra_thispeak_pos)
+        
+        # rank the fragments by intensity (decreasing), if they're not already
+        fragspectra_thispeak_pos.ranked = fragspectra_thispeak_pos[order(fragspectra_thispeak_pos[,6], decreasing = TRUE),]
+        
+      }
+      
+    } else { # note that no positive-mode fragment data was found
+      
+      Marchetti_diatom.detect_pos_ion_fragments[i,j] = 0
+      
+    }
+    
+    ### negative mode
+    
+    if (nrow(negmode.match)>0) {
+      # first, check to make sure we have - mode data at all for the parent feature
+      
+      # retrieve daughter - mode ms2 spectra for this peak, if they exist
+      fragspectra_thispeak_neg = Marchetti_diatoms_xF_neg@peaks[
+        Marchetti_diatoms_xF_neg@peaks[,c("MSnParentPeakID")]==
+          xcms.peakIDs_thisgroup_neg[xcms.peakdata_thisgroup_neg$sample==j],]
+      
+      if (length(fragspectra_thispeak_neg)>0) {
+        
+        # there is negative-mode data, record appropriately & extract
+        
+        Marchetti_diatom.detect_neg_ion_fragments[i,j] = 1
+        
+        # reshape the fragment spec data to get it in a consistent format
+        # (if only one entry, will need to be transposed)
+        # while we're at it, rank the fragments by intensity, if they're not already in order (and there is more than 1 fragment)
+        
+        if (length(fragspectra_thispeak_neg)==9) {
+          
+          fragspectra_thispeak_neg = t(as.matrix(fragspectra_thispeak_neg))
+          fragspectra_thispeak_neg.ranked = fragspectra_thispeak_neg
+          
+        } else if (length(fragspectra_thispeak_neg)>9) {
+          
+          fragspectra_thispeak_neg = as.matrix(fragspectra_thispeak_neg)
+          
+          # rank the fragments by intensity (decreasing), if they're not already
+          fragspectra_thispeak_neg.ranked = fragspectra_thispeak_neg[order(fragspectra_thispeak_neg[,6], decreasing = TRUE),]
+          
+        }
+        
+      } else { # note that no negative-mode data was found
+        
+        Marchetti_diatom.detect_neg_ion_fragments[i,j] = 0
+        
+      }
+      
+    }
+
+    ### now, can get onto the business of actually examining the spectra for the diagnostic transition
+      
+      ### scenario 1: class type is diagnosed via presence of product ion ###
+      
+      if (Marchetti_diatom.frag_lookup_classes$Frag_exp_type[
+        rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass] == "PI") {
+        # this class is diagnosed via presence of a product ion
+        # should require only positive mode data
+        
+        # first check whether we have + mode fragments at all; escape if not (no point in proceeding with the below)
+        # can use the indicator data we just recorded
+        
+        if (Marchetti_diatom.detect_pos_ion_fragments[i,j]==1) {
+        
+        # apply some logic for product ion scenario: assume that for a product ion-based ID to be "good", we must observe a feature with the mz of the diagnostic ion (+/- some mz tolerance) as one of the top 5 peaks (by intensity) in the ms2 scan
+        
+        # so, extract the top 5 most intense features, or all of the features of < 5 exist
+        
+        if (nrow(fragspectra_thispeak_pos.ranked)<6) {
+          
+          ms2_mz_pos = fragspectra_thispeak_pos.ranked[1:nrow(fragspectra_thispeak_pos.ranked),5] # 
+          
+        } else {
+          
+          ms2_mz_pos = fragspectra_thispeak_pos.ranked[1:5,5]
+          
+        }
+        
+        # evaluate: does this list of the top 5 most intense fragments contain the diagnostic ion?
+        
+        if (round(Marchetti_diatom.frag_lookup_classes$mz_value[
+          rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass],1) %in% round(ms2_mz_pos,1)) {
+          # it's a match --> record indicator at necessary position
+          
+          Marchetti_diatom.fragdata_results[i,j] = 1
+          
+        } else { # the product ion was not found; record a goose egg
+          
+          Marchetti_diatom.fragdata_results[i,j] = 0
+        
+          }
+          
+        }
+        
+      } else if (Marchetti_diatom.frag_lookup_classes$Frag_exp_type[
+        rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass] == "CNL") {
+      
+      ### scenario 2: class type is diagnosed via constant neutral loss ###
+        
+          # first check whether we have + mode fragments at all; escape if not (no point in proceeding with the below)
+          # can use the indicator data we just recorded
+          
+          if (Marchetti_diatom.detect_pos_ion_fragments[i,j]==1) {
+            
+              ms2_mz_pos = fragspectra_thispeak_pos.ranked[,5] # extract ms2 data
+            
+              # assume it's a good ID in this case as long as an ion corresponding to the diagnostic CNL is present in the + mode ms2 spectrum
+              # throwing in a mean() here in case xcms associated more than one peak with the group in this particular sample
+              CNL_product_mz = mean(xcms.peakdata_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==j,1])-
+                Marchetti_diatom.frag_lookup_classes$mz_value[
+                  rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass]
+              
+              if (round(CNL_product_mz,1) %in% round(ms2_mz_pos,1)) {
+                # it's a match --> record indicator at necessary position
+              
+              Marchetti_diatom.fragdata_results[i,j] = 1
+              
+            } else { # the CNL ion was not found; record a goose egg
+              
+              Marchetti_diatom.fragdata_results[i,j] = 0
+              
+            }
+            
+          }
+        
+      }
+    
+  }
+  
+}
+  
+
+        
+        
+        
+
 
 # # convert anything < 1e5 intensity to NA, assuming it's either noise
 # # or something so low in concentraton as to be irrelevant from a total lipid
@@ -973,23 +1235,23 @@ Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20] =
           Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20]<0,
           NA)
 
-# determine what peak area cutoff we impose that still retains >95% of the ID'd mass in each sample
-
-apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18],2,function (x) sum(x[x>=30], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 60 does it for cols 14-18
-
-apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20],2,function (x) sum(x[x>=4], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 10 does it for cols 19-20
-
-# apply these constraints
-
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18]<30,
-          NA)
-
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20]<4,
-          NA)
+# # determine what peak area cutoff we impose that still retains >95% of the ID'd mass in each sample
+# 
+# apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18],2,function (x) sum(x[x>=30], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 60 does it for cols 14-18
+# 
+# apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20],2,function (x) sum(x[x>=4], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 10 does it for cols 19-20
+# 
+# # apply these constraints
+# 
+# Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18] =
+#   replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18],
+#           Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:18]<30,
+#           NA)
+# 
+# Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20] =
+#   replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20],
+#           Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,19:20]<4,
+#           NA)
 
 # now remove elements for which there is no data in any sample (includes elements
 # just reduced to NA)
@@ -1268,8 +1530,8 @@ Marchetti_cultures.DGCC.peaksums/Marchetti_cultures.peaksums
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA.RData")
 PAL1314_LMG1401_partic_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_samples_pos_withoddFA) # generate peaklist
 
-load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples_nooddFA.RData")
-PAL1314_LMG1401_partic_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_enviro_samples_pos) # generate peaklist
+# load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples_nooddFA.RData")
+# PAL1314_LMG1401_partic_pos = getLOBpeaklist(PAL1314_LMG1401_particulate_enviro_samples_pos) # generate peaklist
 
 # will use the 20161107 standards, with the 20161005 for DGTS 
 
@@ -1386,16 +1648,16 @@ PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17] =
           PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17]<0,
           NA)
 
-# determine what peak area cutoff we impose that still retains >95% of the ID'd mass in each sample
-
-apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],2,function (x) sum(x[x>=3e6], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 30 does it
-
-# apply these constraints
-
-PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17] =
-  replace(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],
-          PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17]<3e6,
-          NA)
+# # determine what peak area cutoff we impose that still retains >95% of the ID'd mass in each sample
+# 
+# apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],2,function (x) sum(x[x>=30], na.rm = TRUE)/sum(x, na.rm = TRUE)) # 30 does it
+# 
+# # apply these constraints
+# 
+# PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17] =
+#   replace(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17],
+#           PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[,13:17]<30,
+#           NA)
 
 # now remove elements for which there is no data in any sample (includes elements
 # just reduced to NA)
@@ -1487,39 +1749,39 @@ dev.off()
 # 6 double bonds (based on known pathways of FA biosynthesis in diatoms)
 
 # define some categories
-Marchetti_diatoms.sat_classes = c("Both sn1, sn2 fully saturated","Neither sn1 nor sn2 is more than di-unsaturated",
+PAL1314_LMG1401_partic.sat_classes = c("Both sn1, sn2 fully saturated","Neither sn1 nor sn2 is more than di-unsaturated",
                                   "Contain other species of middling unsaturation",
                                   "sn1, sn2 both have ≥ 3 double bonds","sn1, sn2 both have/PUFAs ≥ 5 DB")
 
 # need also to define these in terms of numbers that will be used to extract data
-Marchetti_diatoms.sat_numbers = c(0,2,9,11)
+PAL1314_LMG1401_partic.sat_numbers = c(0,2,9,11)
 
 # preallocate matrix for results
-Marchetti_diatoms.sat_totals = as.data.frame(matrix(NA,length(Marchetti_diatoms.sat_classes),7))
-rownames(Marchetti_diatoms.sat_totals) = c(Marchetti_diatoms.sat_classes)
-colnames(Marchetti_diatoms.sat_totals) = colnames(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total)[14:20]
+PAL1314_LMG1401_partic.sat_totals = as.data.frame(matrix(NA,length(PAL1314_LMG1401_partic.sat_classes),5))
+rownames(PAL1314_LMG1401_partic.sat_totals) = c(PAL1314_LMG1401_partic.sat_classes)
+colnames(PAL1314_LMG1401_partic.sat_totals) = colnames(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total)[13:17]
 
 # calculate saturation class totals
 
-for (i in 1:(nrow(Marchetti_diatoms.sat_totals))) {
+for (i in 1:(nrow(PAL1314_LMG1401_partic.sat_totals))) {
   
   if (i==1) {
     
-    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB==Marchetti_diatoms.sat_numbers[i],14:20],
+    PAL1314_LMG1401_partic.sat_totals[i,] = apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB==PAL1314_LMG1401_partic.sat_numbers[i],13:17],
                                              2,sum,na.rm=T)
     
   } else if (i > 1 & i < 5) {
     
-    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[(
-      Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
-        Marchetti_diatoms.sat_numbers[i-1] & 
-        Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB<
-        Marchetti_diatoms.sat_numbers[i]),14:20],
+    PAL1314_LMG1401_partic.sat_totals[i,] = apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[(
+      PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=
+        PAL1314_LMG1401_partic.sat_numbers[i-1] & 
+        PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB<
+        PAL1314_LMG1401_partic.sat_numbers[i]),13:17],
       2,sum,na.rm=T)
     
   } else if (i==5) {
     
-    Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=Marchetti_diatoms.sat_numbers[i-1],14:20],
+    PAL1314_LMG1401_partic.sat_totals[i,] = apply(PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total[PAL1314_LMG1401_partic_pos.unox_IPL.noDGCC.pmol.total$FA_total_no_DB>=PAL1314_LMG1401_partic.sat_numbers[i-1],13:17],
                                              2,sum,na.rm=T)
     
   }
@@ -1531,17 +1793,16 @@ for (i in 1:(nrow(Marchetti_diatoms.sat_totals))) {
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
-pdf(file = "Marchetti_diatom_satur_dist.pdf",
+pdf(file = "PAL1314_LMG1401_partic_satur_dist.pdf",
     width = 8, height = 6, pointsize = 12,
     bg = "white")
 
 par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(Marchetti_diatoms.sat_totals[1:5,c(1,3,5,7)])),margin=2)
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401_partic.sat_totals[1:5,])),margin=2)
 barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = c("Actinocyclus	actinochilus UNC 1403","Chaetoceros sp. UNC 1408",
-                      "Fragilariopsis cylindrus UNC1301","Thalassiosira antarctica UNC1401"))
+        names.arg = colnames(PAL1314_LMG1401_partic.sat_totals))
 legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
 
 dev.off()
