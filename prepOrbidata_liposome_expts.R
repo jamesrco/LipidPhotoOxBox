@@ -433,8 +433,8 @@ centW.nSlaves = 4 # if you have r package "snow" installed, can set to number of
 
 # # create xcmsRaw object from just a single sample (for method development)
 
-# xfile_raw = xcmsRaw(mzXMLfiles[1], profparam = centW.profparam, includeMSn=TRUE)
-# profStep(xfile_raw) = 0.005
+xfile_raw = xcmsRaw("/Users/jrcollins/Desktop/Marchetti/Marchetti_diatom_culture_extract_Ch_sp_DNA_QE002911.mzXML", profparam = centW.profparam, includeMSn=TRUE)
+profStep(xfile_raw) = 0.005
 
 # rawpeaks = findPeaks.centWave(xfile_raw,
 # ppm = centW.ppm,
@@ -449,7 +449,7 @@ centW.nSlaves = 4 # if you have r package "snow" installed, can set to number of
 # mzCenterFun = centW.mzCenterFun
 # #                 ,sleep = centW.sleep
 # #                 nSlaves = centW.nSlaves
-# ) 
+# )
 
 # # # despite the good press, massifquant was picking some very bad looking features, using centWave for time being instead
 
@@ -468,7 +468,7 @@ centW.nSlaves = 4 # if you have r package "snow" installed, can set to number of
 # # checkBack = 1,
 # # fitgauss = FALSE
 # # #                nSlaves = 4 # if you have r package "snow" installed, can set to number of cores you wish to make use of
-# # ) 
+# # )
 
 # # plot some selected peaks
 
@@ -872,3 +872,32 @@ cleanParallel(xset_a) # kill sockets
 print(paste0("xsAnnotate object 'xset_a' has been created. User can now use LOBSTAHS to perform screening..."))
 
 print(xset_a)
+
+library(LOBSTAHS)
+LOBset = doLOBscreen(xset_a, polarity="positive",match.ppm=2.5, exclude.oddFA = FALSE)
+pl = getLOBpeaklist(LOBset, gen.csv = TRUE)
+
+PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA = LOBset
+save(file = "PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA.RData", PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA)
+
+PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA_xsAnnotate = xset_a
+save(file = "PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA_xsAnnotate.RData", PAL1314_LMG1401_particulate_enviro_samples_pos_withoddFA_xsAnnotate)
+
+# # UNC_Marchetti_diatom_cultures_neg_withoddFA_xcmsFragments = xcmsFragments(xset_a@xcmsSet)
+# UNC_Marchetti_diatom_cultures_neg_withoddFA_xcmsFragments=xcmsFragments(xset_gr.ret.rg.fill,snthresh=2,mzgap=.05,uniq=T,compMethod="round")
+# save(file = "UNC_Marchetti_diatom_cultures_neg_withoddFA_xcmsFragments.RData", UNC_Marchetti_diatom_cultures_neg_withoddFA_xcmsFragments)
+
+
+xraw_pos_LMG1401_004_QE003116 <- xcmsRaw("X:/Jamie_Collins/mzXML/PAL1314_LMG1401/Environmental_samples/pos/particulate_fraction/samples/LMG1401_004_QE003116.mzXML",includeMSn=TRUE)
+xraw_pos_LMG1401_008_QE003117 <- xcmsRaw("X:/Jamie_Collins/mzXML/PAL1314_LMG1401/Environmental_samples/pos/particulate_fraction/samples/LMG1401_008_QE003117.mzXML",includeMSn=TRUE)
+xraw_pos_LMG1401_009_QE003118 <- xcmsRaw("X:/Jamie_Collins/mzXML/PAL1314_LMG1401/Environmental_samples/pos/particulate_fraction/samples/LMG1401_009_QE003118.mzXML",includeMSn=TRUE)
+xraw_pos_LMG1401_010_QE003119 <- xcmsRaw("X:/Jamie_Collins/mzXML/PAL1314_LMG1401/Environmental_samples/pos/particulate_fraction/samples/LMG1401_010_QE003119.mzXML",includeMSn=TRUE)
+xraw_pos_PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120 <- xcmsRaw("X:/Jamie_Collins/mzXML/PAL1314_LMG1401/Environmental_samples/pos/particulate_fraction/samples/PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120.mzXML",includeMSn=TRUE)
+
+
+PAL1314_LMG1401_particulate_enviro_samples_pos_xcmsRaw = list(xraw_pos_LMG1401_004_QE003116 = xraw_pos_LMG1401_004_QE003116,
+                                                              xraw_pos_LMG1401_008_QE003117 = xraw_pos_LMG1401_008_QE003117,
+                                                              xraw_pos_LMG1401_009_QE003118 = xraw_pos_LMG1401_009_QE003118,
+                                                              xraw_pos_LMG1401_010_QE003119 = xraw_pos_LMG1401_010_QE003119,
+                                                              xraw_pos_PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120 = xraw_pos_PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120)
+save(PAL1314_LMG1401_particulate_enviro_samples_pos_xcmsRaw,file="PAL1314_LMG1401_particulate_enviro_samples_pos_xcmsRaw.RData")
