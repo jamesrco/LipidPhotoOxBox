@@ -898,121 +898,125 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
   this.ID = Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i]
   this.IDclass = Marchetti_diatom_cultures_pos.unox_IPL$species[i]
   
-  # first, determine whether this ID was also made in the negative ion mode data; will diagnose this by presence of same compound ID around the same corrected retention time (+/- 20 seconds)
-  # if yes, pull out the corresponding data from the negative-mode xsAnnotate and xcmsFragments objects
+  # escape if the lipid class isn't accounted for in our input parameter table
   
-  negmode.match = Marchetti_diatom_cultures_neg.unox_IPL[Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i]==Marchetti_diatom_cultures_neg.unox_IPL$compound_name & abs(Marchetti_diatom_cultures_neg.unox_IPL$peakgroup_rt-Marchetti_diatom_cultures_pos.unox_IPL$peakgroup_rt[i])<20,]
-  
-  if (nrow(negmode.match)>0) {
+  if (this.IDclass %in% rownames(Marchetti_diatom.frag_lookup_classes)) {
     
-    # there appears to be a corresponding feature in the negative ion mode data
+    # first, determine whether this ID was also made in the negative ion mode data; will diagnose this by presence of same compound ID around the same corrected retention time (+/- 20 seconds)
+    # if yes, pull out the corresponding data from the negative-mode xsAnnotate and xcmsFragments objects
     
-    # pull out the negative mode xcms peakgroup and fragment data for this feature 
-    # unlist/lapply syntax necessary in case there are multiple possible matches
+    negmode.match = Marchetti_diatom_cultures_neg.unox_IPL[Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i]==Marchetti_diatom_cultures_neg.unox_IPL$compound_name & abs(Marchetti_diatom_cultures_neg.unox_IPL$peakgroup_rt-Marchetti_diatom_cultures_pos.unox_IPL$peakgroup_rt[i])<20,]
     
-    xcms.peakIDs_thisgroup_neg =
-      unlist(lapply(negmode.match$xcms_peakgroup, function(x) Marchetti_diatoms_xsA_neg@xcmsSet@groupidx[[x]]))
-    
-    xcms.peakdata_thisgroup_neg =
-      as.data.frame(Marchetti_diatoms_xsA_neg@xcmsSet@peaks[xcms.peakIDs_thisgroup_neg,])
-    
-  }
-  
-  # retrieve underlying positive-mode xcms group and peak data
-  
-  xcms.peakIDs_thisgroup_pos =
-    Marchetti_diatoms_xsA_pos@xcmsSet@groupidx[[Marchetti_diatom_cultures_pos.unox_IPL$xcms_peakgroup[i]]]
-  
-  xcms.peakdata_thisgroup_pos =
-    as.data.frame(Marchetti_diatoms_xsA_pos@xcmsSet@peaks[xcms.peakIDs_thisgroup_pos,])
-  
-  # now, iterate through the instances of this putatively identified compound in each sample; evaluate
-  
-  for (j in 1:ncol(Marchetti_diatom_cultures_pos.unox_IPL[,14:20])) {
-    
-    ### first, pull out positive and negative ion mode fragmentation spectra for the feature, if they exist ###
-    
-    ### positive mode
-    
-    # retrieve daughter + mode ms2 spectra for this peak, if they exist (positive-mode data is necessary for a PI-based confirmation)
-    fragspectra_thispeak_pos = Marchetti_diatoms_xF_pos@peaks[
-      Marchetti_diatoms_xF_pos@peaks[,c("MSnParentPeakID")]==
-        xcms.peakIDs_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==j],]
-    
-    if (length(fragspectra_thispeak_pos)>0) {
-      #  there is positive-mode ms2 data for this parent scan
+    if (nrow(negmode.match)>0) {
       
-      # record this fact appropriately & extract
+      # there appears to be a corresponding feature in the negative ion mode data
       
-      Marchetti_diatom.detect_pos_ion_fragments[i,j] = 1
+      # pull out the negative mode xcms peakgroup and fragment data for this feature 
+      # unlist/lapply syntax necessary in case there are multiple possible matches
       
-      # reshape the fragment spec data to get it in a consistent format
-      # (if only one entry, will need to be transposed)
-      # while we're at it, rank the fragments by intensity, if they're not already in order (and there is more than 1 fragment); we will need them ranked later on
+      xcms.peakIDs_thisgroup_neg =
+        unlist(lapply(negmode.match$xcms_peakgroup, function(x) Marchetti_diatoms_xsA_neg@xcmsSet@groupidx[[x]]))
       
-      if (length(fragspectra_thispeak_pos)==9) {
-        
-        fragspectra_thispeak_pos = t(as.matrix(fragspectra_thispeak_pos))
-        fragspectra_thispeak_pos.ranked = fragspectra_thispeak_pos
-        
-      } else if (length(fragspectra_thispeak_pos)>9) {
-        
-        fragspectra_thispeak_pos = as.matrix(fragspectra_thispeak_pos)
-        
-        # rank the fragments by intensity (decreasing), if they're not already
-        fragspectra_thispeak_pos.ranked = fragspectra_thispeak_pos[order(fragspectra_thispeak_pos[,6], decreasing = TRUE),]
-        
-      }
-      
-    } else { # note that no positive-mode fragment data was found
-      
-      Marchetti_diatom.detect_pos_ion_fragments[i,j] = 0
+      xcms.peakdata_thisgroup_neg =
+        as.data.frame(Marchetti_diatoms_xsA_neg@xcmsSet@peaks[xcms.peakIDs_thisgroup_neg,])
       
     }
     
-    ### negative mode
+    # retrieve underlying positive-mode xcms group and peak data
     
-    if (nrow(negmode.match)>0) {
-      # first, check to make sure we have - mode data at all for the parent feature
+    xcms.peakIDs_thisgroup_pos =
+      Marchetti_diatoms_xsA_pos@xcmsSet@groupidx[[Marchetti_diatom_cultures_pos.unox_IPL$xcms_peakgroup[i]]]
+    
+    xcms.peakdata_thisgroup_pos =
+      as.data.frame(Marchetti_diatoms_xsA_pos@xcmsSet@peaks[xcms.peakIDs_thisgroup_pos,])
+    
+    # now, iterate through the instances of this putatively identified compound in each sample; evaluate
+    
+    for (j in 1:ncol(Marchetti_diatom_cultures_pos.unox_IPL[,14:20])) {
       
-      # retrieve daughter - mode ms2 spectra for this peak, if they exist
-      fragspectra_thispeak_neg = Marchetti_diatoms_xF_neg@peaks[
-        Marchetti_diatoms_xF_neg@peaks[,c("MSnParentPeakID")]==
-          xcms.peakIDs_thisgroup_neg[xcms.peakdata_thisgroup_neg$sample==j],]
+      ### first, pull out positive and negative ion mode fragmentation spectra for the feature, if they exist ###
       
-      if (length(fragspectra_thispeak_neg)>0) {
+      ### positive mode
+      
+      # retrieve daughter + mode ms2 spectra for this peak, if they exist (positive-mode data is necessary for a PI-based confirmation)
+      fragspectra_thispeak_pos = Marchetti_diatoms_xF_pos@peaks[
+        Marchetti_diatoms_xF_pos@peaks[,c("MSnParentPeakID")]==
+          xcms.peakIDs_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==j],]
+      
+      if (length(fragspectra_thispeak_pos)>0) {
+        #  there is positive-mode ms2 data for this parent scan
         
-        # there is negative-mode data, record appropriately & extract
+        # record this fact appropriately & extract
         
-        Marchetti_diatom.detect_neg_ion_fragments[i,j] = 1
+        Marchetti_diatom.detect_pos_ion_fragments[i,j] = 1
         
         # reshape the fragment spec data to get it in a consistent format
         # (if only one entry, will need to be transposed)
-        # while we're at it, rank the fragments by intensity, if they're not already in order (and there is more than 1 fragment)
+        # while we're at it, rank the fragments by intensity, if they're not already in order (and there is more than 1 fragment); we will need them ranked later on
         
-        if (length(fragspectra_thispeak_neg)==9) {
+        if (length(fragspectra_thispeak_pos)==9) {
           
-          fragspectra_thispeak_neg = t(as.matrix(fragspectra_thispeak_neg))
-          fragspectra_thispeak_neg.ranked = fragspectra_thispeak_neg
+          fragspectra_thispeak_pos = t(as.matrix(fragspectra_thispeak_pos))
+          fragspectra_thispeak_pos.ranked = fragspectra_thispeak_pos
           
-        } else if (length(fragspectra_thispeak_neg)>9) {
+        } else if (length(fragspectra_thispeak_pos)>9) {
           
-          fragspectra_thispeak_neg = as.matrix(fragspectra_thispeak_neg)
+          fragspectra_thispeak_pos = as.matrix(fragspectra_thispeak_pos)
           
           # rank the fragments by intensity (decreasing), if they're not already
-          fragspectra_thispeak_neg.ranked = fragspectra_thispeak_neg[order(fragspectra_thispeak_neg[,6], decreasing = TRUE),]
+          fragspectra_thispeak_pos.ranked = fragspectra_thispeak_pos[order(fragspectra_thispeak_pos[,6], decreasing = TRUE),]
           
         }
         
-      } else { # note that no negative-mode data was found
+      } else { # note that no positive-mode fragment data was found
         
-        Marchetti_diatom.detect_neg_ion_fragments[i,j] = 0
+        Marchetti_diatom.detect_pos_ion_fragments[i,j] = 0
         
       }
       
-    }
-
-    ### now, can get onto the business of actually examining the spectra for the diagnostic transition
+      ### negative mode
+      
+      if (nrow(negmode.match)>0) {
+        # first, check to make sure we have - mode data at all for the parent feature
+        
+        # retrieve daughter - mode ms2 spectra for this peak, if they exist
+        fragspectra_thispeak_neg = Marchetti_diatoms_xF_neg@peaks[
+          Marchetti_diatoms_xF_neg@peaks[,c("MSnParentPeakID")]==
+            xcms.peakIDs_thisgroup_neg[xcms.peakdata_thisgroup_neg$sample==j],]
+        
+        if (length(fragspectra_thispeak_neg)>0) {
+          
+          # there is negative-mode data, record appropriately & extract
+          
+          Marchetti_diatom.detect_neg_ion_fragments[i,j] = 1
+          
+          # reshape the fragment spec data to get it in a consistent format
+          # (if only one entry, will need to be transposed)
+          # while we're at it, rank the fragments by intensity, if they're not already in order (and there is more than 1 fragment)
+          
+          if (length(fragspectra_thispeak_neg)==9) {
+            
+            fragspectra_thispeak_neg = t(as.matrix(fragspectra_thispeak_neg))
+            fragspectra_thispeak_neg.ranked = fragspectra_thispeak_neg
+            
+          } else if (length(fragspectra_thispeak_neg)>9) {
+            
+            fragspectra_thispeak_neg = as.matrix(fragspectra_thispeak_neg)
+            
+            # rank the fragments by intensity (decreasing), if they're not already
+            fragspectra_thispeak_neg.ranked = fragspectra_thispeak_neg[order(fragspectra_thispeak_neg[,6], decreasing = TRUE),]
+            
+          }
+          
+        } else { # note that no negative-mode data was found
+          
+          Marchetti_diatom.detect_neg_ion_fragments[i,j] = 0
+          
+        }
+        
+      }
+      
+      ### now, can get onto the business of actually examining the spectra for the diagnostic transition
       
       ### scenario 1: class type is diagnosed via presence of product ion ###
       
@@ -1025,79 +1029,75 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos.unox_IPL))) {
         # can use the indicator data we just recorded
         
         if (Marchetti_diatom.detect_pos_ion_fragments[i,j]==1) {
-        
-        # apply some logic for product ion scenario: assume that for a product ion-based ID to be "good", we must observe a feature with the mz of the diagnostic ion (+/- some mz tolerance) as one of the top 5 peaks (by intensity) in the ms2 scan
-        
-        # so, extract the top 5 most intense features, or all of the features of < 5 exist
-        
-        if (nrow(fragspectra_thispeak_pos.ranked)<6) {
           
-          ms2_mz_pos = fragspectra_thispeak_pos.ranked[1:nrow(fragspectra_thispeak_pos.ranked),5] # 
+          # apply some logic for product ion scenario: assume that for a product ion-based ID to be "good", we must observe a feature with the mz of the diagnostic ion (+/- some mz tolerance) as one of the top 5 peaks (by intensity) in the ms2 scan
           
-        } else {
+          # so, extract the top 5 most intense features, or all of the features of < 5 exist
           
-          ms2_mz_pos = fragspectra_thispeak_pos.ranked[1:5,5]
+          if (nrow(fragspectra_thispeak_pos.ranked)<6) {
+            
+            ms2_mz_pos = fragspectra_thispeak_pos.ranked[1:nrow(fragspectra_thispeak_pos.ranked),5] # 
+            
+          } else {
+            
+            ms2_mz_pos = fragspectra_thispeak_pos.ranked[1:5,5]
+            
+          }
           
-        }
-        
-        # evaluate: does this list of the top 5 most intense fragments contain the diagnostic ion?
-        
-        if (round(Marchetti_diatom.frag_lookup_classes$mz_value[
-          rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass],1) %in% round(ms2_mz_pos,1)) {
-          # it's a match --> record indicator at necessary position
+          # evaluate: does this list of the top 5 most intense fragments contain the diagnostic ion?
           
-          Marchetti_diatom.fragdata_results[i,j] = 1
-          
-        } else { # the product ion was not found; record a goose egg
-          
-          Marchetti_diatom.fragdata_results[i,j] = 0
-        
+          if (round(Marchetti_diatom.frag_lookup_classes$mz_value[
+            rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass],1) %in% round(ms2_mz_pos,1)) {
+            # it's a match --> record indicator at necessary position
+            
+            Marchetti_diatom.fragdata_results[i,j] = 1
+            
+          } else { # the product ion was not found; record a goose egg
+            
+            Marchetti_diatom.fragdata_results[i,j] = 0
+            
           }
           
         }
         
       } else if (Marchetti_diatom.frag_lookup_classes$Frag_exp_type[
         rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass] == "CNL") {
-      
-      ### scenario 2: class type is diagnosed via constant neutral loss ###
         
-          # first check whether we have + mode fragments at all; escape if not (no point in proceeding with the below)
-          # can use the indicator data we just recorded
+        ### scenario 2: class type is diagnosed via constant neutral loss ###
+        
+        # first check whether we have + mode fragments at all; escape if not (no point in proceeding with the below)
+        # can use the indicator data we just recorded
+        
+        if (Marchetti_diatom.detect_pos_ion_fragments[i,j]==1) {
           
-          if (Marchetti_diatom.detect_pos_ion_fragments[i,j]==1) {
+          ms2_mz_pos = fragspectra_thispeak_pos.ranked[,5] # extract ms2 data
+          
+          # assume it's a good ID in this case as long as an ion corresponding to the diagnostic CNL is present in the + mode ms2 spectrum
+          # throwing in a mean() here in case xcms associated more than one peak with the group in this particular sample
+          CNL_product_mz = mean(xcms.peakdata_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==j,1])-
+            Marchetti_diatom.frag_lookup_classes$mz_value[
+              rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass]
+          
+          if (round(CNL_product_mz,1) %in% round(ms2_mz_pos,1)) {
+            # it's a match --> record indicator at necessary position
             
-              ms2_mz_pos = fragspectra_thispeak_pos.ranked[,5] # extract ms2 data
+            Marchetti_diatom.fragdata_results[i,j] = 1
             
-              # assume it's a good ID in this case as long as an ion corresponding to the diagnostic CNL is present in the + mode ms2 spectrum
-              # throwing in a mean() here in case xcms associated more than one peak with the group in this particular sample
-              CNL_product_mz = mean(xcms.peakdata_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==j,1])-
-                Marchetti_diatom.frag_lookup_classes$mz_value[
-                  rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass]
-              
-              if (round(CNL_product_mz,1) %in% round(ms2_mz_pos,1)) {
-                # it's a match --> record indicator at necessary position
-              
-              Marchetti_diatom.fragdata_results[i,j] = 1
-              
-            } else { # the CNL ion was not found; record a goose egg
-              
-              Marchetti_diatom.fragdata_results[i,j] = 0
-              
-            }
+          } else { # the CNL ion was not found; record a goose egg
+            
+            Marchetti_diatom.fragdata_results[i,j] = 0
             
           }
+          
+        }
         
       }
+      
+    }
     
   }
   
 }
-  
-
-        
-        
-        
-
 
 # # convert anything < 1e5 intensity to NA, assuming it's either noise
 # # or something so low in concentraton as to be irrelevant from a total lipid
