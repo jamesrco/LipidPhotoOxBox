@@ -407,7 +407,7 @@ y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PG 32:0",c(1:7)]
 #x = 8*(1-exp(-0.008*rev(Stds_20161005_oc$pmol_oc_PG)[c(1:8,10)])^1)
 x = rev(Stds_20161005_oc$pmol_oc_PG)[c(1:7)]
 
-linfit_low.PG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
+linfit_low.PG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_PG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PG 32:0",],
      pch="+",
@@ -431,7 +431,7 @@ PG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PE 32:0",c(1:8)]
 x = rev(Stds_20161005_oc$pmol_oc_PE)[c(1:8)]
-linfit_low.PE.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
+linfit_low.PE.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_PE),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PE 32:0",],
      pch="+",
@@ -455,7 +455,7 @@ PE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",c(1:8)]
 x = rev(Stds_20161005_oc$pmol_oc_PC)[c(1:8)]
-linfit_low.PC.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the entire range,
+linfit_low.PC.20161005 = lm(as.numeric(y)~x) # fit a linear model for the entire range,
 # while skipping the 9th standard because something was wonky with it
 plot(rev(Stds_20161005_oc$pmol_oc_PC),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="PC 32:0",],
@@ -479,7 +479,7 @@ PC_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",1:8]
 x = rev(Stds_20161005_oc$pmol_oc_MGDG)[1:8]
-linfit_low.MGDG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 10 standard levels
+linfit_low.MGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_MGDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",],
      pch="+",
@@ -505,7 +505,7 @@ MGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(1:7)]
 # x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)]
 x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7)]
-linfit_low.SQDG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 7 standard levels
+linfit_low.SQDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_SQDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",],
      pch="+",
@@ -589,7 +589,7 @@ SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",c(1:8)]
 x = rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8)]
-linfit_low.DGDG.20161005 = lm(as.numeric(y)~x-1) # fit a linear model for the first 7 standard levels
+linfit_low.DGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGDG),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",],
      pch="+",
@@ -614,7 +614,7 @@ DGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DNPPE",c(1:7,9)]
 x = rev(Stds_20161005_oc$pmol_oc_DNPPE)[c(1:7,9)]
-linfit_low.DNPPE.20161005 = lm(as.numeric(y)~x-1) # fit linear model
+linfit_low.DNPPE.20161005 = lm(as.numeric(y)~x) # fit linear model
 plot(rev(Stds_20161005_oc$pmol_oc_DNPPE),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DNPPE",],
      pch="+",
@@ -635,7 +635,7 @@ DNPPE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20
 y = as.numeric(Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(1:8)])
 x = rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:8)]
 
-linfit_low.DGTS_DGTA.20161005 = lm(as.numeric(y)~x-1) # fit a model for the first 8 standard levels
+linfit_low.DGTS_DGTA.20161005 = lm(as.numeric(y)~x) # fit a model for the first 8 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGTS),
      Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",],
      pch="+",
@@ -818,7 +818,7 @@ text(ECNs, RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
 
 ### Marchetti diatom cultures ####
 
-# will use the 20161005 standards for these files
+# will use the 20161107 standards for these files, with the 20161005 standards for DGTS & DGTA
 
 ## pull in data ###
 
@@ -1367,39 +1367,39 @@ colnames(Marchetti_diatom.conc_classes) =
 Marchetti_diatom.conc_classes[,1] =
   c("PG","PE","PC","MGDG","SQDG","DGDG","DGTS_DGTA","DNPPE")
 
-Marchetti_diatom.conc_classes[,2] =
-  c("linfit_low.PG.20161005","linfit_low.PE.20161005","linfit_low.PC.20161005",
-    "linfit_low.MGDG.20161005","linfit_low.SQDG.20161005",
-    "linfit_low.DGDG.20161005","linfit_low.DGTS_DGTA.20161005",
-    "linfit_low.DNPPE.20161005")
-
-Marchetti_diatom.conc_classes[,3] =
-  c("linfit_hi.PG.20161005","linfit_hi.PE.20161005","linfit_hi.PC.20161005",
-    "linfit_hi.MGDG.20161005","linfit_hi.SQDG.20161005",
-    "linfit_hi.DGDG.20161005","linfit_hi.DGTS_DGTA.20161005",
-    "linfit_hi.DNPPE.20161005")
-
-Marchetti_diatom.conc_classes[,4] =
-c(PG_std_breakpoint.20161005,PE_std_breakpoint.20161005,PC_std_breakpoint.20161005,
-MGDG_std_breakpoint.20161005,SQDG_std_breakpoint.20161005,DGDG_std_breakpoint.20161005,
-DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161005)
-# 
 # Marchetti_diatom.conc_classes[,2] =
-#   c("linfit_low.PG.20161107","linfit_low.PE.20161107","linfit_low.PC.20161107",
-#     "linfit_low.MGDG.20161107","linfit_low.SQDG.20161107",
-#     "linfit_low.DGDG.20161107","linfit_low.DGTS_DGTA.20161005",
-#     "linfit_low.DNPPE.20161107")
+#   c("linfit_low.PG.20161005","linfit_low.PE.20161005","linfit_low.PC.20161005",
+#     "linfit_low.MGDG.20161005","linfit_low.SQDG.20161005",
+#     "linfit_low.DGDG.20161005","linfit_low.DGTS_DGTA.20161005",
+#     "linfit_low.DNPPE.20161005")
 # 
 # Marchetti_diatom.conc_classes[,3] =
-#   c("linfit_hi.PG.20161107","linfit_hi.PE.20161107","linfit_hi.PC.20161107",
-#     "linfit_hi.MGDG.20161107","linfit_hi.SQDG.20161107",
-#     "linfit_hi.DGDG.20161107","linfit_hi.DGTS_DGTA.20161005",
-#     "linfit_hi.DNPPE.20161107")
+#   c("linfit_hi.PG.20161005","linfit_hi.PE.20161005","linfit_hi.PC.20161005",
+#     "linfit_hi.MGDG.20161005","linfit_hi.SQDG.20161005",
+#     "linfit_hi.DGDG.20161005","linfit_hi.DGTS_DGTA.20161005",
+#     "linfit_hi.DNPPE.20161005")
 # 
 # Marchetti_diatom.conc_classes[,4] =
-#   c(PG_std_breakpoint.20161107,PE_std_breakpoint.20161107,PC_std_breakpoint.20161107,
-#     MGDG_std_breakpoint.20161107,SQDG_std_breakpoint.20161107,DGDG_std_breakpoint.20161107,
-#     DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161107)
+# c(PG_std_breakpoint.20161005,PE_std_breakpoint.20161005,PC_std_breakpoint.20161005,
+# MGDG_std_breakpoint.20161005,SQDG_std_breakpoint.20161005,DGDG_std_breakpoint.20161005,
+# DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161005)
+# 
+Marchetti_diatom.conc_classes[,2] =
+  c("linfit_low.PG.20161107","linfit_low.PE.20161107","linfit_low.PC.20161107",
+    "linfit_low.MGDG.20161107","linfit_low.SQDG.20161107",
+    "linfit_low.DGDG.20161107","linfit_low.DGTS_DGTA.20161005",
+    "linfit_low.DNPPE.20161107")
+
+Marchetti_diatom.conc_classes[,3] =
+  c("linfit_hi.PG.20161107","linfit_hi.PE.20161107","linfit_hi.PC.20161107",
+    "linfit_hi.MGDG.20161107","linfit_hi.SQDG.20161107",
+    "linfit_hi.DGDG.20161107","linfit_hi.DGTS_DGTA.20161005",
+    "linfit_hi.DNPPE.20161107")
+
+Marchetti_diatom.conc_classes[,4] =
+  c(PG_std_breakpoint.20161107,PE_std_breakpoint.20161107,PC_std_breakpoint.20161107,
+    MGDG_std_breakpoint.20161107,SQDG_std_breakpoint.20161107,DGDG_std_breakpoint.20161107,
+    DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161107)
 
 # first, calculate pmol o.c.
 # preallocate matrix for result
@@ -1486,7 +1486,7 @@ write.csv(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total,
 
 # import & extract codes from the curation, combine with codes in rm.flag_auto, then apply to the dataset to produce our final list of IDs
 
-Marchetti_cultures_man_annot = read.csv("data/nice/LOBSTAHS_lipid_identities/UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann.csv",
+Marchetti_cultures_man_annot = read.csv("data/nice/LOBSTAHS_lipid_identities/UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann-1107-zerorigin.csv",
          skip = 0)
 
 Marchetti_diatom_cultures_pos.pmol_total.fully_annotated = 
