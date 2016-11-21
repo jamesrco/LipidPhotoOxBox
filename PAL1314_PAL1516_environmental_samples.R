@@ -1170,6 +1170,49 @@ Marchetti_diatom.fragdata_presence.summary =
 Marchetti_diatom_cultures_pos.unox_IPL$ms2_present =
   Marchetti_diatom.fragdata_presence.summary
 
+# as an additional means of confirmation, check to see whether the same IDs were made in negative ion mode
+
+# preallocate a matrix to keep track of results
+Marchetti_diatom.neg_mode_conf = as.data.frame(matrix(NA,nrow(Marchetti_diatom_cultures_pos.unox_IPL),ncol=1))
+
+# load negative mode LOBSet
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet.RData")
+Marchetti_diatom_cultures_neg_withoddFA = getLOBpeaklist(UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet) # generate peaklist
+
+# extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
+
+Marchetti_diatom_cultures_neg.unox_IPL = Marchetti_diatom_cultures_neg_withoddFA[
+  (Marchetti_diatom_cultures_neg_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
+     Marchetti_diatom_cultures_neg_withoddFA$degree_oxidation==0),]
+
+# iterate through the positive mode dataset and compare, then record results
+
+for (i in 1:nrow(Marchetti_diatom_cultures_pos.unox_IPL)) {
+  
+  # any matches by compound ID
+  
+  compound_ID.matches = Marchetti_diatom_cultures_neg.unox_IPL[Marchetti_diatom_cultures_pos.unox_IPL$compound_name[i] == Marchetti_diatom_cultures_neg.unox_IPL$compound_name,]
+    
+  if (any(abs(Marchetti_diatom_cultures_pos.unox_IPL$peakgroup_rt[i]-
+              compound_ID.matches$peakgroup_rt)<20)) {
+    
+    # the negative ion mode match belongs to a peakgroup that has a retention time within 15 seconds of the positive ion mode peakgroup --> call it good
+    
+    Marchetti_diatom.neg_mode_conf[i,1] = 1
+    
+  } else {
+    
+    Marchetti_diatom.neg_mode_conf[i,1] = 0
+    
+  }
+  
+}
+
+# append cross-mode comparison results to the positive mode ID table
+
+Marchetti_diatom_cultures_pos.unox_IPL$neg_mode.conf =
+  Marchetti_diatom.neg_mode_conf[,1]
+
 # # convert anything < 1e5 intensity to NA, assuming it's either noise
 # # or something so low in concentraton as to be irrelevant from a total lipid
 # # perspective
