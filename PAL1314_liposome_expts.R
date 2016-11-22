@@ -19,7 +19,7 @@ setwd("/Users/jrcollins/Code/LipidPhotoOxBox/")
 
 # load in metadata
 
-meta.raw = read.csv("Exactive data - PAL 1314 and LMG1401 samples.csv")
+meta.raw = read.csv("Exactive data - PAL 1314 experimental samples.csv")
 
 # some chemical data
 
