@@ -2017,12 +2017,6 @@ PAL1314_LMG1401.fragdata_presence.summary =
 PAL1314_LMG1401_particulate_pos_withoddFA$ms2_present =
   PAL1314_LMG1401.fragdata_presence.summary
 
-
-
-
-
-
-
 ### ***** additional confirmation by presence in negative mode data ***** ####
 
 # as an additional means of confirmation, check to see whether the same IDs were made in negative ion mode
@@ -2031,33 +2025,27 @@ PAL1314_LMG1401_particulate_pos_withoddFA$ms2_present =
 PAL1314_LMG1401.neg_mode_conf = as.data.frame(matrix(NA,nrow(PAL1314_LMG1401_particulate_pos_withoddFA),ncol=1))
 
 # load negative mode LOBSet
-load("data/nice/Orbi_MS_data/LOBSTAHS_processed/UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet.RData")
-Marchetti_diatom_cultures_neg_withoddFA = getLOBpeaklist(UNC_Marchetti_diatom_cultures_neg_withoddFA_LOBSet) # generate peaklist
-
-# # extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
-# 
-# Marchetti_diatom_cultures_neg.unox_IPL = Marchetti_diatom_cultures_neg_withoddFA[
-#   (Marchetti_diatom_cultures_neg_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
-#      Marchetti_diatom_cultures_neg_withoddFA$degree_oxidation==0),]
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/PAL1314_LMG1401_particulate_enviro_samples_neg_withoddFA_LOBSet.RData")
+PAL1314_LMG1401_particulate_neg_withoddFA = getLOBpeaklist(PAL1314_LMG1401_particulate_enviro_samples_neg_withoddFA_LOBSet) # generate peaklist
 
 # iterate through the positive mode dataset and compare, then record results
 
-for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
+for (i in 1:nrow(PAL1314_LMG1401_particulate_pos_withoddFA)) {
   
   # any matches by compound ID
   
-  compound_ID.matches = Marchetti_diatom_cultures_neg_withoddFA[Marchetti_diatom_cultures_pos_withoddFA$compound_name[i] == Marchetti_diatom_cultures_neg_withoddFA$compound_name,]
+  compound_ID.matches = PAL1314_LMG1401_particulate_neg_withoddFA[PAL1314_LMG1401_particulate_pos_withoddFA$compound_name[i] == PAL1314_LMG1401_particulate_neg_withoddFA$compound_name,]
   
-  if (any(abs(Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt[i]-
+  if (any(abs(PAL1314_LMG1401_particulate_pos_withoddFA$peakgroup_rt[i]-
               compound_ID.matches$peakgroup_rt)<20)) {
     
     # the negative ion mode match belongs to a peakgroup that has a retention time within 15 seconds of the positive ion mode peakgroup --> call it good
     
-    Marchetti_diatom.neg_mode_conf[i,1] = 1
+    PAL1314_LMG1401.neg_mode_conf[i,1] = 1
     
   } else {
     
-    Marchetti_diatom.neg_mode_conf[i,1] = 0
+    PAL1314_LMG1401.neg_mode_conf[i,1] = 0
     
   }
   
@@ -2065,47 +2053,47 @@ for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
 
 # append cross-mode comparison results to the positive mode ID table
 
-Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf =
-  Marchetti_diatom.neg_mode_conf[,1]
+PAL1314_LMG1401_particulate_pos_withoddFA$neg_mode.conf =
+  PAL1314_LMG1401.neg_mode_conf[,1]
 
 # create a field (and populate partially) to assist in curation of the dataset:
 # which records will be retained, which will be excised moving forward
 
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto = NA
+PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto = NA
 
 # flag for removal certain entire classes which we aren't concerned with at the moment
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$lipid_class %in% 
+PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[
+  PAL1314_LMG1401_particulate_pos_withoddFA$lipid_class %in% 
     c("TAG","pigment","PUA","IP_MAG")] = 1
 
 # flag for retention IDs that are *definitely* valid 
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$ms2_conf>0 &
-    Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf>0] = 0
+PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[
+  PAL1314_LMG1401_particulate_pos_withoddFA$ms2_conf>0 &
+    PAL1314_LMG1401_particulate_pos_withoddFA$neg_mode.conf>0] = 0
 
 # flag for retention IDs that passed the ms2 criterion but weren't made in the negative mode data
 # (essentially, we are deferring to the superior diagnostic power of the fragmentation spectra)
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$ms2_conf>0 &
-    (is.na(Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf) || 
-       Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf == 0)] = 0
+PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[
+  PAL1314_LMG1401_particulate_pos_withoddFA$ms2_conf>0 &
+    (is.na(PAL1314_LMG1401_particulate_pos_withoddFA$neg_mode.conf) || 
+       PAL1314_LMG1401_particulate_pos_withoddFA$neg_mode.conf == 0)] = 0
 
 # flag for removal any putative isomer of an ID we we've already declared valid
 
-for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
+for (i in 1:nrow(PAL1314_LMG1401_particulate_pos_withoddFA)) {
   
-  if (!is.na(Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[i])) {
+  if (!is.na(PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[i])) {
     
-    if (Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[i] == 0) {
+    if (PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[i] == 0) {
       
-      Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-        Marchetti_diatom_cultures_pos_withoddFA$match_ID!=
-          Marchetti_diatom_cultures_pos_withoddFA$match_ID[i] &
-          Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz==
-          Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz[i] &
-          Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt==
-          Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt[i] &
-          is.na(Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto)] = 1
+      PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[
+        PAL1314_LMG1401_particulate_pos_withoddFA$match_ID!=
+          PAL1314_LMG1401_particulate_pos_withoddFA$match_ID[i] &
+          PAL1314_LMG1401_particulate_pos_withoddFA$LOBdbase_mz==
+          PAL1314_LMG1401_particulate_pos_withoddFA$LOBdbase_mz[i] &
+          PAL1314_LMG1401_particulate_pos_withoddFA$peakgroup_rt==
+          PAL1314_LMG1401_particulate_pos_withoddFA$peakgroup_rt[i] &
+          is.na(PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto)] = 1
     }
     
   }
@@ -2114,63 +2102,63 @@ for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
 
 # flag for removal any putative isomer of an ID we suspect is valid by additional presence in negative mode data (but which did not necessarily pass the ms2 criterion)
 
-for (i in 1:nrow(Marchetti_diatom_cultures_pos_withoddFA)) {
+for (i in 1:nrow(PAL1314_LMG1401_particulate_pos_withoddFA)) {
   
-  if (Marchetti_diatom_cultures_pos_withoddFA$neg_mode.conf[i] == 1 &
-      (is.na(Marchetti_diatom_cultures_pos_withoddFA$ms2_conf[i]) || 
-       Marchetti_diatom_cultures_pos_withoddFA$ms2_conf[i] == 0)) {
+  if (PAL1314_LMG1401_particulate_pos_withoddFA$neg_mode.conf[i] == 1 &
+      (is.na(PAL1314_LMG1401_particulate_pos_withoddFA$ms2_conf[i]) || 
+       PAL1314_LMG1401_particulate_pos_withoddFA$ms2_conf[i] == 0)) {
     
-    Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-      Marchetti_diatom_cultures_pos_withoddFA$match_ID!=
-        Marchetti_diatom_cultures_pos_withoddFA$match_ID[i] &
-        Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz==
-        Marchetti_diatom_cultures_pos_withoddFA$LOBdbase_mz[i] &
-        Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt==
-        Marchetti_diatom_cultures_pos_withoddFA$peakgroup_rt[i] &
-        is.na(Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto)] = 1
+    PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[
+      PAL1314_LMG1401_particulate_pos_withoddFA$match_ID!=
+        PAL1314_LMG1401_particulate_pos_withoddFA$match_ID[i] &
+        PAL1314_LMG1401_particulate_pos_withoddFA$LOBdbase_mz==
+        PAL1314_LMG1401_particulate_pos_withoddFA$LOBdbase_mz[i] &
+        PAL1314_LMG1401_particulate_pos_withoddFA$peakgroup_rt==
+        PAL1314_LMG1401_particulate_pos_withoddFA$peakgroup_rt[i] &
+        is.na(PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto)] = 1
     
   }
   
 }
 
-# flag for removal any IP-DAG in this dataset (diatom cultures) w/total no. C < 28, assuming C14 is shortest-chain FA 
-
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<28] = 1
-
-# also flag for removaL:
-# 1. any IP-DAG w/ < 30 total C and any double bonds
-# 2. any IP-DAG w/ < 32 total C and > 4 DB
-# 3. any IP-DAG w/ > 12 DB
-# 4. any IP-DAG w/ > 44 total C
-
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<30 &
-    Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>0
-  ] = 1
-
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<32 &
-    Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>4
-  ] = 1
-
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C>44] = 1
-
-Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
-  Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>12] = 1
+# # flag for removal any IP-DAG in this dataset (diatom cultures) w/total no. C < 28, assuming C14 is shortest-chain FA 
+# 
+# Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+#   Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<28] = 1
+# 
+# # also flag for removaL:
+# # 1. any IP-DAG w/ < 30 total C and any double bonds
+# # 2. any IP-DAG w/ < 32 total C and > 4 DB
+# # 3. any IP-DAG w/ > 12 DB
+# # 4. any IP-DAG w/ > 44 total C
+# 
+# Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+#   Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<30 &
+#     Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>0
+#   ] = 1
+# 
+# Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+#   Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C<32 &
+#     Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>4
+#   ] = 1
+# 
+# Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+#   Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_C>44] = 1
+# 
+# Marchetti_diatom_cultures_pos_withoddFA$rm.flag_auto[
+#   Marchetti_diatom_cultures_pos_withoddFA$FA_total_no_DB>12] = 1
 
 # if desired, write the results to a csv file
 
-write.csv(Marchetti_diatom_cultures_pos_withoddFA, file = "Marchetti_diatom_cultures_pos_withoddFA.csv")
+write.csv(PAL1314_LMG1401_particulate_pos_withoddFA, file = "PAL1314_LMG1401_particulate_pos_withoddFA.csv")
 
 #### further pre-processing ####
 
 # now, extract only unoxidized IPL (no TAGs, etc) data, plus DNPPE
 
-Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos_withoddFA[
-  (Marchetti_diatom_cultures_pos_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
-     Marchetti_diatom_cultures_pos_withoddFA$degree_oxidation==0),]
+PAL1314_LMG1401_particulate_pos.unox_IPL = PAL1314_LMG1401_particulate_pos_withoddFA[
+  (PAL1314_LMG1401_particulate_pos_withoddFA$lipid_class %in% c("IP_DAG","DNPPE") & 
+     PAL1314_LMG1401_particulate_pos_withoddFA$degree_oxidation==0),]
 
 # # convert anything < 1e5 intensity to NA, assuming it's either noise
 # # or something so low in concentraton as to be irrelevant from a total lipid
@@ -2183,8 +2171,8 @@ Marchetti_diatom_cultures_pos.unox_IPL = Marchetti_diatom_cultures_pos_withoddFA
 
 # get rid of DGCC data since we don't have any standards for these right now
 
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC = Marchetti_diatom_cultures_pos.unox_IPL[
-  Marchetti_diatom_cultures_pos.unox_IPL$species!="DGCC",]
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC = PAL1314_LMG1401_particulate_pos.unox_IPL[
+  PAL1314_LMG1401_particulate_pos.unox_IPL$species!="DGCC",]
 
 # # assuming only odd-chain FA will be a C15 (based on knowledge of diatom FA biosynthesis),
 # # can eliminate some putative odd-chain IDs
@@ -2219,11 +2207,11 @@ Marchetti_diatom_cultures_pos.unox_IPL.noDGCC = Marchetti_diatom_cultures_pos.un
 # define classes for which concentrations are to be calculated, the models, and
 # the cutoffs in case of split prediction
 
-Marchetti_diatom.conc_classes = as.data.frame(matrix(NA,8,4))
-colnames(Marchetti_diatom.conc_classes) =
+PAL1314_LMG1401.conc_classes = as.data.frame(matrix(NA,8,4))
+colnames(PAL1314_LMG1401.conc_classes) =
   c("Lipid_class","Model.low","Model.hi","Cutoff_PA")
 
-Marchetti_diatom.conc_classes[,1] =
+PAL1314_LMG1401.conc_classes[,1] =
   c("PG","PE","PC","MGDG","SQDG","DGDG","DGTS_DGTA","DNPPE")
 
 # Marchetti_diatom.conc_classes[,2] =
@@ -2243,69 +2231,84 @@ Marchetti_diatom.conc_classes[,1] =
 # MGDG_std_breakpoint.20161005,SQDG_std_breakpoint.20161005,DGDG_std_breakpoint.20161005,
 # DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161005)
 # 
-Marchetti_diatom.conc_classes[,2] =
+PAL1314_LMG1401.conc_classes[,2] =
   c("linfit_low.PG.20161107","linfit_low.PE.20161107","linfit_low.PC.20161107",
     "linfit_low.MGDG.20161107","linfit_low.SQDG.20161107",
     "linfit_low.DGDG.20161107","linfit_low.DGTS_DGTA.20161005",
     "linfit_low.DNPPE.20161107")
 
-Marchetti_diatom.conc_classes[,3] =
+PAL1314_LMG1401.conc_classes[,3] =
   c("linfit_hi.PG.20161107","linfit_hi.PE.20161107","linfit_hi.PC.20161107",
     "linfit_hi.MGDG.20161107","linfit_hi.SQDG.20161107",
     "linfit_hi.DGDG.20161107","linfit_hi.DGTS_DGTA.20161005",
     "linfit_hi.DNPPE.20161107")
 
-Marchetti_diatom.conc_classes[,4] =
+PAL1314_LMG1401.conc_classes[,4] =
   c(PG_std_breakpoint.20161107,PE_std_breakpoint.20161107,PC_std_breakpoint.20161107,
     MGDG_std_breakpoint.20161107,SQDG_std_breakpoint.20161107,DGDG_std_breakpoint.20161107,
     DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161107)
 
 # first, calculate pmol o.c.
 # preallocate matrix for result
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc = PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC
 
 # calculate for each lipid class, using appropriate standard curve
 
-for (i in 1:nrow(Marchetti_diatom.conc_classes)) {
+for (i in 1:nrow(PAL1314_LMG1401.conc_classes)) {
   
   # first, calculate pmol o.c.
   
   pmol.oc.thisclass =
-    apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
-      Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
-        Marchetti_diatom.conc_classes$Lipid_class[i],14:20],c(1,2),splitpred,
-      eval(parse(text = Marchetti_diatom.conc_classes$Model.low[i])),
-      eval(parse(text = Marchetti_diatom.conc_classes$Model.hi[i])),
-      Marchetti_diatom.conc_classes$Cutoff_PA[i])
+    apply(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc[
+      PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc$species==
+        PAL1314_LMG1401.conc_classes$Lipid_class[i],13:17],c(1,2),splitpred,
+      eval(parse(text = PAL1314_LMG1401.conc_classes$Model.low[i])),
+      eval(parse(text = PAL1314_LMG1401.conc_classes$Model.hi[i])),
+      PAL1314_LMG1401.conc_classes$Cutoff_PA[i])
   
   # store result as appropriate
   
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
-    Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$species==
-      Marchetti_diatom.conc_classes$Lipid_class[i],14:20] = pmol.oc.thisclass
+  PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc[
+    PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc$species==
+      PAL1314_LMG1401.conc_classes$Lipid_class[i],13:17] = pmol.oc.thisclass
   
 }
 
 # now, scale pmol o.c. to pmol per sample using DNPPE (recovery standard added at time of extraction)
 
 DNPPE_BD_Marchetti_diatoms_uL = 20 # amount DNPPE added per sample in uL, per VML B&D protocol
+# this quantity also applies to the PAL1314 and LMG1401 particulate samples
 
 DNPPE_pmol_added_per_samp = DNPPE_mg_mL_BD_extracts_2016*(1/DNPPE_MW)*(10^9)*(1/10^3)*DNPPE_BD_Marchetti_diatoms_uL
 
-Marchetti_diatom_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc[
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc$compound_name=="DNPPE",14:20]  # recovery factor
+PAL1314_LMG1401_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc[
+  PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc$compound_name=="DNPPE",13:17]  # recovery factor
+
+
+# retrieve metadata containing (among other items) volumes of water filtered for each sample
+meta.raw.PAL1314_LMG1401_enviro = read.csv("Exactive data - PAL 1314, LMG1401 environmental samples.csv")
+
+PAL1314_LMG1401_enviro.metdat =
+do.call(rbind.data.frame,lapply(colnames(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc)[13:17],getMetDat,meta.raw.PAL1314_LMG1401_enviro,c(1:14)))
+
+PAL1314_LMG1401_enviro.metdat$Date.time.sample.collected = strptime(as.character(PAL1314_LMG1401_enviro.metdat$Date.time.sample.collected),"%m/%d/%y %H:%M") # fix up some time stamps, while we're at it
 
 # create final results data frame
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.oc
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20] = sweep(as.matrix(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20]), 2, as.numeric(Marchetti_diatom_DNPPE.samp.RF), "*") # apply RF to samples, calculate total # pmol each species in given sample
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL = PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.oc
+
+# apply RF to samples
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17] = sweep(as.matrix(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17]), 2, as.numeric(PAL1314_LMG1401_DNPPE.samp.RF), "*") 
+
+# convert pmol to pmol/mL
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17] = sweep(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17], 2, PAL1314_LMG1401_enviro.metdat$Vol..sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
 
 # need to simplify the dataset a bit and do some QA
 
 # eliminate features w/calibrated mass < 0 
 
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20] =
-  replace(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],
-          Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20]<0,
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17] =
+  replace(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17],
+          PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17]<0,
           NA)
 
 # # determine what peak area cutoff we impose that still retains >95% of the ID'd mass in each sample
@@ -2328,16 +2331,16 @@ Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20] =
 
 # now remove elements for which there is no data in any sample (includes elements
 # just reduced to NA)
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[apply(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[,14:20],1,sum,na.rm = T)>0,]
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL = 
+  PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[apply(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[,13:17],1,sum,na.rm = T)>0,]
 
 # can remove DNPPE at this point
-Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total = 
-  Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total[!(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total$compound_name=="DNPPE"),]
+PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL = 
+  PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL[!(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL$compound_name=="DNPPE"),]
 
 # another opportunity to write results to file
-write.csv(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total,
-          file="Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total.csv")
+write.csv(PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL,
+          file="PAL1314_LMG1401_particulate_pos.unox_IPL.noDGCC.pmol.mL.csv")
 
 # *** at this point, manual curation (based on consideration of all available LOBSTAHS result codes) should be performed on the data exported to Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total.csv
 # below, we reimport the results, which are contained in .csv file UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann.csv (exported from first worksheet of the .xlsx file UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.xlsx after curation was finished)
