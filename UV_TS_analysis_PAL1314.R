@@ -25,12 +25,8 @@
 library(stringr)
 library(RSEIS)
 
-# assuming initial wd is that of the LipidPhotoOxBox repository, get current
-# working directory so we can reset it later
+setwd("/Users/jrcollins/Code/LipidPhotoOxBox")
 initial.wd = getwd()
-
-# # or, this:
-# setwd("/Users/jrcollins/Code/LipidPhotoOxBox")
 
 ##### daily UVB dosages ##### 
 
