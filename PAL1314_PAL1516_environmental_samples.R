@@ -2429,13 +2429,14 @@ pdf(file = "PAL1314_LMG1401_particulate_IP-DAG_dist.pdf",
     bg = "white")
 
 par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.IP_DAGtotals[2:8,])),margin=2)
-barplot(prop, col=rainbow(length(rownames(prop))), width=2, density=c(70,60,50,35,30,20,15),las=2,
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.IP_DAGtotals[2:8,c(5,1,3)])),margin=2)
+# colors, density reordered to align with diatom culture plots
+barplot(prop, col=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], width=2, density=c(35,60,50,30,70,20,15),las=2, 
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)
+        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)]
 )
-legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop))), density=c(70,60,50,35,30,20,15), legend=rownames(prop))
+legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], density=c(35,60,50,30,70,20,15), legend=rownames(prop))
 
 dev.off()
 
@@ -2448,14 +2449,15 @@ pdf(file = "PAL1314_LMG1401_particulate_IP-DAG_dist_expansion.pdf",
     bg = "white")
 
 par(mar=c(16, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.IP_DAGtotals[2:8,])),margin=2)
-barplot(prop, col=rainbow(length(rownames(prop))), width=2, density=c(70,60,50,35,30,20,15),las=2,
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.IP_DAGtotals[2:8,c(5,1,3)])),margin=2)
+# colors, density reordered to align with diatom culture plots
+barplot(prop, col=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], width=2, density=c(35,60,50,30,70,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals),
+        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)],
         ylim = c(0.95,1)
 )
-legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop))), density=c(70,60,50,35,30,20,15), legend=rownames(prop))
+legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], density=c(35,60,50,30,70,20,15), legend=rownames(prop))
 
 dev.off()
 
@@ -2516,11 +2518,12 @@ pdf(file = "PAL1314_LMG1401_particulate_satur_dist.pdf",
     bg = "white")
 
 par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals[1:5,])),margin=2)
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals[1:5,c(5,1,3)])),margin=2)
 barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals))
+        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)]
+        )
 legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
 
 dev.off()
@@ -2534,11 +2537,11 @@ pdf(file = "PAL1314_LMG1401_particulate_satur_dist_expansion.pdf",
     bg = "white")
 
 par(mar=c(16, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals[1:5,])),margin=2)
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals[1:5,c(5,1,3)])),margin=2)
 barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals),
+        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)],
         ylim = c(0.95,1))
 legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
 
@@ -2598,11 +2601,12 @@ pdf(file = "PAL1314_LMG1401_particulate_satur_dist_PConly.pdf",
     bg = "white")
 
 par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals.PC[1:5,])),margin=2)
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals.PC[1:5,c(5,1,3)])),margin=2)
 barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals))
+        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)]
+        )
 legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
 
 dev.off()
@@ -2616,15 +2620,35 @@ pdf(file = "PAL1314_LMG1401_particulate_satur_dist_PConly_expansion.pdf",
     bg = "white")
 
 par(mar=c(16, 4.1, 4.1, 7.1), xpd=TRUE)
-prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals.PC[1:5,])),margin=2)
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals.PC[1:5,c(5,1,3)])),margin=2)
 barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
-        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals),
+        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)],
         ylim = c(0.95,1))
 legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
 
 dev.off()
+
+# y-axis expansion of 0-5 % range
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "PAL1314_LMG1401_particulate_satur_dist_PConly_expansion_low.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(16, 4.1, 4.1, 7.1), xpd=TRUE)
+prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.sat_totals.PC[1:5,c(5,1,3)])),margin=2)
+barplot(prop, col=cm.colors((length(rownames(prop))+1))[c(1:4,6)], width=2, density=c(70,60,50,35,30,20,15),las=2,
+        ylab = "Relative molar abundance",
+        xlab = "Species",
+        names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)],
+        ylim = c(0,0.05))
+legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+1))[c(1:4,6)], density=c(70,60,50,35,30,20,15), legend=rownames(prop), cex=.5)
+
+dev.off()
+
 
 # additional calculations
 
