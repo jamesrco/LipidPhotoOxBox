@@ -18,7 +18,7 @@
 initial.wd = getwd()
 
 # set wd to data location
-setwd("data/raw/Evolution_300/lipids_in_MeOH") 
+setwd("/Users/jrcollins/Code/LipidPhotoOxBox/data/raw/Evolution_300/lipids_in_MeOH") 
 
 # read in data, concatenate into single data frame
 # original profiles made at 1.113 mM concentration on 10 Aug 2016
