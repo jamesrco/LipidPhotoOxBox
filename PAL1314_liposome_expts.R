@@ -322,7 +322,7 @@ Exp_01_PC.metdat$Date.time.sample.collected = strptime(as.character(Exp_01_PC.me
 
 # scale pmol o.c. to initial pmol per sample using DNPPE (recovery standard added at time of extraction)
 
-DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_01_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_1314*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_01_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_01_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Exp_01_DNPPE.samp.pmol_oc # recovery factor
 Exp_01_PC.samp.pmol.total = sweep(Exp_01_PC.samp.pmol_oc, 2, Exp_01_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_01_PC.samp.pmol.mL = sweep(Exp_01_PC.samp.pmol.total, 2, Exp_01_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
@@ -376,7 +376,7 @@ Exp_02a_PC.metdat$Date.time.sample.collected = strptime(as.character(Exp_02a_PC.
 
 # scale pmol o.c. to initial pmol per sample using DNPPE (recovery standard added at time of extraction)
 
-DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_02a_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_1314*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_02a_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_02a_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Exp_02a_DNPPE.samp.pmol_oc # recovery factor
 Exp_02a_PC.samp.pmol.total = sweep(Exp_02a_PC.samp.pmol_oc, 2, Exp_02a_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_02a_PC.samp.pmol.mL = sweep(Exp_02a_PC.samp.pmol.total, 2, Exp_02a_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
@@ -435,7 +435,7 @@ Exp_03a_PC.metdat$Date.time.sample.collected = strptime(as.character(Exp_03a_PC.
 
 # scale pmol o.c. to initial pmol per sample using DNPPE (recovery standard added at time of extraction)
 
-DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_03a_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_1314*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_03a_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_03a_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Exp_03a_DNPPE.samp.pmol_oc # recovery factor
 Exp_03a_PC.samp.pmol.total = sweep(Exp_03a_PC.samp.pmol_oc, 2, Exp_03a_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_03a_PC.samp.pmol.mL = sweep(Exp_03a_PC.samp.pmol.total, 2, Exp_03a_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
@@ -495,7 +495,7 @@ Exp_03a_PC.metdat.rerun$Date.time.sample.collected = strptime(as.character(Exp_0
 
 # scale pmol o.c. to initial pmol per sample using DNPPE (recovery standard added at time of extraction)
 
-DNPPE_pmol_added_per_samp.rerun = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_03a_PC.metdat.rerun$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+DNPPE_pmol_added_per_samp.rerun = DNPPE_mg_mL_1314*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_03a_PC.metdat.rerun$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_03a_DNPPE.samp.RF.rerun = DNPPE_pmol_added_per_samp.rerun/Exp_03a_DNPPE.samp.pmol_oc.rerun # recovery factor
 Exp_03a_PC.samp.pmol.total.rerun = sweep(Exp_03a_PC.samp.pmol_oc.rerun, 2, Exp_03a_DNPPE.samp.RF.rerun, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_03a_PC.samp.pmol.mL.rerun = sweep(Exp_03a_PC.samp.pmol.total.rerun, 2, Exp_03a_PC.metdat.rerun$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
@@ -549,7 +549,7 @@ Exp_12_PC.metdat$Date.time.sample.collected = strptime(as.character(Exp_12_PC.me
 
 # scale pmol o.c. to initial pmol per sample using DNPPE (recovery standard added at time of extraction)
 
-DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_12_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_1314*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_12_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_12_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Exp_12_DNPPE.samp.pmol_oc # recovery factor
 Exp_12_PC.samp.pmol.total = sweep(Exp_12_PC.samp.pmol_oc, 2, Exp_12_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_12_PC.samp.pmol.mL = sweep(Exp_12_PC.samp.pmol.total, 2, Exp_12_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
@@ -610,7 +610,7 @@ Exp_13_PC.metdat$Date.time.sample.collected = strptime(as.character(Exp_13_PC.me
 
 # scale pmol o.c. to initial pmol per sample using DNPPE (recovery standard added at time of extraction)
 
-DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_13_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_1314*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_13_PC.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_13_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/Exp_13_DNPPE.samp.pmol_oc # recovery factor
 Exp_13_PC.samp.pmol.total = sweep(Exp_13_PC.samp.pmol_oc, 2, Exp_13_DNPPE.samp.RF, "*") # apply RF to samples, calculate total # pmol each species in given sample
 Exp_13_PC.samp.pmol.mL = sweep(Exp_13_PC.samp.pmol.total, 2, Exp_13_PC.metdat$Vol.sample.extracted.or.filtered..mL., "/")  # calculate pmol/mL, using correct volumes
@@ -1532,7 +1532,7 @@ Exp_13_FFA.metdat$Date.time.sample.collected = strptime(as.character(Exp_13_FFA.
 
 # scale peak areas using DNPPE (recovery standard added at time of extraction)
 
-DNPPE_pmol_added_per_samp = DNPPE_mg_mL*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_13_FFA.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_1314*(1/DNPPE_MW)*(10^9)*(1/10^3)*Exp_13_FFA.metdat$Vol.DNP.PE..uL. # quantity of DNPPE (pmol) added per sample these experiments (DNPPE was added to vials containing 40 or 45 mL sample just prior to liquid/liquid extraction); should be 30 uL for almost all samples, except a few as noted
 Exp_13_DNPPE.samp.RF.neg = DNPPE_pmol_added_per_samp/Exp_13_DNPPE.samp.neg.pmol_oc # recovery factor
 
 Exp_13_LPC.samp.pmol.total.neg = sweep(Exp_13_LPC.neg.samp.pmol_oc, 2, Exp_13_DNPPE.samp.RF.neg, "*") # apply RF to samples, calculate total # pmol each species in given sample

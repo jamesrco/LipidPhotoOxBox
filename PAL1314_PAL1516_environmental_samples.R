@@ -12,6 +12,7 @@
 library(LOBSTAHS)
 library(chemCal)
 library(stats)
+library(stringr)
 
 # set wd
 
@@ -1509,7 +1510,13 @@ Marchetti_diatom_cultures_pos.pmol_total.final =
 write.csv(Marchetti_diatom_cultures_pos.pmol_total.final,
           file = "UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.final.csv")
 
-# some basic data analysis
+# extract, calculate, append total # of C atoms in each ID'd molecule
+
+Marchetti_diatom_cultures_pos.pmol_total.final$total_no_C =
+  as.numeric(sapply(Marchetti_diatom_cultures_pos.pmol_total.final$elem_formula,
+                    function(x) as.numeric(str_match(as.character(str_match(x, "^C[0-9]*H")), "[0-9]+"))))
+
+#### **** some basic Marchetti diatom culture data analysis ####
 
 # bar plots by species of lipid class distribution (molar basis)
 
@@ -1599,14 +1606,21 @@ Marchetti_diatoms.sat_totals = as.data.frame(matrix(NA,length(Marchetti_diatoms.
 rownames(Marchetti_diatoms.sat_totals) = c(Marchetti_diatoms.sat_classes)
 colnames(Marchetti_diatoms.sat_totals) = colnames(Marchetti_diatom_cultures_pos.pmol_total.final)[14:20]
 
-# calculate saturation class totals
+# also preallocate a matrix to hold total pmol of C in each fraction
+Marchetti_diatoms.total_pmol_C.bysatclass = as.data.frame(matrix(NA,length(Marchetti_diatoms.sat_classes),7))
+rownames(Marchetti_diatoms.total_pmol_C.bysatclass) = c(Marchetti_diatoms.sat_classes)
+colnames(Marchetti_diatoms.total_pmol_C.bysatclass) = colnames(Marchetti_diatom_cultures_pos.pmol_total.final)[14:20]
+
+# calculate saturation class totals, total moles of C in each fraction
 
 for (i in 1:(nrow(Marchetti_diatoms.sat_totals))) {
   
   if (i==1) {
     
     Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB==Marchetti_diatoms.sat_numbers[i],14:20],
-                                             2,sum,na.rm=T)
+                                           2,sum,na.rm=T)
+    
+    Marchetti_diatoms.total_pmol_C.bysatclass[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB==Marchetti_diatoms.sat_numbers[i],14:20] * Marchetti_diatom_cultures_pos.pmol_total.final$total_no_C[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB==Marchetti_diatoms.sat_numbers[i]],2,sum,na.rm = T)
     
   } else if (i > 1 & i < 5) {
     
@@ -1617,10 +1631,22 @@ for (i in 1:(nrow(Marchetti_diatoms.sat_totals))) {
         Marchetti_diatoms.sat_numbers[i]),14:20],
       2,sum,na.rm=T)
     
+    Marchetti_diatoms.total_pmol_C.bysatclass[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[(
+      Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=
+        Marchetti_diatoms.sat_numbers[i-1] & 
+        Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB<
+        Marchetti_diatoms.sat_numbers[i]),14:20] * Marchetti_diatom_cultures_pos.pmol_total.final$total_no_C[(
+          Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=
+            Marchetti_diatoms.sat_numbers[i-1] & 
+            Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB<
+            Marchetti_diatoms.sat_numbers[i])],2,sum,na.rm = T)
+    
   } else if (i==5) {
     
     Marchetti_diatoms.sat_totals[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=Marchetti_diatoms.sat_numbers[i-1],14:20],
-                                             2,sum,na.rm=T)
+                                           2,sum,na.rm=T)
+    
+    Marchetti_diatoms.total_pmol_C.bysatclass[i,] = apply(Marchetti_diatom_cultures_pos.pmol_total.final[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=Marchetti_diatoms.sat_numbers[i-1],14:20] * Marchetti_diatom_cultures_pos.pmol_total.final$total_no_C[Marchetti_diatom_cultures_pos.pmol_total.final$FA_total_no_DB>=Marchetti_diatoms.sat_numbers[i-1]],2,sum,na.rm = T)
     
   }
   
@@ -2391,7 +2417,13 @@ PAL1314_LMG1401_particulate_pos.pmol_L.final =
 write.csv(PAL1314_LMG1401_particulate_pos.pmol_L.final,
           file = "PAL1314_LMG1401_particulate_IP-DAG_pmol_L.final.csv")
 
-# some basic data analysis
+# extract, calculate, append total # of C atoms in each ID'd molecule
+
+PAL1314_LMG1401_particulate_pos.pmol_L.final$total_no_C =
+  as.numeric(sapply(PAL1314_LMG1401_particulate_pos.pmol_L.final$elem_formula,
+        function(x) as.numeric(str_match(as.character(str_match(x, "^C[0-9]*H")), "[0-9]+"))))
+
+#### **** some basic PAL1314-LMG1401 data analysis ####
 
 # bar plots by species of lipid class distribution (molar basis)
 
@@ -2481,7 +2513,12 @@ PAL1314_LMG1401.sat_totals = as.data.frame(matrix(NA,length(PAL1314_LMG1401.sat_
 rownames(PAL1314_LMG1401.sat_totals) = c(PAL1314_LMG1401.sat_classes)
 colnames(PAL1314_LMG1401.sat_totals) = colnames(PAL1314_LMG1401_particulate_pos.pmol_L.final)[13:17]
 
-# calculate saturation class totals
+# also preallocate a matrix to hold total pmol of C in each fraction
+PAL1314_LMG1401.total_pmol_C.bysatclass = as.data.frame(matrix(NA,length(PAL1314_LMG1401.sat_classes),5))
+rownames(PAL1314_LMG1401.total_moles_C.bysatclass) = c(PAL1314_LMG1401.sat_classes)
+colnames(PAL1314_LMG1401.total_moles_C.bysatclass) = colnames(PAL1314_LMG1401_particulate_pos.pmol_L.final)[13:17]
+
+# calculate saturation class totals, total moles of C in each fraction
 
 for (i in 1:(nrow(PAL1314_LMG1401.sat_totals))) {
   
@@ -2490,6 +2527,8 @@ for (i in 1:(nrow(PAL1314_LMG1401.sat_totals))) {
     PAL1314_LMG1401.sat_totals[i,] = apply(PAL1314_LMG1401_particulate_pos.pmol_L.final[PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB==PAL1314_LMG1401.sat_numbers[i],13:17],
                                              2,sum,na.rm=T)
     
+    PAL1314_LMG1401.total_pmol_C.bysatclass[i,] = apply(PAL1314_LMG1401_particulate_pos.pmol_L.final[PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB==PAL1314_LMG1401.sat_numbers[i],13:17] * PAL1314_LMG1401_particulate_pos.pmol_L.final$total_no_C[PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB==PAL1314_LMG1401.sat_numbers[i]],2,sum,na.rm = T)
+      
   } else if (i > 1 & i < 5) {
     
     PAL1314_LMG1401.sat_totals[i,] = apply(PAL1314_LMG1401_particulate_pos.pmol_L.final[(
@@ -2499,10 +2538,22 @@ for (i in 1:(nrow(PAL1314_LMG1401.sat_totals))) {
         PAL1314_LMG1401.sat_numbers[i]),13:17],
       2,sum,na.rm=T)
     
+    PAL1314_LMG1401.total_pmol_C.bysatclass[i,] = apply(PAL1314_LMG1401_particulate_pos.pmol_L.final[(
+      PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB>=
+        PAL1314_LMG1401.sat_numbers[i-1] & 
+        PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB<
+        PAL1314_LMG1401.sat_numbers[i]),13:17] * PAL1314_LMG1401_particulate_pos.pmol_L.final$total_no_C[(
+          PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB>=
+            PAL1314_LMG1401.sat_numbers[i-1] & 
+            PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB<
+            PAL1314_LMG1401.sat_numbers[i])],2,sum,na.rm = T)
+    
   } else if (i==5) {
     
     PAL1314_LMG1401.sat_totals[i,] = apply(PAL1314_LMG1401_particulate_pos.pmol_L.final[PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB>=PAL1314_LMG1401.sat_numbers[i-1],13:17],
                                              2,sum,na.rm=T)
+    
+    PAL1314_LMG1401.total_pmol_C.bysatclass[i,] = apply(PAL1314_LMG1401_particulate_pos.pmol_L.final[PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB>=PAL1314_LMG1401.sat_numbers[i-1],13:17] * PAL1314_LMG1401_particulate_pos.pmol_L.final$total_no_C[PAL1314_LMG1401_particulate_pos.pmol_L.final$FA_total_no_DB>=PAL1314_LMG1401.sat_numbers[i-1]],2,sum,na.rm = T)
     
   }
   
@@ -2649,7 +2700,6 @@ legend("bottomright",inset=c(-.25,-0.4), fill=cm.colors((length(rownames(prop))+
 
 dev.off()
 
-
 # additional calculations
 
 # % peak area accounted for by DGCC (didn't have a DGCC standard at time of analysis)
@@ -2662,3 +2712,9 @@ PAL1314_LMG1401_particulate.DGCC.peaksums = apply(PAL1314_LMG1401_particulate_po
 
 PAL1314_LMG1401_particulate.DGCC.peaksums/PAL1314_LMG1401_particulate.peaksums
 
+# moles of C in each saturation degree fraction 
+
+PAL1314_LMG1401.sat_totals
+PAL1314_LMG1401.sat_totals.PC
+Marchetti_diatoms.sat_totals
+Marchetti_diatoms.sat_totals.PC
