@@ -21,6 +21,8 @@ PUFA_fracs.Marchetti_diatoms_PConly.pmol_total_lipids = Marchetti_diatoms.sat_to
 
 z_surf = 5 # 5 m surface layer depth
 
+
+
 # now, calculate daily UVA+UVB and UVB-range photon fluxes from the Palmer deck tank Jaz data (0.6 m depth)
 
 # will obtain integrated final figures in units of umol photons/m2/d
