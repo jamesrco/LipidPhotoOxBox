@@ -408,6 +408,8 @@ for (j in 1:nrow(Ks_Exp13_PC_22_6)) { # iterate by wavelength
     # finally, calculate Ks for this wavelength
     # have to make some unit conversions
     
+    # this is Ch 4, Equation 7
+    
     Ks_Exp13_PC_22_6[j,1] =
       (E_mol_photons_m2*T_quartz*epsilon_per_M_per_cm*cm_per_m*m3_per_L*(1-10^(-alpha_per_m*(Quartz_vial_pathlength_cm/100))))/
       (alpha_per_m*(Quartz_vial_pathlength_cm/100))
