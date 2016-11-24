@@ -41,74 +41,74 @@ library(caTools)
 # preallocate matrices for results
 
 # high-PUFA fraction, all lipids, UVB
-PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
 
 # high-PUFA fraction, all lipids, TUVR
-PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
 # mid-PUFA fraction, all lipids, UVB
-PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
 
 # high-PUFA fraction, all lipids, TUVR
-PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
-rownames(PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-C_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
-rownames(C_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
-colnames(C_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 = as.data.frame(matrix(NA,length(Jazfulldata.dates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_C_L)))
+rownames(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = Jazfulldata.dates
+colnames(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
 
 for (i in 1:length(Jazfulldata.dates)) {
@@ -221,23 +221,23 @@ for (i in 1:length(Jazfulldata.dates)) {
   
   # UVB
   
-  for (m in 1:ncol(PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401)) {
+  for (m in 1:ncol(PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401)) {
     
-    PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401[i,m] =
+    PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[i,m] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,m]*mol_per_pmol)*
          Ks_int_UVB*Theta_Exp13_PC_22_6[3])*pmol_per_mol
     
-    PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[i,m] =
+    PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[i,m] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,m]*mol_per_pmol)*
          Ks_int_UVB*Theta_Exp13_PC_22_6_sigma[3])*pmol_per_mol
     
-    C_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401[i,m] = 
-      PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401[i,m]*
+    C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[i,m] = 
+      PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[i,m]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,m]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,m])
     
-    C_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[i,m] =
-      PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[i,m]*
+    C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[i,m] =
+      PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[i,m]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,m]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,m])
     
@@ -245,23 +245,23 @@ for (i in 1:length(Jazfulldata.dates)) {
   
   # TUVR
   
-  for (n in 1:ncol(PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401)) {
+  for (n in 1:ncol(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401)) {
     
-    PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401[i,n] =
+    PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[i,n] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,n]*mol_per_pmol)*
          Ks_int_TUVR*Theta_Exp13_PC_22_6[1])*pmol_per_mol
     
-    PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[i,n] =
+    PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[i,n] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,n]*mol_per_pmol)*
          Ks_int_TUVR*Theta_Exp13_PC_22_6_sigma[1])*pmol_per_mol
     
-    C_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401[i,n] = 
-      PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401[i,n]*
+    C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[i,n] = 
+      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[i,n]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,n]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,n])
     
-    C_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[i,n] =
-      PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[i,n]*
+    C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[i,n] =
+      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[i,n]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,n]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,n])
     
@@ -271,23 +271,23 @@ for (i in 1:length(Jazfulldata.dates)) {
   
   # UVB
   
-  for (o in 1:ncol(PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401)) {
+  for (o in 1:ncol(PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401)) {
     
-    PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401[i,o] =
+    PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[i,o] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,o]*mol_per_pmol)*
          Ks_int_UVB*Theta_Exp13_PC_22_6[3])*pmol_per_mol
     
-    PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[i,o] =
+    PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[i,o] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,o]*mol_per_pmol)*
          Ks_int_UVB*Theta_Exp13_PC_22_6_sigma[3])*pmol_per_mol
     
-    C_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401[i,o] = 
-      PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401[i,o]*
+    C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[i,o] = 
+      PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[i,o]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,o]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,o])
     
-    C_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[i,o] =
-      PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[i,o]*
+    C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[i,o] =
+      PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[i,o]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,o]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,o])
     
@@ -295,23 +295,23 @@ for (i in 1:length(Jazfulldata.dates)) {
   
   # TUVR
   
-  for (p in 1:ncol(PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401)) {
+  for (p in 1:ncol(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401)) {
     
-    PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401[i,p] =
+    PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[i,p] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,p]*mol_per_pmol)*
          Ks_int_TUVR*Theta_Exp13_PC_22_6[1])*pmol_per_mol
     
-    PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[i,p] =
+    PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[i,p] =
       ((PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,p]*mol_per_pmol)*
          Ks_int_TUVR*Theta_Exp13_PC_22_6_sigma[1])*pmol_per_mol
     
-    C_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401[i,p] = 
-      PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401[i,p]*
+    C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[i,p] = 
+      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[i,p]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,p]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,p])
     
-    C_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[i,p] =
-      PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[i,p]*
+    C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[i,p] =
+      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[i,p]*
       (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,p]/
          PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,p])
     
@@ -321,27 +321,26 @@ for (i in 1:length(Jazfulldata.dates)) {
 
 #### workup and visualization of results ####
 
-
 # high-PUFA fraction, all lipids, UVB
-PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401 
-PUFA_lipids_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 
-C_xformed_pmol_d.UVB.hi_PUFA.PAL1314_LMG1401 
-C_xformed_pmol_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 
+PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 
+PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 
+C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 
+C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 
 
 # high-PUFA fraction, all lipids, TUVR
-PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401
-PUFA_lipids_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 
-C_xformed_pmol_d.TUVR.hi_PUFA.PAL1314_LMG1401
-C_xformed_pmol_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 
+PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401
+PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 
+C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401
+C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 
 
 # mid-PUFA fraction, all lipids, UVB
-PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401 
-PUFA_lipids_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401
-C_xformed_pmol_d.UVB.mid_PUFA.PAL1314_LMG1401
-C_xformed_pmol_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401
+PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401 
+PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401
+C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401
+C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401
 
 # high-PUFA fraction, all lipids, TUVR
-PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401
-PUFA_lipids_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401
-C_xformed_pmol_d.TUVR.mid_PUFA.PAL1314_LMG1401
-C_xformed_pmol_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401
+PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401
+PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401
+C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401
+C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401
