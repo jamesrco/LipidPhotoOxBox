@@ -2088,6 +2088,20 @@ PAL1314_LMG1401_particulate_pos_withoddFA$neg_mode.conf =
 PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto = NA
 
 # flag for removal certain entire classes which we aren't concerned with at the moment
+
+# (but first, calculate % of total peak area accounted for by TAG)
+# .
+# .
+# .
+mean(apply(PAL1314_LMG1401_particulate_pos_withoddFA[PAL1314_LMG1401_particulate_pos_withoddFA$lipid_class=="TAG",13:17],2,sum,na.rm=T)/
+apply(PAL1314_LMG1401_particulate_pos_withoddFA[,13:17],2,sum,na.rm=T))
+
+sd(apply(PAL1314_LMG1401_particulate_pos_withoddFA[PAL1314_LMG1401_particulate_pos_withoddFA$lipid_class=="TAG",13:17],2,sum,na.rm=T)/
+       apply(PAL1314_LMG1401_particulate_pos_withoddFA[,13:17],2,sum,na.rm=T))
+# .
+# .
+# .
+# now, actually remove the TAG
 PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[
   PAL1314_LMG1401_particulate_pos_withoddFA$lipid_class %in% 
     c("TAG","pigment","PUA","IP_MAG")] = 1
