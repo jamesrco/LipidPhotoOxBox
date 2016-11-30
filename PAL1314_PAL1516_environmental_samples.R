@@ -1898,7 +1898,7 @@ for (i in 1:(nrow(PAL1314_LMG1401_particulate_pos_withoddFA))) {
         
         # get an index to these scans
         possible.precursors_pos.ind =
-          which(abs(Marchetti_xsR[[samp_ID]]@msnPrecursorMz-xcms.peakdata_thisgroup_pos$mz[j])/
+          which(abs(PAL1314_LMG1401_p_xsR[[samp_ID]]@msnPrecursorMz-xcms.peakdata_thisgroup_pos$mz[j])/
                   xcms.peakdata_thisgroup_pos$mz[j]*1000000 < ms2_lkup_window.ppm)
         
         # whittle this list to make sure the scans *also* fall within the rt window for the parent peak
