@@ -76,14 +76,14 @@ getMetDat = function(fn,metadat.raw,whichdat) {
 
 # necessary functions that will allow us to extract the correct ms2 spectra, evaluate transitions, etc
 
-get.ms2Peaklist = function (precursor.index,sample_ID) {
+get.ms2Peaklist = function (precursor.index,sample_ID,xcmsRaw.list) {
   
-  ms2data.start = KM1605_UvOX_p_xraw_pos[[sample_ID]]@msnScanindex[precursor.index]
-  ms2data.end = KM1605_UvOX_p_xraw_pos[[sample_ID]]@msnScanindex[precursor.index+1]-1
+  ms2data.start = xcmsRaw.list[[sample_ID]]@msnScanindex[precursor.index]
+  ms2data.end = xcmsRaw.list[[sample_ID]]@msnScanindex[precursor.index+1]-1
   
   scandata =
-    data.frame(KM1605_UvOX_p_xraw_pos[[sample_ID]]@env$msnMz[ms2data.start:ms2data.end],
-               KM1605_UvOX_p_xraw_pos[[sample_ID]]@env$msnIntensity[ms2data.start:ms2data.end])
+    data.frame(xcmsRaw.list[[sample_ID]]@env$msnMz[ms2data.start:ms2data.end],
+               xcmsRaw.list[[sample_ID]]@env$msnIntensity[ms2data.start:ms2data.end])
   
   colnames(scandata) = c("mz","Intensity")
   
@@ -101,7 +101,7 @@ get.topN = function(peaklist,N) {
   
 }
 
-eval.PIspecies = function(peaklist,species,ppm) {
+eval.PIspecies = function(peaklist,species,ppm,ms2.lookupClasses) {
   
   # check to make sure there are no blank values in the peaklist; if so, excise them
   
@@ -109,8 +109,8 @@ eval.PIspecies = function(peaklist,species,ppm) {
   
   # retrieve product ion m/z
   
-  prod.ion = KM1605_UvOX_part.frag_lookup_classes$mz_value[
-    rownames(KM1605_UvOX_part.frag_lookup_classes)==species]
+  prod.ion = ms2.lookupClasses$mz_value[
+    rownames(ms2.lookupClasses)==species]
   
   if (any(abs((prod.ion-peaklist[,1])/prod.ion*1000000)<ppm)) {
     
@@ -126,7 +126,7 @@ eval.PIspecies = function(peaklist,species,ppm) {
   
 }
 
-eval.CNLspecies = function(peaklist,species,sample_ID,ppm) {
+eval.CNLspecies = function(peaklist,species,sample_ID,ppm,ms2.lookupClasses) {
   
   # check to make sure there are no blank values in the peaklist; if so, excise them
   
@@ -135,8 +135,8 @@ eval.CNLspecies = function(peaklist,species,sample_ID,ppm) {
   # calculate theoretical m/z of the ion that would be produced via the neutral loss
   # throwing in a mean() here in case xcms associated more than one peak with the group in this particular sample
   CNL_product_mz = mean(xcms.peakdata_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==sample_ID,1])-
-    KM1605_UvOX_part.frag_lookup_classes$mz_value[
-      rownames(KM1605_UvOX_part.frag_lookup_classes)==this.IDclass]
+    ms2.lookupClasses$mz_value[
+      rownames(ms2.lookupClasses)==this.IDclass]
   
   # perform comparison
   
@@ -454,11 +454,17 @@ DNPPE_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/6IPL_plus_DGTS_Standards_20161005_pos.RData") # load processed standard data
 IPLstd_pos_20161005.raw = getLOBpeaklist(IPL_plus_DGTS_Standards_20161005) # generate peaklist
 
-# extract standards for each species, and DNPPE
+# **** need to extract more than one species for DGDG, SQDG, MGDG since these were not pure standards of one species, and some of the "secondary" (less abundant) species are still abundant enough that they contribute to the overall mass of the lipid
+
 Std_peakareas.20161005 = IPLstd_pos_20161005.raw[
   IPLstd_pos_20161005.raw$compound_name %in% c("PG 32:0","PE 32:0","PC 32:0",
-                                               "MGDG 36:0","SQDG 34:3","DGDG 36:4",
-                                               "DGTS_DGTA 32:0","DNPPE"),]
+                                               "MGDG 36:0","MGDG 34:0","SQDG 34:3",
+                                               "SQDG 34:2","SQDG 36:6","SQDG 32:0",
+                                               "SQDG 32:3","SQDG 36:5","SQDG 34:1",
+                                               "SQDG 36:4",
+                                               "DGDG 36:4","DGDG 34:2","DGDG 36:3",
+                                               "DNPPE",
+                                               "DGTS_DGTA 32:0","DGTS_DGTA 34:0"),]
 
 rownames(Std_peakareas.20161005) = Std_peakareas.20161005$compound_name
 Std_peakareas.20161005 = Std_peakareas.20161005[,13:23]
@@ -585,52 +591,56 @@ PC_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 # MGDG
 
+MGDG.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^MGDG",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
+
 # curve fitting & diagnostics
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",1:8]
+y = MGDG.stdareas.20161005[1:8]
 x = rev(Stds_20161005_oc$pmol_oc_MGDG)[1:8]
 linfit_low.MGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_MGDG),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",],
+     MGDG.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, MGDG 36:0",
-     xlab = "pmol o.c., MGDG 36:0")
+     ylab = "Peak area, total MGDG",
+     xlab = "pmol o.c., total MGDG")
 points(rev(Stds_20161005_oc$pmol_oc_MGDG)[1:8],fitted(linfit_low.MGDG.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",c(8:10)]
+y = MGDG.stdareas.20161005[8:10]
 x = rev(Stds_20161005_oc$pmol_oc_MGDG)[8:10]
 linfit_hi.MGDG.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_MGDG)[8:10],fitted(linfit_hi.MGDG.20161005),col="blue",pch="+")
 
-MGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",8]
+MGDG_std_breakpoint.20161005 = MGDG.stdareas.20161005[8]
 
 # SQDG
+
+SQDG.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^SQDG",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
 
 # curve fitting & diagnostics
 # something appears to be very weird with the SQDG in these standards
 # will generate one curve while ommitting the 8th and 9th points
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(1:7)]
+y = SQDG.stdareas.20161005[1:7]
 # x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)]
 x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7)]
 linfit_low.SQDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_SQDG),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",],
+     SQDG.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, SQDG 34:3",
-     xlab = "pmol o.c., SQDG 34:3")
+     ylab = "Peak area, total SQDG",
+     xlab = "pmol o.c., total SQDG")
 points(rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7)],fitted(linfit_low.SQDG.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(7,10)]
+y = SQDG.stdareas.20161005[c(7,10)]
 x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(7,10)]
 linfit_hi.SQDG.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_SQDG)[c(7,10)],fitted(linfit_hi.SQDG.20161005),col="blue",pch="+")
 
-SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",7]
+SQDG_std_breakpoint.20161005 = SQDG.stdareas.20161005[7]
 
 # # SQDG
 # 
@@ -695,26 +705,28 @@ SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 # DGDG
 
+DGDG.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^DGDG",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
+
 # curve fitting & diagnostics
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",c(1:8)]
+y = DGDG.stdareas.20161005[1:8]
 x = rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8)]
 linfit_low.DGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGDG),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",],
+     DGDG.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, DGDG 36:4",
-     xlab = "pmol o.c., DGDG 36:4")
+     ylab = "Peak area, total DGDG",
+     xlab = "pmol o.c., total DGDG")
 points(rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8)],fitted(linfit_low.DGDG.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",c(8,10)]
+y = DGDG.stdareas.20161005[c(8,10)]
 x = rev(Stds_20161005_oc$pmol_oc_DGDG)[c(8,10)]
 linfit_hi.DGDG.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_DGDG)[c(8,10)],fitted(linfit_hi.DGDG.20161005),col="blue",pch="+")
 
-DGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",8]
+DGDG_std_breakpoint.20161005 = DGDG.stdareas.20161005[8]
 
 # DNPPE
 # no DNPPE added at highest standard level, per VML lab SOP
@@ -740,27 +752,202 @@ DNPPE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20
 
 # DGTS
 
+DGTS_DGTA.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^DGTS_DGTA",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
+
 # curve fitting & diagnostics
 
-y = as.numeric(Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(1:8)])
+y = DGTS_DGTA.stdareas.20161005[1:8]
 x = rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:8)]
 
 linfit_low.DGTS_DGTA.20161005 = lm(as.numeric(y)~x) # fit a model for the first 8 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGTS),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",],
+     DGTS_DGTA.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, DGTS_DGTA 32:0",
-     xlab = "pmol o.c., DGTS_DGTA 32:0")
+     ylab = "Peak area, DGTS_DGTA 32:0 + 34:0",
+     xlab = "pmol o.c., DGTS_DGTA 32:0 + 34:0")
 points(rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:8)],fitted(linfit_low.DGTS_DGTA.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(8:9)]
+y = DGTS_DGTA.stdareas.20161005[8:9]
 x = rev(Stds_20161005_oc$pmol_oc_DGTS)[8:9]
 linfit_hi.DGTS_DGTA.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_DGTS)[8:9],fitted(linfit_hi.DGTS_DGTA.20161005),col="blue",pch="+")
 
-DGTS_DGTA_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",8]
+DGTS_DGTA_std_breakpoint.20161005 = DGTS_DGTA.stdareas.20161005[8]
+
+### TAG standards from 20161004 ####
+
+# run by Kevin Becker, QE002840-QE002847
+# the standard mix includes odd fatty acid TAGs as well, so re-ran the dataset
+# in LOBSTAHS with exclude.oddFA = F
+# standards were run in duplicate, will take averages
+
+load("data/nice/Orbi_MS_data/LOBSTAHS_processed/TAG_Standards_20161004_pos.RData") # load processed standard data
+TAGstd_pos_20161004.raw = getLOBpeaklist(TAG_Standards_20161004_pos) # generate peaklist
+
+# extract standards for each TAG in the mix, and DNPPE
+TAGstd_peakareas.20161004 = TAGstd_pos_20161004.raw[
+  TAGstd_pos_20161004.raw$compound_name %in% c("TAG 24:0","TAG 27:0","TAG 30:0",
+                                               "TAG 33:0","TAG 36:0","TAG 39:0",
+                                               "TAG 42:0","TAG 45:0","TAG 48:0",
+                                               "TAG 51:0","TAG 54:0","TAG 57:0",
+                                               "TAG 48:3","TAG 54:9","TAG 60:15",
+                                               "TAG 66:18","DNPPE"),]
+
+# three of these (24:0, 27:0, 57:0) aren't in the current LOBSTAHS DB, not going
+# to worry about them
+
+rownames(TAGstd_peakareas.20161004) = TAGstd_peakareas.20161004$compound_name
+TAGstd_peakareas.20161004 = TAGstd_peakareas.20161004[,13:20]
+TAGstd_peakareas.20161004 = TAGstd_peakareas.20161004[order(colnames(TAGstd_peakareas.20161004))]
+
+# # separate a QC from the standards
+# no QC's in these standards, skipping... 
+# TAGstd_peakareas.20161004_QC = TAGstd_peakareas.20161004[,c(ncol(TAGstd_peakareas.20161004))]
+# TAGstd_peakareas.20161004 = TAGstd_peakareas.20161004[,-c(ncol(TAGstd_peakareas.20161004))]
+
+# average the respective duplicates
+
+TAGstd_peakareas.20161004.means = as.data.frame(matrix(NA,nrow(TAGstd_peakareas.20161004),4))
+
+colnames(TAGstd_peakareas.20161004.means) = c("ng_oc_0.5","ng_oc_4","ng_oc_15","ng_oc_40")
+rownames(TAGstd_peakareas.20161004.means) = rownames(TAGstd_peakareas.20161004)
+
+TAGstd_peakareas.20161004.means[,1] = apply(TAGstd_peakareas.20161004[,1:2],1,mean)
+TAGstd_peakareas.20161004.means[,2] = apply(TAGstd_peakareas.20161004[,3:4],1,mean)
+TAGstd_peakareas.20161004.means[,3] = apply(TAGstd_peakareas.20161004[,5:6],1,mean)
+TAGstd_peakareas.20161004.means[,4] = apply(TAGstd_peakareas.20161004[,7:8],1,mean)
+
+# put in more logical order
+TAGstd_peakareas.20161004.means =
+  TAGstd_peakareas.20161004.means[order(rownames(TAGstd_peakareas.20161004.means)),]
+
+# define quantities on column for standards (in pmol), per Kevin's notes, with
+# DNPPE from 3/31/16
+
+# specify molecular weights for each species, in order of species as they appear
+# in TAGstd_peakareas.20161004.means after reordering, just above
+
+TAG.mws_20161004 = c(857.51666,554.45464,596.50159,638.54854,680.59549,722.64244,
+                     764.68939,806.73634,800.68939,848.78329,890.83024,872.68939,
+                     944.68939,1022.73634)
+
+# DNPPE: assumed added at same concentration (ng) as the TAGs
+
+# calculate pmol o.c. for each of the four standard levels, populate data frame
+
+TAGstds_20161004_pmol_oc = as.data.frame(matrix(NA,ncol(TAGstd_peakareas.20161004.means),
+                                                nrow(TAGstd_peakareas.20161004.means)))
+colnames(TAGstds_20161004_pmol_oc) = apply(expand.grid(c("pmol_oc_"),rownames(TAGstd_peakareas.20161004.means)),1,paste,collapse="")
+colnames(TAGstds_20161004_pmol_oc) = gsub(" ","_",colnames(TAGstds_20161004_pmol_oc))
+colnames(TAGstds_20161004_pmol_oc) = gsub(":","_",colnames(TAGstds_20161004_pmol_oc))
+
+rownames(TAGstds_20161004_pmol_oc) = colnames(TAGstd_peakareas.20161004.means)
+
+TAGstds_20161004_pmol_oc[1,] = 0.5/TAG.mws_20161004*1000
+TAGstds_20161004_pmol_oc[2,] = 4/TAG.mws_20161004*1000
+TAGstds_20161004_pmol_oc[3,] = 15/TAG.mws_20161004*1000
+TAGstds_20161004_pmol_oc[4,] = 40/TAG.mws_20161004*1000
+
+# now, build standard curves for each TAG, and DNPPE
+
+# preallocate a list object to hold results of the curve fits, set correct element names
+
+TAGstdlist.names = rownames(TAGstd_peakareas.20161004.means)
+TAGstdlist.names = gsub(" ","_",TAGstdlist.names)
+TAGstdlist.names = gsub(":","_",TAGstdlist.names)
+
+TAGstds_20161004_linfits = vector("list",length(TAGstdlist.names))
+names(TAGstds_20161004_linfits) = TAGstdlist.names
+
+# apply linear fit to each of these, then plot, then store
+
+for (i in 1:length(TAGstds_20161004_linfits)) {
+  
+  # for a few species, want to omit some bad data points in the standards
+  
+  if (rownames(TAGstd_peakareas.20161004.means)[i] %in% c("TAG 48:0","TAG 51:0")) {
+    
+    y = TAGstd_peakareas.20161004.means[i,c(1,3,4)]
+    x = TAGstds_20161004_pmol_oc[c(1,3,4),i]
+    
+  } else if (rownames(TAGstd_peakareas.20161004.means)[i]=="TAG 54:0") {
+    
+    y = TAGstd_peakareas.20161004.means[i,c(1,2,4)]
+    x = TAGstds_20161004_pmol_oc[c(1,2,4),i]
+    
+  } else {
+    
+    y = TAGstd_peakareas.20161004.means[i,]
+    x = TAGstds_20161004_pmol_oc[,i]
+    
+  }
+  
+  linfit = lm(as.numeric(y)~x-1) # fit a linear model, force through origin
+  plot(TAGstds_20161004_pmol_oc[,i],
+       TAGstd_peakareas.20161004.means[i,],
+       pch="+",
+       ylab = paste0("Peak area, ",rownames(TAGstd_peakareas.20161004.means)[i]),
+       xlab = paste0("pmol o.c., ",rownames(TAGstd_peakareas.20161004.means)[i]))
+  points(x,fitted(linfit),col="red",pch="+")
+  
+  TAGstds_20161004_linfits[[i]] = linfit
+  
+}
+
+# can generate some relative response factors
+
+RRFs = vector("numeric",length(TAGstds_20161004_linfits)) # preallocate
+names(RRFs) = rownames(TAGstd_peakareas.20161004.means)
+
+for (i in 1:length(RRFs)) {
+  
+  RRFs[i] = TAGstds_20161004_linfits[[i]]$coefficients[1]/
+    TAGstds_20161004_linfits[[1]]$coefficients[1]
+  
+}
+
+# calculate some equivalent carbon #s for the TAGs, then plot with RRFs 
+
+ECNs = vector("numeric",nrow(TAGstd_peakareas.20161004.means)-1) # preallocate
+names(ECNs) = rownames(TAGstd_peakareas.20161004.means)[2:nrow(TAGstd_peakareas.20161004.means)]
+
+for (i in 1:length(ECNs)) {
+  
+  # get no. of C, DB
+  
+  num_C = TAGstd_pos_20161004.raw$FA_total_no_C[TAGstd_pos_20161004.raw$compound_name==names(ECNs)[i]]
+  num_DB = TAGstd_pos_20161004.raw$FA_total_no_DB[TAGstd_pos_20161004.raw$compound_name==names(ECNs)[i]]
+  
+  ECNs[i] = num_C-2*num_DB
+  
+}
+
+plot(ECNs,RRFs[2:length(RRFs)])
+text(ECNs, RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
+
+# maybe a plot of the reciprocals
+
+plot(ECNs,1/RRFs[2:length(RRFs)])
+text(ECNs, 1/RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
+
+# x = ECNs
+# y = 1/RRFs[2:length(RRFs)]
+
+# excluding 30:0, 33:0
+
+x = ECNs[3:length(ECNs)]
+y = 1/RRFs[4:length(RRFs)]
+
+# fit a non-linear model of form
+# y = a*b^x-c
+
+nls.fit.TAG20161004 = nls(y~a*b^x-c,list(x,y),c(a=0.5,b=1.25,c=30), nls.control(maxiter=5000),
+                          lower = c(0.000001,0.5,-1000), algorithm = "port",
+                          upper = c(6,3,500))
+points(x,fitted(nls.fit.TAG20161004),col="red",pch="+")
+text(ECNs[1:2],1/RRFs[2:3],c("EXCLUDED","EXCLUDED"), cex = 0.5, pos = 1, col = "red")
 
 ### pull in data ####
 
@@ -932,7 +1119,8 @@ for (i in 1:(nrow(KM1605_UvOX_Expt_pos_withoddFA_particulate))) {
           # msnScanindex is constructed in such a way that we can recreate the peaklist for
           # a given scan using the following syntax
           
-          relevant_ms2data = apply(as.matrix(valid.precursors_pos.ind),1,get.ms2Peaklist,samp_ID)
+          relevant_ms2data = apply(as.matrix(valid.precursors_pos.ind),1,get.ms2Peaklist,sample_ID = samp_ID,
+                                   xcmsRaw.list = KM1605_UvOX_p_xraw_pos)
           
           ### now, can get onto the business of actually examining the spectra for the diagnostic transitions ###
           
@@ -950,7 +1138,8 @@ for (i in 1:(nrow(KM1605_UvOX_Expt_pos_withoddFA_particulate))) {
             
             # evaluate: do the list(s) of the top N most intense fragments contain the diagnostic ion?
             
-            PI.eval_result = lapply(top_features.PI, eval.PIspecies, species = this.IDclass, ppm = 12)
+            PI.eval_result = lapply(top_features.PI, eval.PIspecies, species = this.IDclass, ppm = 12,
+                                    ms2.lookupClasses = KM1605_UvOX_part.frag_lookup_classes)
             
             # record result
             
@@ -978,7 +1167,8 @@ for (i in 1:(nrow(KM1605_UvOX_Expt_pos_withoddFA_particulate))) {
             
             # evaluate & record
             
-            CNL.eval_result = lapply(top_features.CNL, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 12)
+            CNL.eval_result = lapply(top_features.CNL, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, 
+                                     ppm = 12, ms2.lookupClasses = KM1605_UvOX_part.frag_lookup_classes)
             
             if (is.na(KM1605_UvOX_p.fragdata_results[i,samp_ID])) {
               

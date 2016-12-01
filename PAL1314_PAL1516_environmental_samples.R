@@ -102,7 +102,7 @@ get.topN = function(peaklist,N) {
   
 }
 
-eval.PIspecies = function(peaklist,species,ppm) {
+eval.PIspecies = function(peaklist,species,ppm,ms2.lookupClasses) {
   
   # check to make sure there are no blank values in the peaklist; if so, excise them
   
@@ -110,8 +110,8 @@ eval.PIspecies = function(peaklist,species,ppm) {
   
   # retrieve product ion m/z
   
-  prod.ion = Marchetti_diatom.frag_lookup_classes$mz_value[
-    rownames(Marchetti_diatom.frag_lookup_classes)==species]
+  prod.ion = ms2.lookupClasses$mz_value[
+    rownames(ms2.lookupClasses)==species]
   
   if (any(abs((prod.ion-peaklist[,1])/prod.ion*1000000)<ppm)) {
     
@@ -1137,7 +1137,8 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos_withoddFA))) {
             
             # evaluate: do the list(s) of the top N most intense fragments contain the diagnostic ion?
             
-            PI.eval_result = lapply(top_features.PI, eval.PIspecies, species = this.IDclass, ppm = 12)
+            PI.eval_result = lapply(top_features.PI, eval.PIspecies, species = this.IDclass, ppm = 12,
+                                    ms2.lookupClasses = Marchetti_diatom.frag_lookup_classes)
             
             # record result
             
@@ -2012,7 +2013,8 @@ for (i in 1:(nrow(PAL1314_LMG1401_particulate_pos_withoddFA))) {
             
             # evaluate: do the list(s) of the top N most intense fragments contain the diagnostic ion?
             
-            PI.eval_result = lapply(top_features.PI, eval.PIspecies, species = this.IDclass, ppm = 12)
+            PI.eval_result = lapply(top_features.PI, eval.PIspecies, species = this.IDclass, ppm = 12,
+                                    ms2.lookupClasses = PAL1314_LMG1401_particulate.frag_lookup_classes)
             
             # record result
             
