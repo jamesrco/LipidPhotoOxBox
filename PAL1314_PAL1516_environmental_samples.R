@@ -77,14 +77,14 @@ getMetDat = function(fn,metadat.raw,whichdat) {
 
 # necessary functions that will allow us to extract the correct ms2 spectra, evaluate transitions, etc
 
-get.ms2Peaklist = function (precursor.index,sample_ID) {
+get.ms2Peaklist = function (precursor.index,sample_ID,xcmsRaw.list) {
   
-  ms2data.start = Marchetti_xsR[[sample_ID]]@msnScanindex[precursor.index]
-  ms2data.end = Marchetti_xsR[[sample_ID]]@msnScanindex[precursor.index+1]-1
+  ms2data.start = xcmsRaw.list[[sample_ID]]@msnScanindex[precursor.index]
+  ms2data.end = xcmsRaw.list[[sample_ID]]@msnScanindex[precursor.index+1]-1
   
   scandata =
-    data.frame(Marchetti_xsR[[sample_ID]]@env$msnMz[ms2data.start:ms2data.end],
-               Marchetti_xsR[[sample_ID]]@env$msnIntensity[ms2data.start:ms2data.end])
+    data.frame(xcmsRaw.list[[sample_ID]]@env$msnMz[ms2data.start:ms2data.end],
+               xcmsRaw.list[[sample_ID]]@env$msnIntensity[ms2data.start:ms2data.end])
   
   colnames(scandata) = c("mz","Intensity")
   
@@ -127,7 +127,7 @@ eval.PIspecies = function(peaklist,species,ppm) {
   
 }
 
-eval.CNLspecies = function(peaklist,species,sample_ID,ppm) {
+eval.CNLspecies = function(peaklist,species,sample_ID,ppm,ms2.lookupClasses) {
   
   # check to make sure there are no blank values in the peaklist; if so, excise them
   
@@ -136,8 +136,8 @@ eval.CNLspecies = function(peaklist,species,sample_ID,ppm) {
   # calculate theoretical m/z of the ion that would be produced via the neutral loss
   # throwing in a mean() here in case xcms associated more than one peak with the group in this particular sample
   CNL_product_mz = mean(xcms.peakdata_thisgroup_pos[xcms.peakdata_thisgroup_pos$sample==sample_ID,1])-
-    Marchetti_diatom.frag_lookup_classes$mz_value[
-      rownames(Marchetti_diatom.frag_lookup_classes)==this.IDclass]
+    ms2.lookupClasses$mz_value[
+      rownames(ms2.lookupClasses)==this.IDclass]
   
   # perform comparison
   
@@ -464,7 +464,8 @@ Std_peakareas.20161005 = IPLstd_pos_20161005.raw[
                                                "SQDG 32:3","SQDG 36:5","SQDG 34:1",
                                                "SQDG 36:4",
                                                "DGDG 36:4","DGDG 34:2","DGDG 36:3",
-                                               "DNPPE"),]
+                                               "DNPPE",
+                                               "DGTS_DGTA 32:0","DGTS_DGTA 34:0"),]
 
 rownames(Std_peakareas.20161005) = Std_peakareas.20161005$compound_name
 Std_peakareas.20161005 = Std_peakareas.20161005[,13:23]
@@ -752,27 +753,29 @@ DNPPE_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20
 
 # DGTS
 
+DGTS_DGTA.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^DGTS_DGTA",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
+
 # curve fitting & diagnostics
 
-y = as.numeric(Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(1:8)])
+y = DGTS_DGTA.stdareas.20161005[1:8]
 x = rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:8)]
 
 linfit_low.DGTS_DGTA.20161005 = lm(as.numeric(y)~x) # fit a model for the first 8 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGTS),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",],
+     DGTS_DGTA.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, DGTS_DGTA 32:0",
-     xlab = "pmol o.c., DGTS_DGTA 32:0")
+     ylab = "Peak area, DGTS_DGTA 32:0 + 34:0",
+     xlab = "pmol o.c., DGTS_DGTA 32:0 + 34:0")
 points(rev(Stds_20161005_oc$pmol_oc_DGTS)[c(1:8)],fitted(linfit_low.DGTS_DGTA.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",c(8:9)]
+y = DGTS_DGTA.stdareas.20161005[8:9]
 x = rev(Stds_20161005_oc$pmol_oc_DGTS)[8:9]
 linfit_hi.DGTS_DGTA.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_DGTS)[8:9],fitted(linfit_hi.DGTS_DGTA.20161005),col="blue",pch="+")
 
-DGTS_DGTA_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGTS_DGTA 32:0",8]
+DGTS_DGTA_std_breakpoint.20161005 = DGTS_DGTA.stdareas.20161005[8]
 
 ### TAG standards from 20161004 ####
 
@@ -925,18 +928,27 @@ for (i in 1:length(ECNs)) {
 plot(ECNs,RRFs[2:length(RRFs)])
 text(ECNs, RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
 
-# # maybe a plot of the reciprocals
-# 
-# plot(ECNs,1/RRFs[2:length(RRFs)])
-# text(ECNs, 1/RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
-# 
+# maybe a plot of the reciprocals
+
+plot(ECNs,1/RRFs[2:length(RRFs)])
+text(ECNs, 1/RRFs[2:length(RRFs)], labels=names(ECNs), pos = 4, cex = 0.5)
+
 # x = ECNs
 # y = 1/RRFs[2:length(RRFs)]
-# 
-# # fit a non-linear model
-# 
-# nls.fit = nls(y~a/x+b*x+c,list(x,y),c(a=700,b=0.5,c=-40)) # fit a linear model, force through origin
-# points(x,fitted(nls.fit),col="red",pch="+")
+
+# excluding 30:0, 33:0
+
+x = ECNs[3:length(ECNs)]
+y = 1/RRFs[4:length(RRFs)]
+
+# fit a non-linear model of form
+# y = a*b^x-c
+
+nls.fit.TAG20161004 = nls(y~a*b^x-c,list(x,y),c(a=0.5,b=1.25,c=30), nls.control(maxiter=5000),
+               lower = c(0.000001,0.5,-1000), algorithm = "port",
+               upper = c(6,3,500))
+points(x,fitted(nls.fit.TAG20161004),col="red",pch="+")
+text(ECNs[1:2],1/RRFs[2:3],c("EXCLUDED","EXCLUDED"), cex = 0.5, pos = 1, col = "red")
 
 ### Marchetti diatom cultures ####
 
@@ -1107,7 +1119,7 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos_withoddFA))) {
           # msnScanindex is constructed in such a way that we can recreate the peaklist for
           # a given scan using the following syntax
           
-          relevant_ms2data = apply(as.matrix(valid.precursors_pos.ind),1,get.ms2Peaklist,samp_ID)
+          relevant_ms2data = apply(as.matrix(valid.precursors_pos.ind),1,get.ms2Peaklist,samp_ID,Marchetti_xsR)
           
           ### now, can get onto the business of actually examining the spectra for the diagnostic transitions ###
           
@@ -1153,7 +1165,8 @@ for (i in 1:(nrow(Marchetti_diatom_cultures_pos_withoddFA))) {
             
             # evaluate & record
             
-            CNL.eval_result = lapply(top_features.CNL, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 12)
+            CNL.eval_result = lapply(top_features.CNL, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 12,
+                                     ms2.lookupClasses = Marchetti_diatom.frag_lookup_classes)
             
             if (is.na(Marchetti_diatom.fragdata_results[i,samp_ID])) {
               
@@ -1514,7 +1527,7 @@ write.csv(Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total,
 
 # import & extract codes from the curation, combine with codes in rm.flag_auto, then apply to the dataset to produce our final list of IDs
 
-Marchetti_cultures_man_annot = read.csv("data/nice/LOBSTAHS_lipid_identities/UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann-1107-zerorigin.csv",
+Marchetti_cultures_man_annot = read.csv("data/nice/LOBSTAHS_lipid_identities/UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann.csv",
          skip = 0)
 
 Marchetti_diatom_cultures_pos.pmol_total.fully_annotated = 
@@ -1981,7 +1994,7 @@ for (i in 1:(nrow(PAL1314_LMG1401_particulate_pos_withoddFA))) {
           # msnScanindex is constructed in such a way that we can recreate the peaklist for
           # a given scan using the following syntax
           
-          relevant_ms2data = apply(as.matrix(valid.precursors_pos.ind),1,get.ms2Peaklist,samp_ID)
+          relevant_ms2data = apply(as.matrix(valid.precursors_pos.ind),1,get.ms2Peaklist,samp_ID,PAL1314_LMG1401_p_xsR)
           
           ### now, can get onto the business of actually examining the spectra for the diagnostic transitions ###
           
@@ -2027,7 +2040,8 @@ for (i in 1:(nrow(PAL1314_LMG1401_particulate_pos_withoddFA))) {
             
             # evaluate & record
             
-            CNL.eval_result = lapply(top_features.CNL, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 12)
+            CNL.eval_result = lapply(top_features.CNL, eval.CNLspecies, species = this.IDclass, sample_ID = samp_ID, ppm = 12,
+                                     ms2.lookupClasses = PAL1314_LMG1401_particulate.frag_lookup_classes)
             
             if (is.na(Marchetti_diatom.fragdata_results[i,samp_ID])) {
               
@@ -2054,7 +2068,7 @@ for (i in 1:(nrow(PAL1314_LMG1401_particulate_pos_withoddFA))) {
   
 }
 
-# append summary, presence/absence results to Marchetti_diatom_cultures_pos_withoddFA matrix
+# append summary, presence/absence results to PAL1314_LMG1401_particulate_pos_withoddFA matrix
 
 PAL1314_LMG1401.fragdata_result.summary =
   apply(PAL1314_LMG1401.fragdata_results, 1, sumfrag)
@@ -2500,12 +2514,12 @@ pdf(file = "PAL1314_LMG1401_particulate_IP-DAG_dist.pdf",
 par(mar=c(8, 4.1, 4.1, 7.1), xpd=TRUE)
 prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.IP_DAGtotals[2:8,c(5,1,3)])),margin=2)
 # colors, density reordered to align with diatom culture plots
-barplot(prop, col=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], width=2, density=c(35,60,50,30,70,20,15),las=2, 
+barplot(prop, col=rainbow(length(rownames(prop)))[c(4,2,3,1,5,6,7)], width=2, density=c(35,60,50,70,30,20,15),las=2, 
         ylab = "Relative molar abundance",
         xlab = "Species",
         names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)]
 )
-legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], density=c(35,60,50,30,70,20,15), legend=rownames(prop))
+legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop)))[c(4,2,3,1,5,6,7)], density=c(35,60,50,70,30,20,15), legend=rownames(prop))
 
 dev.off()
 
@@ -2520,13 +2534,13 @@ pdf(file = "PAL1314_LMG1401_particulate_IP-DAG_dist_expansion.pdf",
 par(mar=c(16, 4.1, 4.1, 7.1), xpd=TRUE)
 prop = prop.table(as.table(as.matrix(PAL1314_LMG1401.IP_DAGtotals[2:8,c(5,1,3)])),margin=2)
 # colors, density reordered to align with diatom culture plots
-barplot(prop, col=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], width=2, density=c(35,60,50,30,70,20,15),las=2,
+barplot(prop, col=rainbow(length(rownames(prop)))[c(4,2,3,1,5,6,7)], width=2, density=c(35,60,50,70,30,20,15),las=2,
         ylab = "Relative molar abundance",
         xlab = "Species",
         names.arg = colnames(PAL1314_LMG1401.IP_DAGtotals)[c(5,1,3)],
         ylim = c(0.95,1)
 )
-legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop)))[c(4,2,3,5,1,6,7)], density=c(35,60,50,30,70,20,15), legend=rownames(prop))
+legend("topright",inset=c(-0.25,0), fill=rainbow(length(rownames(prop)))[c(4,2,3,1,5,6,7)], density=c(35,60,50,70,30,20,15), legend=rownames(prop))
 
 dev.off()
 
@@ -2749,9 +2763,29 @@ PAL1314_LMG1401_particulate.DGCC.peaksums = apply(PAL1314_LMG1401_particulate_po
 
 PAL1314_LMG1401_particulate.DGCC.peaksums/PAL1314_LMG1401_particulate.peaksums
 
-# moles of C in each saturation degree fraction 
+# moles of IP-DAG in each saturation degree fraction 
 
 PAL1314_LMG1401.sat_totals
+
+PAL1314_LMG1401.sat_totals.IP_DAG_percents = matrix(NA,nrow(PAL1314_LMG1401.sat_totals),
+                                                    ncol(PAL1314_LMG1401.sat_totals))
+colnames(PAL1314_LMG1401.sat_totals.IP_DAG_percents) =
+  colnames(PAL1314_LMG1401.sat_totals)
+rownames(PAL1314_LMG1401.sat_totals.IP_DAG_percents) =
+  rownames(PAL1314_LMG1401.sat_totals)
+
+for (i in 1:nrow(PAL1314_LMG1401.sat_totals.IP_DAG_percents)) {
+  
+  for (j in 1:ncol(PAL1314_LMG1401.sat_totals.IP_DAG_percents)) {
+    
+    PAL1314_LMG1401.sat_totals.IP_DAG_percents[i,j] = 
+      PAL1314_LMG1401.sat_totals[i,j]/apply(PAL1314_LMG1401.sat_totals,2,sum)[j]
+    
+  }
+  
+}
+PAL1314_LMG1401.sat_totals.IP_DAG_percents
+
 PAL1314_LMG1401.sat_totals.PC
 Marchetti_diatoms.sat_totals
 Marchetti_diatoms.sat_totals.PC
