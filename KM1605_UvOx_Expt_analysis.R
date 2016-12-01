@@ -57,6 +57,38 @@ splitpred = function(x,linfit_low,linfit_hi,cutoff) {
   
 }
 
+# define function for TAG concentration calculation
+
+TAGconcCalc= function(x,numC,numDB,TAGfitFunction,linDNPPEfit_low,linDNPPEfit_hi,DNPPEfit.cutoff) {
+  
+  # calculate ECN (equivalent carbon number)
+  
+  ECN = numC-2*numDB
+  
+  # create data frame for lookup
+  
+  ECN.lookup = as.data.frame(ECN)
+  colnames(ECN.lookup) = "x"
+  
+  # retrieve RRF
+  
+  this.RRF = predict(TAGfitFunction, newdata = ECN.lookup)
+  
+  # calculate RRF-adjusted peak area
+  
+  adj.peakarea = this.RRF*x
+  
+  # calculate pmol o.c. of TAG (by way of DNPPE standard curve, since the TAG RRFs were calculated relative to DNPPE)
+  
+  TAGpmol.oc = splitpred(adj.peakarea,
+            linfit_low = linDNPPEfit_low,
+            linfit_hi = linDNPPEfit_hi,
+            cutoff = DNPPEfit.cutoff)
+  
+  return(TAGpmol.oc)
+  
+}
+
 # define function allow "easy" retrieval of sample metadata based on sample ID in filename
 
 getMetDat = function(fn,metadat.raw,whichdat) {
@@ -1257,15 +1289,15 @@ KM1605_UvOX_Expt_pos_withoddFA_particulate$rm.flag_auto = NA
 # .
 # .
 # .
-mean(apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[KM1605_UvOX_Expt_pos_withoddFA_particulate$lipid_class=="TAG",c(16:26)],2,sum,na.rm=T)/
-       apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[,c(16:26)],2,sum,na.rm=T))
+mean(apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[KM1605_UvOX_Expt_pos_withoddFA_particulate$lipid_class=="TAG",c(16:20,23:28)],2,sum,na.rm=T)/
+       apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[,c(16:20,23:28)],2,sum,na.rm=T))
 
-sd(apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[KM1605_UvOX_Expt_pos_withoddFA_particulate$lipid_class=="TAG",c(16:26)],2,sum,na.rm=T)/
-     apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[,c(16:26)],2,sum,na.rm=T))
+sd(apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[KM1605_UvOX_Expt_pos_withoddFA_particulate$lipid_class=="TAG",c(16:20,23:28)],2,sum,na.rm=T)/
+     apply(KM1605_UvOX_Expt_pos_withoddFA_particulate[,c(16:20,23:28)],2,sum,na.rm=T))
 # .
 # .
 # .
-# now, actually remove the TAG
+# now, actually flag the TAG & some other lipid classes for removal 
 KM1605_UvOX_Expt_pos_withoddFA_particulate$rm.flag_auto[
   KM1605_UvOX_Expt_pos_withoddFA_particulate$lipid_class %in% 
     c("TAG","pigment","PUA","IP_MAG")] = 1
@@ -1380,3 +1412,412 @@ KM1605_UvOX_Expt_pos_withoddFA_particulate$rm.flag_auto[
 # if desired, write the results to a csv file
 
 write.csv(KM1605_UvOX_Expt_pos_withoddFA_particulate, file = "KM1605_UvOX_Expt_pos_withoddFA_particulate.csv")
+
+#### further pre-processing ####
+
+# now, extract subset of data (IP-DAG, TAG, oxidized forms), plus DNPPE
+
+KM1605_UvOX_Expt_pos_part.sub = KM1605_UvOX_Expt_pos_withoddFA_particulate[
+  KM1605_UvOX_Expt_pos_withoddFA_particulate$lipid_class %in% c("IP_DAG","DNPPE","TAG"),]
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC = KM1605_UvOX_Expt_pos_part.sub[
+  KM1605_UvOX_Expt_pos_part.sub$species!="DGCC",]
+
+# define classes for which concentrations are to be calculated, the models, and
+# the cutoffs in case of split prediction
+
+KM1605_UvOX_Expt_pos_part.conc_classes = as.data.frame(matrix(NA,9,4))
+colnames(KM1605_UvOX_Expt_pos_part.conc_classes) =
+  c("Lipid_class","Model.low","Model.hi","Cutoff_PA")
+
+KM1605_UvOX_Expt_pos_part.conc_classes[,1] =
+  c("PG","PE","PC","MGDG","SQDG","DGDG","DGTS_DGTA","DNPPE","TAG")
+
+KM1605_UvOX_Expt_pos_part.conc_classes[,2] =
+  c("linfit_low.PG.20161107","linfit_low.PE.20161107","linfit_low.PC.20161107",
+    "linfit_low.MGDG.20161107","linfit_low.SQDG.20161107",
+    "linfit_low.DGDG.20161107","linfit_low.DGTS_DGTA.20161005",
+    "linfit_low.DNPPE.20161107","nls.fit.TAG20161004")
+
+KM1605_UvOX_Expt_pos_part.conc_classes[,3] =
+  c("linfit_hi.PG.20161107","linfit_hi.PE.20161107","linfit_hi.PC.20161107",
+    "linfit_hi.MGDG.20161107","linfit_hi.SQDG.20161107",
+    "linfit_hi.DGDG.20161107","linfit_hi.DGTS_DGTA.20161005",
+    "linfit_hi.DNPPE.20161107","nls.fit.TAG20161004")
+
+KM1605_UvOX_Expt_pos_part.conc_classes[,4] =
+  c(PG_std_breakpoint.20161107,PE_std_breakpoint.20161107,PC_std_breakpoint.20161107,
+    MGDG_std_breakpoint.20161107,SQDG_std_breakpoint.20161107,DGDG_std_breakpoint.20161107,
+    DGTS_DGTA_std_breakpoint.20161005,DNPPE_std_breakpoint.20161107,NA)
+
+# first, calculate pmol o.c.
+# preallocate matrix for result
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc = KM1605_UvOX_Expt_pos_part.sub.noDGCC
+
+# calculate for each lipid class, using appropriate standard curve
+
+for (i in 1:nrow(KM1605_UvOX_Expt_pos_part.conc_classes)) {
+  
+  # first, calculate pmol o.c.
+  
+  if (KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class[i]!="TAG") {
+    
+  pmol.oc.thisclass =
+    apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc[
+      KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc$species==
+        KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class[i],16:28],c(1,2),splitpred,
+      eval(parse(text = KM1605_UvOX_Expt_pos_part.conc_classes$Model.low[i])),
+      eval(parse(text = KM1605_UvOX_Expt_pos_part.conc_classes$Model.hi[i])),
+      KM1605_UvOX_Expt_pos_part.conc_classes$Cutoff_PA[i])
+  
+  # store result as appropriate
+  
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc[
+    KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc$species==
+      KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class[i],16:28] = pmol.oc.thisclass
+  
+  } else if (KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class[i]=="TAG") {
+    
+    TAGdata = KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc[
+      KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc$species==
+        KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class[i],]
+    
+    # preallocate
+    
+    TAGconcs = matrix(NA,nrow(TAGdata),length(16:28))
+    
+    for (j in 1:nrow(TAGconcs)) {
+      
+      TAGconcs[j,] =
+        sapply(TAGdata[j,16:28],TAGconcCalc,
+               numC=TAGdata$FA_total_no_C[j],
+               numDB=TAGdata$FA_total_no_DB[j],
+               TAGfitFunction = eval(parse(text = KM1605_UvOX_Expt_pos_part.conc_classes$Model.low[i])),
+               linDNPPEfit_low = eval(parse(text = KM1605_UvOX_Expt_pos_part.conc_classes$Model.low[
+                 KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class=="DNPPE"])),
+               linDNPPEfit_hi = eval(parse(text = KM1605_UvOX_Expt_pos_part.conc_classes$Model.hi[
+                 KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class=="DNPPE"])),
+               DNPPEfit.cutoff = KM1605_UvOX_Expt_pos_part.conc_classes$Cutoff_PA[
+                 KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class=="DNPPE"]
+               )
+      
+    }
+      
+    # store result as appropriate
+    
+    KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc[
+      KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc$species==
+        KM1605_UvOX_Expt_pos_part.conc_classes$Lipid_class[i],16:28] = TAGconcs
+    
+  }
+  
+}
+
+# now, scale pmol o.c. to pmol per sample (and then volume) using DNPPE recovery standard added at time of extraction, and volumes recorded when samples were sacrificed
+
+DNPPE_BD_KM1605_UvOx_uL = 20 # amount DNPPE added per sample in uL, per VML B&D protocol
+
+DNPPE_pmol_added_per_samp = DNPPE_mg_mL_BD_extracts_2016*(1/DNPPE_MW)*(10^9)*(1/10^3)*DNPPE_BD_KM1605_UvOx_uL
+
+KM1605_UvOx_pos_part_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc[
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc$compound_name=="DNPPE",16:28]  # recovery factor
+
+# avg volume filtered for KM1605 samples (from BVM KM1605 notebook)
+
+KM1605_filter_vol_mL = 1680
+
+# create final results data frame
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L = KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc
+
+# apply RF to samples
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28] = sweep(as.matrix(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28]), 2, as.numeric(KM1605_UvOx_pos_part_DNPPE.samp.RF), "*") 
+
+# convert pmol to pmol/L
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28] = sweep(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28], 2, KM1605_filter_vol_mL/1000, "/")  # calculate pmol/mL, using correct volumes
+
+# need to simplify the dataset a bit and do some QA
+
+# eliminate features w/calibrated mass < 0 
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28] =
+  replace(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28],
+          KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28]<0,
+          NA)
+
+# now remove elements for which there is no data in any sample (includes elements
+# just reduced to NA)
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L = 
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[,16:28],1,sum,na.rm = T)>0,]
+
+# can remove DNPPE at this point
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L = 
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[!(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$compound_name=="DNPPE"),]
+
+# another opportunity to write results to file
+write.csv(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L,
+          file="KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.csv")
+
+# *should* do the manual annotation commented out, but in the interest of time (12/1/16), going to skip for now and do something quick and dirty (for SCOPE Dec 16 meeting poster), like just use everything still present that isn't an automatic eliminate
+
+# # *** at this point, manual curation (based on consideration of all available LOBSTAHS result codes) should be performed on the data exported to KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.csv
+# # below, we reimport the results, which are contained in .csv file UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann.csv (exported from first worksheet of the .xlsx file UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.xlsx after curation was finished)
+# # the field rm.flag_manual contains the results of the manual annotation and should be combined with annotations that were already in rm.flag_auto at time of saving the .csv file above
+# 
+# # import & extract codes from the curation, combine with codes in rm.flag_auto, then apply to the dataset to produce our final list of IDs
+# 
+# Marchetti_cultures_man_annot = read.csv("data/nice/LOBSTAHS_lipid_identities/UNC_Marchetti_diatom_cultures_IP-DAG_pmol_total_man_ann.csv",
+#                                         skip = 0)
+# 
+# Marchetti_diatom_cultures_pos.pmol_total.fully_annotated = 
+#   Marchetti_diatom_cultures_pos.unox_IPL.noDGCC.pmol.total
+# Marchetti_diatom_cultures_pos.pmol_total.fully_annotated$rm.flag_auto =
+#   Marchetti_cultures_man_annot$rm.flag_auto
+# Marchetti_diatom_cultures_pos.pmol_total.fully_annotated$rm.flag_manual =
+#   Marchetti_cultures_man_annot$rm.flag_manual
+# 
+# Marchetti_diatom_cultures_pos.pmol_total.final = 
+#   Marchetti_diatom_cultures_pos.pmol_total.fully_annotated[
+#     !apply(Marchetti_diatom_cultures_pos.pmol_total.fully_annotated[,c("rm.flag_auto","rm.flag_manual")],1,sum,na.rm = T),]
+# 
+# # export these final IDs
+# 
+# write.csv(Marchetti_diatom_cultures_pos.pmol_total.final,
+#           file = "UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.final.csv")
+# 
+# # extract, calculate, append total # of C atoms in each ID'd molecule
+# 
+# Marchetti_diatom_cultures_pos.pmol_total.final$total_no_C =
+#   as.numeric(sapply(Marchetti_diatom_cultures_pos.pmol_total.final$elem_formula,
+#                     function(x) as.numeric(str_match(as.character(str_match(x, "^C[0-9]*H")), "[0-9]+"))))
+# 
+
+# get a subset
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster =
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$lipid_class=="TAG" |
+                                                (KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$lipid_class=="IP_DAG" &
+                                                KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$rm.flag_auto %in% c(NA,0)),]
+
+# calculate some treatment & timepoint means
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means= as.data.frame(
+  matrix(NA, nrow(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster), ncol = 4))
+
+colnames(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means) =
+  c("Initial_pmol_L","Final_dark_control_pmol_L","Final_plus_UVB_pmol_L",
+    "Final_minus_UVB_pmol_L")
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Initial_pmol_L =
+  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,19:20],1,mean,na.rm = T)
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Final_dark_control_pmol_L =
+  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,16:18],1,mean,na.rm = T)
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Final_plus_UVB_pmol_L =
+  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,26:28],1,mean,na.rm = T)
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Final_minus_UVB_pmol_L =
+  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,23:25],1,mean,na.rm = T)
+
+# append these to the main matrix
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster =
+cbind(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster,KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means)
+
+#### create some heatmaps ####
+
+# necessary libraries
+
+library(gplots)
+
+KM1605_UvOX.pos.part.pmol.L.HM = KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,
+ c("Initial_pmol_L","Final_dark_control_pmol_L","Final_plus_UVB_pmol_L",
+   "Final_minus_UVB_pmol_L")  
+]
+
+# generate some good colnames and rownames
+
+colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
+  gsub(c("Initial_pmol_L"),c("Dark control, t = 0"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
+colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
+  gsub(c("Final_dark_control_pmol_L"),c("Dark control, t + 9 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
+colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
+  gsub(c("Final_plus_UVB_pmol_L"),c("+ UVB, t + 9 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
+colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
+  gsub(c("Final_minus_UVB_pmol_L"),c("- UVB, t + 9 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
+
+# append RT data to row names
+
+rownames(KM1605_UvOX.pos.part.pmol.L.HM) =
+  apply(cbind(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$compound_name, as.character(round(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$peakgroup_rt/60,2))),1,paste,collapse = ", RT ")
+
+rownames(KM1605_UvOX.pos.part.pmol.L.HM) = apply(cbind(rownames(KM1605_UvOX.pos.part.pmol.L.HM),rep("min.",nrow(KM1605_UvOX.pos.part.pmol.L.HM))),1,paste,collapse = " ")
+
+# change to matrices
+
+KM1605_UvOX.pos.part.pmol.L.HM = as.matrix(KM1605_UvOX.pos.part.pmol.L.HM)
+
+# eliminate any analyte with no data or all 0's
+
+# set all NaN to zero
+KM1605_UvOX.pos.part.pmol.L.HM[is.nan(KM1605_UvOX.pos.part.pmol.L.HM)]=0
+
+KM1605_UvOX.pos.part.pmol.L.HM = 
+  KM1605_UvOX.pos.part.pmol.L.HM[c(apply(KM1605_UvOX.pos.part.pmol.L.HM,1,sum)!=0),]
+
+# fix NA's and small values
+
+KM1605_UvOX.pos.part.pmol.L.HM[KM1605_UvOX.pos.part.pmol.L.HM==0] = 0.000000001
+
+# calculate fold-change relative to initial
+
+KM1605_UvOX.pos.part.pmol.L.HM.foldchange <- sweep(KM1605_UvOX.pos.part.pmol.L.HM, 1, KM1605_UvOX.pos.part.pmol.L.HM[,1], "/")
+
+# # return any initial values (first row) that were originally NA's back to NA's
+# 
+# screenedpeaks_exptmeans.full_PC.byttp[1,screenedpeaks_exptmeans.full_PC.byttp[1,]==10] <- NA 
+
+# transform into log2 fold change
+
+KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2 <- log2(KM1605_UvOX.pos.part.pmol.L.HM.foldchange)
+
+# screenedpeaks_exptmeans.full_PC.byttp.rev <- screenedpeaks_exptmeans.full_PC.byttp[dim(screenedpeaks_exptmeans.full_PC.byttp):1,]
+
+# build heatmaps
+
+# # first, combine all features into single matrix
+# 
+# Exp_13_features.HM.foldchange.log2 = rbind(Exp_13_PC.samp.pmol.mL.norm.HM.foldchange.log2,
+#                                            Exp_13_FFA.neg.samp.pmol.mL.mean.HM.foldchange.log2,
+#                                            Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange.log2)
+
+# generate breaks and colors
+
+breaks.neg = seq(min(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2, na.rm=T),0,length.out=50)
+breaks.pos = seq(0,max(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2, na.rm=T),length.out=150)
+breaks.set = c(breaks.neg,breaks.pos)
+# breaks.set <- breaks.set[-length(breaks.set)/2]
+breaks.set <- breaks.set[-50] # remove the duplicated "0" break point
+
+gradient1 = colorpanel( sum( breaks.set[-1]<=0 ), "darkred", "white" )
+gradient2 = colorpanel( sum( breaks.set[-1]>0 ), "white", "darkblue" )
+hm.colors = c(gradient1,gradient2)
+
+# full heatmap
+
+heatmap.2(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[,2:ncol(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+          density.info=c("none"),margins=c(12,12))
+
+
+
+# # maybe just PC 22:6 and derivatives
+# 
+# # create our subset
+# Exp_13_features.HM.foldchange.log2.sub226 = Exp_13_features.HM.foldchange.log2[
+#   grepl(paste(c("PC 22:6",
+#                 "FFA 22:6",
+#                 "LPC 22:6"), collapse = "|"), rownames(Exp_13_features.HM.foldchange.log2)),]
+# 
+# # also, just want the -HB controls (not the +HB controls)
+# Exp_13_features.HM.foldchange.log2.sub226 = Exp_13_features.HM.foldchange.log2.sub226[,-c(4:5)]
+# 
+# # lastly, get rid of a duplicate 22:6 FFA (ID did not stand up to manual examination of spectra)
+# Exp_13_features.HM.foldchange.log2.sub226 = Exp_13_features.HM.foldchange.log2.sub226[-c(10),]
+# 
+# # create a matrix (yes, manually based on inspection of output from
+# # PAL1314_liposome_expts.R - I know, inefficient) of p-values for each block in the
+# # subsetted heatmap
+# 
+# Exp_13_features.HM.foldchange.log2.sub226.pvals = 
+#   matrix(nrow = nrow(Exp_13_features.HM.foldchange.log2.sub226),
+#          ncol = ncol(Exp_13_features.HM.foldchange.log2.sub226)-1)
+# 
+# # manually populate based on Tukey HSD test output from PAL1314_liposome_expts.R
+# # will use "1" as not significant indicator
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[1,] =
+#   c(1,1,1,0.05,1,0.01,1,0.01) # PC 22:6, 22:6
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[2,] =
+#   c(1,1,1,0.01,1,0.01,1,0.05) # PC 44:12 +2O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[3,] =
+#   c(1,1,1,0.05,1,0.01,1,1) # PC 44:12 +4O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[4,] =
+#   c(rep(1,8)) # PC 44:12 +1O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[5,] =
+#   c(rep(1,8)) # PC 44:12 +3O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[6,] =
+#   c(rep(1,8)) # PC 44:12 +3O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[7,] =
+#   c(rep(1,8)) # FFA 22:6
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[8,] =
+#   c(1,1,1,1,1,0.0001,1,0.05) # FFA 22:6 +2O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[9,] =
+#   c(1,1,1,1,1,0.0001,1,1) # FFA 22:6 +3O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[10,] =
+#   c(1,1,1,1,1,0.01,1,1) # FFA 22:6 +10
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[11,] =
+#   c(1,1,1,1,1,0.001,1,1) # LPC 22:6 +4O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[12,] =
+#   c(1,1,1,0.05,1,0.001,1,0.05) # LPC 22:6 +2O
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[13,] =
+#   c(1,1,1,1,1,0.05,1,1) # LPC 22:6
+# Exp_13_features.HM.foldchange.log2.sub226.pvals[14,] =
+#   c(1,1,1,1,1,0.01,1,1) # LPC 22:6 +1O
+# 
+# # create a matrix of actual symbols to be plotted
+# 
+# Exp_13_features.HM.sigsymbols = Exp_13_features.HM.foldchange.log2.sub226.pvals
+# Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==1]=""
+# Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.05]="+"
+# Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.01]="*"
+# Exp_13_features.HM.sigsymbols[Exp_13_features.HM.sigsymbols==0.0001]="***"
+# 
+# par(oma=c(0,0,0,0)) # set margins
+# 
+# pdf(file = "Exp13_heatmap_PC22-6plus.pdf",
+#     width = 7, height = 9.5, pointsize = 12,
+#     bg = "white")
+# 
+# #par(mar=c(5,5,1,1))
+# 
+# heatmap.2(Exp_13_features.HM.foldchange.log2.sub226[,2:ncol(Exp_13_features.HM.foldchange.log2.sub226)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+#           density.info=c("none"),margins=c(16,16),cellnote=Exp_13_features.HM.sigsymbols)
+# 
+# dev.off()
+# 
+# # now, a small heatmap of just the other unoxidized parent lipids in this same
+# # experiment, for comparison purposes
+# 
+# Exp_13_features.HM.foldchange.log2.subparents = Exp_13_features.HM.foldchange.log2[
+#   grepl(paste(c("PC 18:1, 18:1,",
+#                 "PC 18:0, 18:0,",
+#                 "PC 16:0, 16:0,"), collapse = "|"), rownames(Exp_13_features.HM.foldchange.log2)),]
+# 
+# # get rid of the +HB controls
+# Exp_13_features.HM.foldchange.log2.subparents = Exp_13_features.HM.foldchange.log2.subparents[,-c(4:5)]
+# 
+# # will need to order the treatments manually to fit with dendrogram clustering
+# # of bigger heatmap
+# 
+# Exp_13_features.HM.foldchange.log2.subparents = 
+#   Exp_13_features.HM.foldchange.log2.subparents[,c(2,3,8,6,4,5,7,9)]
+# 
+# # put species in a more logical order
+# 
+# Exp_13_features.HM.foldchange.log2.subparents = 
+#   Exp_13_features.HM.foldchange.log2.subparents[c(1,3,2),]
+# 
+# par(oma=c(0,0,0,0)) # set margins
+# 
+# pdf(file = "Exp13_heatmap_other_parents.pdf",
+#     width = 7, height = 10, pointsize = 12,
+#     bg = "white")
+# 
+# #par(mar=c(5,5,1,1))
+# 
+# heatmap.2(Exp_13_features.HM.foldchange.log2.subparents[,1:ncol(Exp_13_features.HM.foldchange.log2.subparents)],breaks=breaks.set,col=hm.colors,scale="none",Colv=FALSE,trace="none",Rowv=FALSE,dendrogram="none",na.color="grey",key=T,
+#           density.info=c("none"),margins=c(16,16))
+# 
+# dev.off()
+# 
+# 
+# 
