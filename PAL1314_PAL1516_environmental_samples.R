@@ -184,9 +184,15 @@ load("data/nice/Orbi_MS_data/LOBSTAHS_processed/6IPL_Standards_20161107_pos.RDat
 IPLstd_pos_20161107.raw = getLOBpeaklist(x6IPL_Standards_20161107_pos) # generate peaklist
 
 # extract standards for each species, and DNPPE
+# **** need to extract more than one species for DGDG, SQDG, MGDG since these were not pure standards of one species, and some of the "secondary" (less abundant) species are still abundant enough that they contribute to the overall mass of the lipid
+
 Std_peakareas.20161107 = IPLstd_pos_20161107.raw[
   IPLstd_pos_20161107.raw$compound_name %in% c("PG 32:0","PE 32:0","PC 32:0",
-                                               "MGDG 36:0","SQDG 34:3","DGDG 36:4",
+                                               "MGDG 36:0","MGDG 34:0","SQDG 34:3",
+                                               "SQDG 34:2","SQDG 36:6","SQDG 32:0",
+                                               "SQDG 32:3","SQDG 36:5","SQDG 34:1",
+                                               "SQDG 36:4",
+                                               "DGDG 36:4","DGDG 34:2","DGDG 36:3",
                                                "DNPPE"),]
 
 rownames(Std_peakareas.20161107) = Std_peakareas.20161107$compound_name
@@ -215,7 +221,7 @@ colnames(Stds_20161107_oc) = c("pmol_mL_MGDG","pmol_oc_PG","pmol_oc_PE",
                                "pmol_oc_DGDG","pmol_oc_DNPPE")
 Stds_20161107_oc[1,] = c(16000,250.130,252.326,252.326,318.839,501.626,254.179,0.000)
 Stds_20161107_oc$pmol_oc_DNPPE[2:3] = c(0,116.56)
-  
+
 # fill out the rest of the matrix
 for (i in 2:nrow(Stds_20161107_oc)) {
   
@@ -307,59 +313,65 @@ PC_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161
 
 # curve fitting & diagnostics
 
-y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="MGDG 36:0",1:9]
+MGDG.stdareas.20161107 = apply(Std_peakareas.20161107[grep("^MGDG",rownames(Std_peakareas.20161107)),],2,sum,na.rm = T)
+
+y = MGDG.stdareas.20161107[1:9]
 x = rev(Stds_20161107_oc$pmol_oc_MGDG)[1:9]
 linfit_low.MGDG.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_MGDG),
-     Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="MGDG 36:0",],
+     MGDG.stdareas.20161107,
      pch="+",
-     ylab = "Peak area, MGDG 36:0",
-     xlab = "pmol o.c., MGDG 36:0")
+     ylab = "Peak area, total MGDG",
+     xlab = "pmol o.c., total MGDG")
 points(rev(Stds_20161107_oc$pmol_oc_MGDG)[1:9],fitted(linfit_low.MGDG.20161107),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 155 pmol o.c.
 
-y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="MGDG 36:0",10:11]
+y = MGDG.stdareas.20161107[10:11]
 x = rev(Stds_20161107_oc$pmol_oc_MGDG)[10:11]
 linfit_hi.MGDG.20161107 = lm(as.numeric(y)~x)
 points(rev(Stds_20161107_oc$pmol_oc_MGDG)[10:11],fitted(linfit_hi.MGDG.20161107),col="blue",pch="+")
 
-MGDG_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="MGDG 36:0",10]
+MGDG_std_breakpoint.20161107 = MGDG.stdareas.20161107[10]
 
 # SQDG
 
 # curve fitting & diagnostics
 
-y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="SQDG 34:3",1:9]
+SQDG.stdareas.20161107 = apply(Std_peakareas.20161107[grep("^SQDG",rownames(Std_peakareas.20161107)),],2,sum,na.rm = T)
+
+y = SQDG.stdareas.20161107[1:9]
 x = rev(Stds_20161107_oc$pmol_oc_SQDG)[1:9]
 linfit_low.SQDG.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_SQDG),
-     Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="SQDG 34:3",],
+     SQDG.stdareas.20161107,
      pch="+",
-     ylab = "Peak area, SQDG 34:3",
-     xlab = "pmol o.c., SQDG 34:3")
+     ylab = "Peak area, total SQDG",
+     xlab = "pmol o.c., total SQDG")
 points(rev(Stds_20161107_oc$pmol_oc_SQDG)[1:9],fitted(linfit_low.SQDG.20161107),col="red",pch="+")
 
 # the second-highest standard appears to be messed up, will need to develop a
 # different approach for response of highest peak areas
 
-y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="SQDG 34:3",c(9,11)]
+y = SQDG.stdareas.20161107[c(9,11)]
 x = rev(Stds_20161107_oc$pmol_oc_SQDG)[c(9,11)]
 linfit_hi.SQDG.20161107 = lm(as.numeric(y)~x)
 points(rev(Stds_20161107_oc$pmol_oc_SQDG)[c(9,11)],fitted(linfit_hi.SQDG.20161107),col="blue",pch="+")
 
-SQDG_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="SQDG 34:3",9]
+SQDG_std_breakpoint.20161107 = SQDG.stdareas.20161107[9]
 
 # DGDG
+
+DGDG.stdareas.20161107 = apply(Std_peakareas.20161107[grep("^DGDG",rownames(Std_peakareas.20161107)),],2,sum,na.rm = T)
 
 # curve fitting & diagnostics
 # just need one curve here, as long as we omit the second-highest level
 
-y = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DGDG 36:4",c(1:9,11)]
+y = DGDG.stdareas.20161107[c(1:9,11)]
 x = rev(Stds_20161107_oc$pmol_oc_DGDG)[c(1:9,11)]
 linfit_low.DGDG.20161107 = lm(as.numeric(y)~x-1) # fit a linear model for the first 9 standard levels
 plot(rev(Stds_20161107_oc$pmol_oc_DGDG),
-     Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DGDG 36:4",],
+     DGDG.stdareas.20161107,
      pch="+",
      ylab = "Peak area, DGDG 36:4",
      xlab = "pmol o.c., DGDG 36:4")
@@ -368,7 +380,7 @@ points(rev(Stds_20161107_oc$pmol_oc_DGDG)[c(1:9,11)],fitted(linfit_low.DGDG.2016
 # can define the high-range curve to be the same as the low-range curve, in this case
 
 linfit_hi.DGDG.20161107 = linfit_low.DGDG.20161107
-DGDG_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20161107)=="DGDG 36:4",9]
+DGDG_std_breakpoint.20161107 = DGDG.stdareas.20161107[9]
 
 # # DNPPE
 # # no DNPPE added at two highest standard levels, per VML lab SOP
@@ -443,11 +455,16 @@ DNPPE_std_breakpoint.20161107 = Std_peakareas.20161107[rownames(Std_peakareas.20
 load("data/nice/Orbi_MS_data/LOBSTAHS_processed/6IPL_plus_DGTS_Standards_20161005_pos.RData") # load processed standard data
 IPLstd_pos_20161005.raw = getLOBpeaklist(IPL_plus_DGTS_Standards_20161005) # generate peaklist
 
-# extract standards for each species, and DNPPE
+# **** need to extract more than one species for DGDG, SQDG, MGDG since these were not pure standards of one species, and some of the "secondary" (less abundant) species are still abundant enough that they contribute to the overall mass of the lipid
+
 Std_peakareas.20161005 = IPLstd_pos_20161005.raw[
   IPLstd_pos_20161005.raw$compound_name %in% c("PG 32:0","PE 32:0","PC 32:0",
-                                               "MGDG 36:0","SQDG 34:3","DGDG 36:4",
-                                               "DGTS_DGTA 32:0","DNPPE"),]
+                                               "MGDG 36:0","MGDG 34:0","SQDG 34:3",
+                                               "SQDG 34:2","SQDG 36:6","SQDG 32:0",
+                                               "SQDG 32:3","SQDG 36:5","SQDG 34:1",
+                                               "SQDG 36:4",
+                                               "DGDG 36:4","DGDG 34:2","DGDG 36:3",
+                                               "DNPPE"),]
 
 rownames(Std_peakareas.20161005) = Std_peakareas.20161005$compound_name
 Std_peakareas.20161005 = Std_peakareas.20161005[,13:23]
@@ -574,52 +591,56 @@ PC_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161
 
 # MGDG
 
+MGDG.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^MGDG",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
+
 # curve fitting & diagnostics
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",1:8]
+y = MGDG.stdareas.20161005[1:8]
 x = rev(Stds_20161005_oc$pmol_oc_MGDG)[1:8]
 linfit_low.MGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 10 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_MGDG),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",],
+     MGDG.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, MGDG 36:0",
-     xlab = "pmol o.c., MGDG 36:0")
+     ylab = "Peak area, total MGDG",
+     xlab = "pmol o.c., total MGDG")
 points(rev(Stds_20161005_oc$pmol_oc_MGDG)[1:8],fitted(linfit_low.MGDG.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",c(8:10)]
+y = MGDG.stdareas.20161005[8:10]
 x = rev(Stds_20161005_oc$pmol_oc_MGDG)[8:10]
 linfit_hi.MGDG.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_MGDG)[8:10],fitted(linfit_hi.MGDG.20161005),col="blue",pch="+")
 
-MGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="MGDG 36:0",8]
+MGDG_std_breakpoint.20161005 = MGDG.stdareas.20161005[8]
 
 # SQDG
+
+SQDG.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^SQDG",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
 
 # curve fitting & diagnostics
 # something appears to be very weird with the SQDG in these standards
 # will generate one curve while ommitting the 8th and 9th points
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(1:7)]
+y = SQDG.stdareas.20161005[1:7]
 # x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7,10)]
 x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7)]
 linfit_low.SQDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_SQDG),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",],
+     SQDG.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, SQDG 34:3",
-     xlab = "pmol o.c., SQDG 34:3")
+     ylab = "Peak area, total SQDG",
+     xlab = "pmol o.c., total SQDG")
 points(rev(Stds_20161005_oc$pmol_oc_SQDG)[c(1:7)],fitted(linfit_low.SQDG.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",c(7,10)]
+y = SQDG.stdareas.20161005[c(7,10)]
 x = rev(Stds_20161005_oc$pmol_oc_SQDG)[c(7,10)]
 linfit_hi.SQDG.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_SQDG)[c(7,10)],fitted(linfit_hi.SQDG.20161005),col="blue",pch="+")
 
-SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="SQDG 34:3",7]
+SQDG_std_breakpoint.20161005 = SQDG.stdareas.20161005[7]
 
 # # SQDG
 # 
@@ -684,26 +705,28 @@ SQDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.201
 
 # DGDG
 
+DGDG.stdareas.20161005 = apply(Std_peakareas.20161005[grep("^DGDG",rownames(Std_peakareas.20161005)),],2,sum,na.rm = T)
+
 # curve fitting & diagnostics
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",c(1:8)]
+y = DGDG.stdareas.20161005[1:8]
 x = rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8)]
 linfit_low.DGDG.20161005 = lm(as.numeric(y)~x) # fit a linear model for the first 7 standard levels
 plot(rev(Stds_20161005_oc$pmol_oc_DGDG),
-     Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",],
+     DGDG.stdareas.20161005,
      pch="+",
-     ylab = "Peak area, DGDG 36:4",
-     xlab = "pmol o.c., DGDG 36:4")
+     ylab = "Peak area, total DGDG",
+     xlab = "pmol o.c., total DGDG")
 points(rev(Stds_20161005_oc$pmol_oc_DGDG)[c(1:8)],fitted(linfit_low.DGDG.20161005),col="red",pch="+")
 
 # we will need some other fit for levels higher than ~ 40 pmol o.c.
 
-y = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",c(8,10)]
+y = DGDG.stdareas.20161005[c(8,10)]
 x = rev(Stds_20161005_oc$pmol_oc_DGDG)[c(8,10)]
 linfit_hi.DGDG.20161005 = lm(as.numeric(y)~x)
 points(rev(Stds_20161005_oc$pmol_oc_DGDG)[c(8,10)],fitted(linfit_hi.DGDG.20161005),col="blue",pch="+")
 
-DGDG_std_breakpoint.20161005 = Std_peakareas.20161005[rownames(Std_peakareas.20161005)=="DGDG 36:4",8]
+DGDG_std_breakpoint.20161005 = DGDG.stdareas.20161005[8]
 
 # DNPPE
 # no DNPPE added at highest standard level, per VML lab SOP
