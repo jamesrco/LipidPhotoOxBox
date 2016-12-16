@@ -108,3 +108,56 @@ lines(PctTransData$lambda_nm,PctTransData$transmittance_borosilicate_pct,
 #       col = transPlotCol[4], lty = transPlotLty[4], lwd = "2")
 
 dev.off()
+
+# make main plot for thesis Appendix B
+
+transPlotCol = c("darkblue","skyblue","darkred","coral1") # define colors
+transPlotLty = c("solid","dashed","dotted","dotdash") # define lty
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "Glass_bags_UV_VISTrans.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+plot(PctTransData$lambda_nm,PctTransData$transmittance_quartz_pct,"l",
+     col = transPlotCol[1], lty = transPlotLty[1], lwd = "1",
+     ylim = c(0,100), xlim = c(200,700), ylab = "Percent transmittance",
+     xlab = "Wavelength (nm)")
+lines(PctTransData$lambda_nm,PctTransData$transmittance_borosilicate_pct,
+      col = transPlotCol[2], lty = transPlotLty[2], lwd = "2")
+ lines(PctTransData$lambda_nm,PctTransData$transmittance_tedlar_PVF_pct,
+       col = transPlotCol[3], lty = transPlotLty[3], lwd = "2")
+ lines(PctTransData$lambda_nm,PctTransData$transmittance_PVF_PET_pct,
+       col = transPlotCol[4], lty = transPlotLty[4], lwd = "2")
+
+legend(x = 450, y = 40, bty = "n",
+               legend = c("Quartz glass vial","Borosilicate glass vial","PVF incubation bag",
+                 "PVF bag w/PET screen"),
+       legend = c("Quartz glass vial","Borosilicate glass vial"),
+       col = transPlotCol, lty = transPlotLty, lwd = 2)
+
+dev.off()
+
+# make plot for inset (290-315 nm)
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "Glass_bags_UV_VISTrans_inset_290_315.pdf",
+    width = 4, height = 4, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+plot(PctTransData$lambda_nm,PctTransData$transmittance_quartz_pct,"l",
+     col = transPlotCol[1], lty = transPlotLty[1], lwd = "1",
+     ylim = c(0,100), xlim = c(290,315), ylab = "Percent transmittance",
+     xlab = "Wavelength (nm)")
+lines(PctTransData$lambda_nm,PctTransData$transmittance_borosilicate_pct,
+      col = transPlotCol[2], lty = transPlotLty[2], lwd = "2")
+ lines(PctTransData$lambda_nm,PctTransData$transmittance_tedlar_PVF_pct,
+       col = transPlotCol[3], lty = transPlotLty[3], lwd = "2")
+ lines(PctTransData$lambda_nm,PctTransData$transmittance_PVF_PET_pct,
+       col = transPlotCol[4], lty = transPlotLty[4], lwd = "2")
+
+dev.off()
