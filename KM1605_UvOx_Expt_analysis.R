@@ -1524,7 +1524,7 @@ KM1605_UvOx_pos_part_DNPPE.samp.RF = DNPPE_pmol_added_per_samp/KM1605_UvOX_Expt_
 
 # avg volume filtered for KM1605 samples (from BVM KM1605 notebook)
 
-KM1605_filter_vol_mL = 1680
+KM1605_filter_vol_mL = 1000
 
 # create final results data frame
 KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L = KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.oc
@@ -1596,7 +1596,131 @@ write.csv(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L,
 KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster =
   KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L[KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$lipid_class=="TAG" |
                                                 (KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$lipid_class=="IP_DAG" &
-                                                KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$rm.flag_auto %in% c(NA,0)),]
+                                                KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L$rm.flag_auto %in% c(NA,0))
+                                                ,]
+
+# eliminate MGDG that are really oxidized TAG
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster =
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[-c(which(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$species=="MGDG" & 
+                                                       KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$peakgroup_rt>(16.5*60) & KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$LOBdbase_mz %in%
+         KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$LOBdbase_mz[KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$lipid_class=="TAG"])),]
+
+# a subset without TAGs
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.noTAG = KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$lipid_class!="TAG",]
+
+# some stats
+
+# fraction oxidized
+
+KM1605_UvOX_ox.percent = apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[!(
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$degree_oxidation==0),c(16:20,23:28)],2,sum,na.rm = T)/
+  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,c(16:20,23:28)],2,sum,na.rm = T)
+
+mean(KM1605_UvOX_ox.percent[1:3])
+sd(KM1605_UvOX_ox.percent[1:3])
+
+mean(KM1605_UvOX_ox.percent[4:5])
+sd(KM1605_UvOX_ox.percent[4:5])
+
+mean(KM1605_UvOX_ox.percent[6:8])
+sd(KM1605_UvOX_ox.percent[6:8])
+
+# one +UVB sample was not filtered correctly; ignore it (per Ben's field notebook)
+mean(KM1605_UvOX_ox.percent[c(9:10)])
+sd(KM1605_UvOX_ox.percent[c(9,10)])
+
+# barplot
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "KM1605_UvOx_ox_frac_barplot.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+
+barcolors <- c("black","lightgrey","darkgrey")
+treatments <- c("Dark","- UVB","+ UVB")
+
+bardata.mean <- matrix(NA,3,2)
+
+bardata.mean[1,] = c(mean(KM1605_UvOX_ox.percent[4:5]),mean(KM1605_UvOX_ox.percent[1:3]))
+  
+bardata.mean[2,2] = mean(KM1605_UvOX_ox.percent[6:8])
+
+bardata.mean[3,2] = mean(KM1605_UvOX_ox.percent[c(9:10)])
+
+bardata.se <- matrix(NA,3,2)
+
+bardata.se[1,] = c(sd(KM1605_UvOX_ox.percent[4:5])/sqrt(2),sd(KM1605_UvOX_ox.percent[1:3])/sqrt(3))
+
+bardata.se[2,2] = sd(KM1605_UvOX_ox.percent[6:8])/sqrt(3)
+
+bardata.se[3,2] = sd(KM1605_UvOX_ox.percent[c(9,10)])/sqrt(2)
+
+plotTop <- max(bardata.mean+bardata.se,na.rm=T)
+barCenters <- barplot(height=bardata.mean, beside=T,space = c(0.1,0.8), col=barcolors, las=1, ylim=c(0,.7), ylab=paste("Mole fraction identified as oxidized lipid"), xlab="Timepoint", names.arg=c("Initial","+ 24 h"))
+segments(barCenters, bardata.mean-bardata.se, barCenters, bardata.mean+bardata.se, lwd=2) 
+
+legend("topleft",treatments,fill=barcolors,xpd = TRUE) #inset = c(0,-.45))
+
+dev.off()
+
+# fraction as TAG
+
+KM1605_UvOX_TAG.percent = apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster$lipid_class=="TAG",c(16:20,23:28)],2,sum,na.rm = T)/
+  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,c(16:20,23:28)],2,sum,na.rm = T)
+
+mean(KM1605_UvOX_TAG.percent[1:3])
+sd(KM1605_UvOX_TAG.percent[1:3])
+
+mean(KM1605_UvOX_TAG.percent[4:5])
+sd(KM1605_UvOX_TAG.percent[4:5])
+
+mean(KM1605_UvOX_TAG.percent[6:8])
+sd(KM1605_UvOX_TAG.percent[6:8])
+
+mean(KM1605_UvOX_TAG.percent[c(9:10)])
+sd(KM1605_UvOX_TAG.percent[c(9,10)])
+
+# barplot
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "KM1605_UvOx_TAG_frac_barplot.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+
+barcolors <- c("black","lightgrey","darkgrey")
+treatments <- c("Dark","- UVB","+ UVB")
+
+bardata.mean <- matrix(NA,3,2)
+
+bardata.mean[1,] = c(mean(KM1605_UvOX_TAG.percent[4:5]),mean(KM1605_UvOX_TAG.percent[1:3]))
+
+bardata.mean[2,2] = mean(KM1605_UvOX_TAG.percent[6:8])
+
+bardata.mean[3,2] = mean(KM1605_UvOX_TAG.percent[c(9:10)])
+
+bardata.se <- matrix(NA,3,2)
+
+bardata.se[1,] = c(sd(KM1605_UvOX_TAG.percent[4:5])/sqrt(2),sd(KM1605_UvOX_TAG.percent[1:3])/sqrt(3))
+
+bardata.se[2,2] = sd(KM1605_UvOX_TAG.percent[6:8])/sqrt(3)
+
+bardata.se[3,2] = sd(KM1605_UvOX_TAG.percent[c(9,10)])/sqrt(2)
+
+plotTop <- max(bardata.mean+bardata.se,na.rm=T)
+barCenters <- barplot(height=bardata.mean, beside=T,space = c(0.1,0.8), col=barcolors, las=1, ylim=c(0,.5), ylab=paste("Mole fraction identified as TAG"), xlab="Timepoint", names.arg=c("Initial","+ 24 h"))
+segments(barCenters, bardata.mean-bardata.se, barCenters, bardata.mean+bardata.se, lwd=2) 
+
+legend("topleft",treatments,fill=barcolors,xpd = TRUE) #inset = c(0,-.45))
+
+dev.off()
 
 # calculate some treatment & timepoint means
 
@@ -1613,8 +1737,9 @@ KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Initial_pmol_L =
 KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Final_dark_control_pmol_L =
   apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,16:18],1,mean,na.rm = T)
 
+# again, eliminating bad +UVB sample
 KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Final_plus_UVB_pmol_L =
-  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,26:28],1,mean,na.rm = T)
+  apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,c(26,27)],1,mean,na.rm = T)
 
 KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Final_minus_UVB_pmol_L =
   apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,23:25],1,mean,na.rm = T)
@@ -1624,27 +1749,132 @@ KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means$Final_minus_UVB_pmol_L 
 KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster =
 cbind(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster,KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster.means)
 
+# some stats
+
+# total lipid mass
+
+KM1605_UvOX_ox.total_mass = apply(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[
+  ,c(16:20,23:28)],2,sum,na.rm = T)
+
+mean(KM1605_UvOX_ox.total_mass[1:3])
+sd(KM1605_UvOX_ox.total_mass[1:3])
+
+mean(KM1605_UvOX_ox.total_mass[4:5])
+sd(KM1605_UvOX_ox.total_mass[4:5])
+
+mean(KM1605_UvOX_ox.total_mass[6:8])
+sd(KM1605_UvOX_ox.total_mass[6:8])
+
+# +UVB #2 sample was not filtered correctly; discard it
+mean(KM1605_UvOX_ox.total_mass[c(9,10)])
+sd(KM1605_UvOX_ox.total_mass[c(9,10)])
+
+# calculate stats & evaluate signficant
+
+  Total_mass.statsub = as.data.frame(KM1605_UvOX_ox.total_mass)
+  
+  Total_mass.statsub$Treatment = c("Dark_control_final",
+                                          "Dark_control_final",
+                                          "Dark_control_final",
+                                          "Dark_control_initial",
+                                          "Dark_control_initial",
+                                          "No_UVB_final",
+                                          "No_UVB_final",
+                                          "No_UVB_final",
+                                          "Plus_UVB_final",
+                                          "Plus_UVB_final",
+                                          "Plus_UVB_final")
+  
+  colnames(Total_mass.statsub)[1] = c("Total_mass_mol")
+  
+  # eliminate bad sample
+  
+  Total_mass.statsub.good = Total_mass.statsub[rownames(Total_mass.statsub)!="Plus_UVB_final_QE002917",]
+  
+  Totalmass.mod = lm(Total_mass_mol ~ Treatment, data = Total_mass.statsub.good)
+  
+  print(anova(Totalmass.mod))
+  Totalmass.aov = aov(Totalmass.mod)
+  tukey = TukeyHSD(Totalmass.aov, conf.level = 0.95)
+  print(tukey)
+  
+  # calculate & display mean differences ± SD for selected treatment pairs
+  
+  xbar_init = mean(Total_mass.statsub.good$Total_mass_mol[Total_mass.statsub.good$Treatment=="Dark_control_initial"])
+  sd_init = sd(Total_mass.statsub.good$Total_mass_mol[Total_mass.statsub.good$Treatment=="Dark_control_initial"])
+  se_init = sd_init/sqrt(length(Total_mass.statsub.good$Total_mass_mol[Total_mass.statsub.good$Treatment=="Dark_control_initial"]))
+  
+  xbar_final = mean(Total_mass.statsub.good$Total_mass_mol[Total_mass.statsub.good$Treatment=="Plus_UVB_final"])
+  sd_final = sd(Total_mass.statsub.good$Total_mass_mol[Total_mass.statsub.good$Treatment=="Plus_UVB_final"])
+  se_final = sd_final/sqrt(length(Total_mass.statsub.good$Total_mass_mol[Total_mass.statsub.good$Treatment=="Plus_UVB_final"]))
+  
+  delta = xbar_final-xbar_init
+  uncert = sqrt(se_final^2 + se_init^2)
+  
+  cat("+ UVB vs. initial, mean ± uncertainty: ",delta," ± ",uncert,"\n")
+
+# line plot
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "KM1605_UvOx_total_lipid_mass.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+
+barcolors <- c("black","lightgrey","darkgrey")
+treatments <- c("Dark","- UVB","+ UVB")
+
+bardata.mean <- matrix(NA,3,2)
+
+bardata.mean[1,] = c(mean(KM1605_UvOX_ox.total_mass[4:5]),mean(KM1605_UvOX_ox.total_mass[1:3]))
+
+bardata.mean[2,2] = mean(KM1605_UvOX_ox.total_mass[6:8])
+
+bardata.mean[3,2] = mean(KM1605_UvOX_ox.total_mass[c(9:10)])
+
+bardata.se <- matrix(NA,3,2)
+
+bardata.se[1,] = c(sd(KM1605_UvOX_ox.total_mass[4:5])/sqrt(2),sd(KM1605_UvOX_ox.total_mass[1:3])/sqrt(3))
+
+bardata.se[2,2] = sd(KM1605_UvOX_ox.total_mass[6:8])/sqrt(3)
+
+bardata.se[3,2] = sd(KM1605_UvOX_ox.total_mass[c(9,10)])/sqrt(2)
+
+plotTop <- max(bardata.mean+bardata.se,na.rm=T)
+barCenters <- barplot(height=bardata.mean, beside=T,space = c(0.1,0.8), col=barcolors, las=1, ylim=c(0,8000), ylab=paste("Total lipids (pmol/L)"), xlab="Timepoint", names.arg=c("Initial","+ 24 h"))
+segments(barCenters, bardata.mean-bardata.se, barCenters, bardata.mean+bardata.se, lwd=2) 
+
+legend("topleft",treatments,fill=barcolors,xpd = TRUE) #inset = c(0,-.45))
+
+dev.off()
+
 #### create some heatmaps ####
 
 # necessary libraries
 
 library(gplots)
 
+# extract data, but also a copy of the original DF with all the metadata
 KM1605_UvOX.pos.part.pmol.L.HM = KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster[,
  c("Initial_pmol_L","Final_dark_control_pmol_L","Final_plus_UVB_pmol_L",
    "Final_minus_UVB_pmol_L")  
 ]
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.HM.metdat =
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.poster
 
 # generate some good colnames and rownames
 
 colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
   gsub(c("Initial_pmol_L"),c("Dark control, t = 0"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
 colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
-  gsub(c("Final_dark_control_pmol_L"),c("Dark control, t + 9 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
+  gsub(c("Final_dark_control_pmol_L"),c("Dark control, t + 24 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
 colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
-  gsub(c("Final_plus_UVB_pmol_L"),c("+ UVB, t + 9 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
+  gsub(c("Final_plus_UVB_pmol_L"),c("+ UVB, t + 24 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
 colnames(KM1605_UvOX.pos.part.pmol.L.HM) = 
-  gsub(c("Final_minus_UVB_pmol_L"),c("- UVB, t + 9 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
+  gsub(c("Final_minus_UVB_pmol_L"),c("- UVB, t + 24 h"),colnames(KM1605_UvOX.pos.part.pmol.L.HM))
 
 # append RT data to row names
 
@@ -1661,6 +1891,9 @@ KM1605_UvOX.pos.part.pmol.L.HM = as.matrix(KM1605_UvOX.pos.part.pmol.L.HM)
 
 # set all NaN to zero
 KM1605_UvOX.pos.part.pmol.L.HM[is.nan(KM1605_UvOX.pos.part.pmol.L.HM)]=0
+
+KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.HM.metdat =
+  KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.HM.metdat[c(apply(KM1605_UvOX.pos.part.pmol.L.HM,1,sum)!=0),]
 
 KM1605_UvOX.pos.part.pmol.L.HM = 
   KM1605_UvOX.pos.part.pmol.L.HM[c(apply(KM1605_UvOX.pos.part.pmol.L.HM,1,sum)!=0),]
@@ -1681,6 +1914,10 @@ KM1605_UvOX.pos.part.pmol.L.HM.foldchange <- sweep(KM1605_UvOX.pos.part.pmol.L.H
 
 KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2 <- log2(KM1605_UvOX.pos.part.pmol.L.HM.foldchange)
 
+# # put the NaN's back
+# 
+# KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[KM1605_UvOX.pos.part.pmol.L.HM==0.000000001] = NaN
+
 # screenedpeaks_exptmeans.full_PC.byttp.rev <- screenedpeaks_exptmeans.full_PC.byttp[dim(screenedpeaks_exptmeans.full_PC.byttp):1,]
 
 # build heatmaps
@@ -1691,24 +1928,177 @@ KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2 <- log2(KM1605_UvOX.pos.part.pmol
 #                                            Exp_13_FFA.neg.samp.pmol.mL.mean.HM.foldchange.log2,
 #                                            Exp_13_LPC.samp.pmol.mL.neg.mean.HM.foldchange.log2)
 
+# full heatmap
+
 # generate breaks and colors
 
-breaks.neg = seq(min(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2, na.rm=T),0,length.out=50)
-breaks.pos = seq(0,max(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2, na.rm=T),length.out=150)
+breaks.neg = seq(-max(abs(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2), na.rm=T),0,length.out=150)
+breaks.pos = seq(0,max(abs(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2), na.rm=T),length.out=150)
 breaks.set = c(breaks.neg,breaks.pos)
 # breaks.set <- breaks.set[-length(breaks.set)/2]
-breaks.set <- breaks.set[-50] # remove the duplicated "0" break point
+breaks.set <- breaks.set[-150] # remove the duplicated "0" break point
 
 gradient1 = colorpanel( sum( breaks.set[-1]<=0 ), "darkred", "white" )
 gradient2 = colorpanel( sum( breaks.set[-1]>0 ), "white", "darkblue" )
 hm.colors = c(gradient1,gradient2)
 
-# full heatmap
+par(oma=c(0,0,0,0)) # set margins
+
+pdf(file = "KM1605_heatmap_full.pdf",
+    width = 7, height = 10, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
 
 heatmap.2(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[,2:ncol(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
           density.info=c("none"),margins=c(12,12))
 
+dev.off()
 
+# maybe just most abundant compounds in initial sample
+
+KM1605_UVOx.part.abundant.log2 = KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[
+  order(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.HM.metdat$Initial_pmol_L, 
+        decreasing = TRUE),]
+
+KM1605_UVOx.part.abundant.log2.top100 = KM1605_UVOx.part.abundant.log2[1:100,]
+KM1605_UVOx.part.abundant.log2.top50 = KM1605_UVOx.part.abundant.log2[1:50,]
+KM1605_UVOx.part.abundant.log2.top25 = KM1605_UVOx.part.abundant.log2[1:25,]
+
+# generate breaks and colors
+
+breaks.neg = seq(-max(abs(KM1605_UVOx.part.abundant.log2.top25), na.rm=T),0,length.out=150)
+breaks.pos = seq(0,max(abs(KM1605_UVOx.part.abundant.log2.top25), na.rm=T),length.out=150)
+breaks.set = c(breaks.neg,breaks.pos)
+# breaks.set <- breaks.set[-length(breaks.set)/2]
+breaks.set <- breaks.set[-150] # remove the duplicated "0" break point
+
+gradient1 = colorpanel( sum( breaks.set[-1]<=0 ), "darkred", "white" )
+gradient2 = colorpanel( sum( breaks.set[-1]>0 ), "white", "darkblue" )
+hm.colors = c(gradient1,gradient2)
+
+par(oma=c(0,0,0,0)) # set margins
+
+pdf(file = "KM1605_heatmap_mostabundantinitial.pdf",
+    width = 7, height = 10, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+
+heatmap.2(KM1605_UVOx.part.abundant.log2.top25[,2:ncol(KM1605_UVOx.part.abundant.log2.top25)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+          density.info=c("none"),margins=c(14,14))
+
+dev.off()
+
+# maybe just the compounds exhibiting largest changes
+
+# ... based on fold-change
+
+KM1605_UVOx.part.bigdelta.log2 = KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[
+  rownames(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2) %in%
+  c(rep(rownames(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2),4))[
+  order(abs(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2), decreasing = TRUE)[1:25]],]
+
+# generate breaks and colors
+
+breaks.neg = seq(min(KM1605_UVOx.part.bigdelta.log2, na.rm=T),0,length.out=150)
+breaks.pos = seq(0,max(KM1605_UVOx.part.bigdelta.log2, na.rm=T),length.out=150)
+breaks.set = c(breaks.neg,breaks.pos)
+# breaks.set <- breaks.set[-length(breaks.set)/2]
+breaks.set <- breaks.set[-150] # remove the duplicated "0" break point
+
+gradient1 = colorpanel( sum( breaks.set[-1]<=0 ), "darkred", "white" )
+gradient2 = colorpanel( sum( breaks.set[-1]>0 ), "white", "darkblue" )
+hm.colors = c(gradient1,gradient2)
+
+heatmap.2(KM1605_UVOx.part.bigdelta.log2[,2:ncol(KM1605_UVOx.part.bigdelta.log2)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+          density.info=c("none"),margins=c(14,14))
+
+# ... based on largest magnitude change
+
+par(oma=c(0,0,0,0)) # set margins
+
+pdf(file = "KM1605_heatmap.pdf",
+        width = 7, height = 10, pointsize = 12,
+        bg = "white")
+
+par(mar=c(5,5,1,1))
+
+KM1605_UVOx.part.bigdelta.alt.log2 = KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[
+  order(abs(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.HM.metdat$Initial_pmol_L-
+              KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.HM.metdat$Final_plus_UVB_pmol_L), 
+        decreasing = TRUE)[1:25],]
+
+# generate breaks and colors
+
+breaks.neg = seq(min(KM1605_UVOx.part.bigdelta.alt.log2, na.rm=T),0,length.out=150)
+breaks.pos = seq(0,max(KM1605_UVOx.part.bigdelta.alt.log2, na.rm=T),length.out=150)
+breaks.set = c(breaks.neg,breaks.pos)
+# breaks.set <- breaks.set[-length(breaks.set)/2]
+breaks.set <- breaks.set[-150] # remove the duplicated "0" break point
+
+gradient1 = colorpanel( sum( breaks.set[-1]<=0 ), "darkred", "white" )
+gradient2 = colorpanel( sum( breaks.set[-1]>0 ), "white", "darkblue" )
+hm.colors = c(gradient1,gradient2)
+
+heatmap.2(KM1605_UVOx.part.bigdelta.alt.log2[,2:ncol(KM1605_UVOx.part.bigdelta.alt.log2)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+          density.info=c("none"),margins=c(14,14))
+
+dev.off()
+
+# maybe just those that increased most in the +UVB treatment
+
+par(oma=c(0,0,0,0)) # set margins
+
+pdf(file = "KM1605_heatmap_2.pdf",
+    width = 7, height = 10, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+
+KM1605_UVOx.part.bigdeltaUVB.log2 = KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[
+  order(KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[,3],decreasing = TRUE)[1:25],]
+
+# generate breaks and colors
+
+# breaks.neg = seq(min(KM1605_UVOx.part.bigdeltaUVB.log2, na.rm=T),0,length.out=25)
+breaks.pos = seq(0,max(KM1605_UVOx.part.bigdeltaUVB.log2, na.rm=T),length.out=150)
+breaks.set = c(breaks.pos)
+# breaks.set <- breaks.set[-length(breaks.set)/2]
+# breaks.set <- breaks.set[-25] # remove the duplicated "0" break point
+
+gradient1 = colorpanel( sum( breaks.set[-1]<=0 ), "darkred", "white" )
+gradient2 = colorpanel( sum( breaks.set[-1]>0 ), "white", "darkblue" )
+hm.colors = c(gradient1,gradient2)
+
+heatmap.2(KM1605_UVOx.part.bigdeltaUVB.log2[,2:ncol(KM1605_UVOx.part.bigdeltaUVB.log2)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+          density.info=c("none"),margins=c(14,14))
+
+dev.off()
+
+# maybe just most abundant compounds in +UVB treatment
+
+KM1605_UVOx.part.abundantUVB.log2 = KM1605_UvOX.pos.part.pmol.L.HM.foldchange.log2[
+  order(KM1605_UvOX_Expt_pos_part.sub.noDGCC.pmol.L.HM.metdat$Final_plus_UVB_pmol_L, 
+        decreasing = TRUE),]
+
+KM1605_UVOx.part.abundantUVB.log2.top100 = KM1605_UVOx.part.abundantUVB.log2[1:100,]
+KM1605_UVOx.part.abundantUVB.log2.top50 = KM1605_UVOx.part.abundantUVB.log2[1:50,]
+
+# generate breaks and colors
+
+breaks.neg = seq(min(KM1605_UVOx.part.abundantUVB.log2.top100, na.rm=T),0,length.out=400)
+breaks.pos = seq(0,max(KM1605_UVOx.part.abundantUVB.log2.top100, na.rm=T),length.out=150)
+breaks.set = c(breaks.neg,breaks.pos)
+# breaks.set <- breaks.set[-length(breaks.set)/2]
+breaks.set <- breaks.set[-400] # remove the duplicated "0" break point
+
+gradient1 = colorpanel( sum( breaks.set[-1]<=0 ), "darkred", "white" )
+gradient2 = colorpanel( sum( breaks.set[-1]>0 ), "white", "darkblue" )
+hm.colors = c(gradient1,gradient2)
+
+heatmap.2(KM1605_UVOx.part.abundantUVB.log2.top100[,2:ncol(KM1605_UVOx.part.abundantUVB.log2.top100)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+          density.info=c("none"),margins=c(14,14))
 
 # # maybe just PC 22:6 and derivatives
 # 
