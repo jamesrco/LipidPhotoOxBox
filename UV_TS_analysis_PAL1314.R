@@ -28,7 +28,7 @@ library(RSEIS)
 setwd("/Users/jrcollins/Code/LipidPhotoOxBox")
 initial.wd = getwd()
 
-##### daily UVB dosages ##### 
+##### daily UVA, UVB dosages ##### 
 
 # NOAA data
 
@@ -43,21 +43,33 @@ PAL_AntUV_DD_v2 = read.csv("PAL_all_DailyDose_no_flags_SZA_max_set_to82.csv",
 DD_UVB_incident = as.data.frame(cbind(PAL_AntUV_DD_v2$Date,PAL_AntUV_DD_v2$E290.315))
 colnames(DD_UVB_incident) = c("Date_raw_julian","E290.315_kJ_m2")
 
+# the 315-400 nm wavelength dosage data
+DD_UVA_incident = as.data.frame(cbind(PAL_AntUV_DD_v2$Date,PAL_AntUV_DD_v2$E315.400))
+colnames(DD_UVA_incident) = c("Date_raw_julian","E315.400_kJ_m2")
+
 # convert dates from messed up Excel format
 DD_UVB_incident$Date = as.POSIXct('1899-12-30')+(DD_UVB_incident$Date_raw_julian*24*60*60)
 DD_UVB_incident$Date_simple = strptime(DD_UVB_incident$Date,"%Y-%m-%d", tz = "GMT")
+
+DD_UVA_incident$Date = as.POSIXct('1899-12-30')+(DD_UVA_incident$Date_raw_julian*24*60*60)
+DD_UVA_incident$Date_simple = strptime(DD_UVA_incident$Date,"%Y-%m-%d", tz = "GMT")
 
 # subset, plot 2013-2014 data
 DD_UVB_1314_incident = DD_UVB_incident[DD_UVB_incident$Date>as.POSIXct('2013-06-22') &
                                          DD_UVB_incident$Date<as.POSIXct('2014-06-22'),]
 
+DD_UVA_1314_incident = DD_UVA_incident[DD_UVA_incident$Date>as.POSIXct('2013-06-22') &
+                                         DD_UVA_incident$Date<as.POSIXct('2014-06-22'),]
+
 # plot(DD_UVB_1314_incident$Date,DD_UVB_1314_incident$E290.315_kJ_m2, "l", lwd = 1)
 # 
-# # save the data file
+# # save the data files
 # save(DD_UVB_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVB_1314.RData")
-# 
+# save(DD_UVA_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVA_1314.RData")
+#
 # # export to .csv
 # write.csv(DD_UVB_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVB_1314.csv")
+# write.csv(DD_UVA_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVA_1314.csv")
 
 # JAZ data
 
@@ -71,8 +83,13 @@ DD_UVB_1314_subsurf = read.csv("Daily_int_UVB_dose_0.6m_subsurface_PAL1314_kJ_m2
          stringsAsFactors = FALSE, header = FALSE)
 colnames(DD_UVB_1314_subsurf) = c("Date_raw","Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2")
 
+DD_UVA_1314_subsurf = read.csv("Daily_int_UVA_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
+                               stringsAsFactors = FALSE, header = FALSE)
+colnames(DD_UVA_1314_subsurf) = c("Date_raw","Daily_UVA_dose_0.6m_subsurface_Palmer_kJ_m2")
+
 # date conversion
 DD_UVB_1314_subsurf$Date = strptime(DD_UVB_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
+DD_UVA_1314_subsurf$Date = strptime(DD_UVA_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
 
 # match relevant data from the two datasets, calculate average UVB xmiss
 
@@ -104,6 +121,64 @@ sd(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
 # save the table
 
 save(DD_UVB_xmiss_PAL1314, file = "Daily_dose_UVB_PAL1314.RData")
+
+# match relevant data from the two datasets, calculate average UVA xmiss
+
+DD_UVA_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVA_1314_subsurf)))
+colnames(DD_UVA_xmiss_PAL1314) = c("Date","DD_UVA_incident_kJ_m2","DD_UVA_subsurf_kJ_m2","Percent_xmiss")
+DD_UVA_xmiss_PAL1314$Date = DD_UVA_1314_subsurf$Date
+DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2 = DD_UVA_1314_subsurf$Daily_UVA_dose_0.6m_subsurface_Palmer_kJ_m2
+
+for (i in 1:nrow(DD_UVA_xmiss_PAL1314)) {
+  
+  if (any(DD_UVA_1314_incident$Date_simple %in% DD_UVA_xmiss_PAL1314$Date[i])) {
+    # there is matching data in the NOAA dataset
+    
+    DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2[i] =
+      DD_UVA_1314_incident$E315.400_kJ_m2[which(DD_UVA_1314_incident$Date_simple %in% DD_UVA_xmiss_PAL1314$Date[i])]
+    
+  }
+  
+}
+
+DD_UVA_xmiss_PAL1314$Percent_xmiss = DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2/
+  DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2
+
+# calculate mean, sd % xmiss
+
+mean(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+sd(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+
+# save the table
+
+save(DD_UVA_xmiss_PAL1314, file = "Daily_dose_UVA_PAL1314.RData")
+
+# calculate average UVR (UVA + UVB) xmiss
+
+DD_UVR_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVA_1314_subsurf)))
+colnames(DD_UVR_xmiss_PAL1314) = c("Date","DD_UVR_incident_kJ_m2","DD_UVR_subsurf_kJ_m2","Percent_xmiss")
+DD_UVR_xmiss_PAL1314$Date = DD_UVA_xmiss_PAL1314$Date
+
+DD_UVR_xmiss_PAL1314$DD_UVR_incident_kJ_m2 =
+  DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2+
+  DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
+
+DD_UVR_xmiss_PAL1314$DD_UVR_subsurf_kJ_m2 =
+  DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2+
+  DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2
+
+DD_UVR_xmiss_PAL1314$Percent_xmiss =
+  DD_UVR_xmiss_PAL1314$DD_UVR_subsurf_kJ_m2/
+  DD_UVR_xmiss_PAL1314$DD_UVR_incident_kJ_m2
+
+# calculate mean, sd % xmiss
+
+mean(DD_UVR_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+sd(DD_UVR_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+
+# save the table
+
+save(DD_UVR_xmiss_PAL1314, file = "Daily_dose_UVR_PAL1314.RData")
 
 ##### load, process wavelength-specific ("hi-res") data ##### 
 
