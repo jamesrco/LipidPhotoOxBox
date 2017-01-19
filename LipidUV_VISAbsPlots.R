@@ -247,8 +247,8 @@ dev.off()
 
 # absorbance, 22:0 and 22:1
 
-absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
-absPlotLty = c("solid","dashed","dotdash") # define lty
+absPlotCol = hsv(c(0.1, 0.35, 0.6, 0.85), 1, 1, 0.8) # define colors
+absPlotLty = c("solid","dashed","dotdash","dotted") # define lty
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
@@ -261,16 +261,16 @@ plot(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_0,"l",
      col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
      ylim = c(0,1.75), xlim = c(225,500), ylab = "Absorbance",
      xlab = "Wavelength (nm)")
-lines(LipidAbsData_Jan17$lambda_nm,LipidAbsData_Jan17$abs_PC22_1_1113mM,
+lines(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_1,
       col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
 
 legend(x = 450, y = 1, bty = "n",
-       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC (1:400 dilution"),
+       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC","DHA"),
        col = absPlotCol, lty = absPlotLty, lwd = 2)
 
 dev.off()
 
-# absorbance, 22:6
+# absorbance, 22:6 and DHA together (new measurements)
 
 # abs_PC22_6_011387mM
 # abs_PC22_6_01576055mM
@@ -279,12 +279,9 @@ dev.off()
 # abs_PC22_1_1113mM
 # abs_DHA_01032mM
 
-absPlotCol = hsv(c(0.1, 0.35, 0.6, 0.85), 1, 1, 0.8) # define colors
-absPlotLty = c("solid","dashed","dotdash") # define lty
-
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
-pdf(file = "PCLipidAbs_22-6.pdf",
+pdf(file = "PCLipidAbs_22-6_DHA.pdf",
     width = 8, height = 6, pointsize = 12,
     bg = "white")
 
@@ -296,37 +293,34 @@ plot(LipidAbsData_Jan17$lambda_nm,LipidAbsData_Jan17$abs_PC22_6_011387mM,"l",
 lines(LipidAbsData_Jan17$lambda_nm,LipidAbsData_Jan17$abs_DHA_01032mM,
       col = absPlotCol[4], lty = absPlotLty[4], lwd = "1.5")
 
-legend(x = 450, y = 2, bty = "n",
-       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC (1:400 dilution"),
+legend(x = 450, y = 1, bty = "n",
+       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC","DHA"),
        col = absPlotCol, lty = absPlotLty, lwd = 2)
 
 dev.off()
 
-# absorbance, DHA
-
-# abs_PC22_6_011387mM
-# abs_PC22_6_01576055mM
-# abs_PC22_6_005679mM
-# abs_PC22_6_00285mM
-# abs_PC22_1_1113mM
-# abs_DHA_01032mM
-
-absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
-absPlotLty = c("solid","dashed","dotdash") # define lty
-
-par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
-
-pdf(file = "PCLipidAbs_DHA.pdf",
-    width = 8, height = 6, pointsize = 12,
-    bg = "white")
-
-par(mar=c(5,5,1,1))
-plot(LipidAbsData_Jan17$lambda_nm,LipidAbsData_Jan17$abs_DHA_01032mM,"l",
-     col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5",
-     ylim = c(0,1.1), xlim = c(225,500), ylab = "Absorbance",
-     xlab = "Wavelength (nm)")
-
-dev.off()
+# # absorbance, DHA
+# 
+# # abs_PC22_6_011387mM
+# # abs_PC22_6_01576055mM
+# # abs_PC22_6_005679mM
+# # abs_PC22_6_00285mM
+# # abs_PC22_1_1113mM
+# # abs_DHA_01032mM
+# 
+# par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+# 
+# pdf(file = "PCLipidAbs_DHA.pdf",
+#     width = 8, height = 6, pointsize = 12,
+#     bg = "white")
+# 
+# par(mar=c(5,5,1,1))
+# plot(LipidAbsData_Jan17$lambda_nm,LipidAbsData_Jan17$abs_DHA_01032mM,"l",
+#      col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5",
+#      ylim = c(0,1.1), xlim = c(225,500), ylab = "Absorbance",
+#      xlab = "Wavelength (nm)")
+# 
+# dev.off()
 
 
 # decadic molar extinction coefficients
@@ -338,19 +332,16 @@ dev.off()
 # epsilon_M_cm_PC22_1_1113mM
 # epsilon_M_cm_DHA_01032mM
 
-absPlotCol = hsv(c(0.1, 0.35, 0.6, 0.85), 1, 1, 0.8) # define colors
-absPlotLty = c("solid","dashed","dotdash","dotted") # define lty
-
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
-pdf(file = "PCLipidMolExtCoeff.pdf",
+pdf(file = "PCLipidMolExtCoeff_with_DHA.pdf",
     width = 8, height = 6, pointsize = 12,
     bg = "white")
 
 par(mar=c(5,5,1,1))
 plot(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$epsilon_M_cm_PC22_0),"l",
      col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
-     ylim = c(0,10), xlim = c(225,500),
+     ylim = c(0,7), xlim = c(225,500),
      ylab = expression(paste("log ",epsilon[i]," (",M^-1," ",cm^-1,")")),
      xlab = "Wavelength (nm)")
 lines(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$epsilon_M_cm_PC22_1),
@@ -359,8 +350,8 @@ lines(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$epsilon_M_cm_PC22_1),
        col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5")
 lines(LipidAbsData_Jan17$lambda_nm,log(LipidAbsData_Jan17$epsilon_M_cm_DHA_01032mM),
       col = absPlotCol[4], lty = absPlotLty[4], lwd = "1.5")
-legend(x = 400, y = 8, bty = "n",
-       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC"),
+legend(x = 350, y = 6, bty = "n",
+       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC","DHA"),
        col = absPlotCol, lty = absPlotLty, lwd = 2)
 
 dev.off()
