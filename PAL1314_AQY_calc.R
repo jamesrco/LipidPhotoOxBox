@@ -343,8 +343,8 @@ for (i in 1:length(PAL1314.JAZ.14Dec.sub_umol_photons_m2_total)) {
 # define a few parameters
 
 # effective pathlength through minor axis of quartz vials used in experiment
-# since vials were left on their side throughout experiment
-Quartz_vial_pathlength_cm = 2 
+# since vials were left on their side throughout experiment = 1/2 diameter
+Quartz_vial_pathlength_cm = 1
 m3_per_L = 0.001
 cm_per_m = 100
 
@@ -378,7 +378,7 @@ colnames(Ks_Exp13_PC_22_6) = c("Ks_PC_22_6_quartz","Ks_PC_22_6_EPA")
 
 for (j in 1:nrow(Ks_Exp13_PC_22_6)) { # iterate by wavelength
   
-  if (lambda_nm_JAZ[j]<800) { # since don't have any lipid absorbance data above 800 nm
+  if (lambda_nm_JAZ[j]<500) { # since don't have any lipid absorbance data above 500 nm
     
     # retrieve necessary values for this wavelength; some manipulations since
     # in some cases, variables were sampled at different intervals from each other
@@ -386,18 +386,18 @@ for (j in 1:nrow(Ks_Exp13_PC_22_6)) { # iterate by wavelength
     # time-integrated photon flux at this wavelength (over sampling interval) 
     E_mol_photons_m2 = PAL1314.JAZ.14Dec.sub_umol_photons_m2_total[j]/1000000
     
-    # decadic molar absorption coefficient from LipidAbsData$epsilon_M_cm_PC22_6_dil
+    # decadic molar absorption coefficient from LipidAbsData$epsilon_M_cm_PC22_6
     # calculated in LipidUV_VISAbsPlots.R
-    epsilon_per_M_per_cm = LipidAbsData$epsilon_M_cm_PC22_6_dil[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]
-    
+    epsilon_per_M_per_cm = LipidAbsData$epsilon_M_cm_PC22_6[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]
+
     # absorbance coefficient of Palmer seawater (the matrix) at this wavelength (and uncertainty)
     alpha_per_m = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.mean[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
 #     
-#     # ------ optional monte carlo code
-#     alpha_per_m.sd = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.sd[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
-#     
-#     alpha_per_m = rnorm(1, mean = alpha_per_m, sd = alpha_per_m.sd)
-#     # ------ end optional monte carlo code
+    # ------ optional monte carlo code
+    alpha_per_m.sd = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.sd[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
+
+    alpha_per_m = rnorm(1, mean = alpha_per_m, sd = alpha_per_m.sd)
+    # ------ end optional monte carlo code
     
     # vessel transmittances for this wavelength
     
@@ -437,17 +437,17 @@ d22_6_dt.UVB = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1]
 
 d22_6_dt.UVA_UVB = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[1]
 
-# # ------ optional monte carlo code
-# 
-# Init_conc_PC22_6_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")],
-#        sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])
-# 
-# d22_6_dt.UVA = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[2])
-# 
-# d22_6_dt.UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[2])
-# 
-# d22_6_dt.UVA_UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[2])
-# # ------ end optional monte carlo code
+# ------ optional monte carlo code
+
+Init_conc_PC22_6_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")],
+       sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])
+
+d22_6_dt.UVA = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[2])
+
+d22_6_dt.UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[2])
+
+d22_6_dt.UVA_UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[2])
+# ------ end optional monte carlo code
 
 Theta_Exp13_PC_22_6 = vector(mode = "double", length = 3)
 
