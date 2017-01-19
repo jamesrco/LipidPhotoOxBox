@@ -2254,7 +2254,7 @@ PAL1314_LMG1401_particulate_pos_withoddFA$rm.flag_auto[
 
 # if desired, write the results to a csv file
 
-write.csv(PAL1314_LMG1401_particulate_pos_withoddFA, file = "PAL1314_LMG1401_particulate_pos_withoddFA.csv")
+write.csv(PAL1314_LMG1401_particulate_pos_withoddFA, file = "PAL1314_LMG1401_particulate_pos_withoddFA")
 
 #### further pre-processing ####
 
@@ -2470,6 +2470,12 @@ PAL1314_LMG1401_particulate_pos.pmol_L.final =
 write.csv(PAL1314_LMG1401_particulate_pos.pmol_L.final,
           file = "PAL1314_LMG1401_particulate_IP-DAG_pmol_L.final.csv")
 
+# # reimport, if needed
+# PAL1314_LMG1401_particulate_pos.pmol_L.final =
+#   read.csv("data/nice/LOBSTAHS_lipid_identities/PAL1314_LMG1401_particulate_IP-DAG_pmol_L.final.csv",
+#            stringsAsFactors = FALSE)
+# PAL1314_LMG1401_particulate_pos.pmol_L.final = PAL1314_LMG1401_particulate_pos.pmol_L.final[,-c(1)]
+
 # extract, calculate, append total # of C atoms in each ID'd molecule
 
 PAL1314_LMG1401_particulate_pos.pmol_L.final$total_no_C =
@@ -2568,8 +2574,8 @@ colnames(PAL1314_LMG1401.sat_totals) = colnames(PAL1314_LMG1401_particulate_pos.
 
 # also preallocate a matrix to hold total pmol of C in each fraction
 PAL1314_LMG1401.total_pmol_C.bysatclass = as.data.frame(matrix(NA,length(PAL1314_LMG1401.sat_classes),5))
-rownames(PAL1314_LMG1401.total_moles_C.bysatclass) = c(PAL1314_LMG1401.sat_classes)
-colnames(PAL1314_LMG1401.total_moles_C.bysatclass) = colnames(PAL1314_LMG1401_particulate_pos.pmol_L.final)[13:17]
+rownames(PAL1314_LMG1401.total_pmol_C.bysatclass) = c(PAL1314_LMG1401.sat_classes)
+colnames(PAL1314_LMG1401.total_pmol_C.bysatclass) = colnames(PAL1314_LMG1401_particulate_pos.pmol_L.final)[13:17]
 
 # calculate saturation class totals, total moles of C in each fraction
 
