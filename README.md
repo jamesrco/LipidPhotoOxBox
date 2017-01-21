@@ -1,1 +1,2 @@
 # LipidPhotoOxBox
+This repository contains code and data to support Chapter 4 and Appendix B of my dissertation. The only data necessary for full recreation of the results that does not appear in this reposistory (due to their large size) are the original (.raw) and .mzXML mass spectrometer data files. I am working to provide these in permanent home on the Internet. In the meantime, please email me and I'm happy to provide Dropbox link for direct download. A final (albeit unofficial) version of my thesis is available at http://jamesrco.github.io/assets/Collins_thesis.pdf.
