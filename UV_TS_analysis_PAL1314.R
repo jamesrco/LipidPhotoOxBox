@@ -671,8 +671,8 @@ for (i in 1:ncol(PAL1516_AH_Kd_20151215)) {
   
 PAL1516_AH_Kd_20151215[1,i] = 
   
-  (log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[16,i+5]-
-     log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[3,i+5]))/7)
+  (log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[3,i+5])-
+     log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[16,i+5]))/-7
 
 }
 
@@ -701,7 +701,7 @@ pdf(file = "AH_depth_profile_20151215_Kd.pdf",
 plot(JAZ_wavelengths$V1,
      PAL1516_AH_Kd_20151215,"l",
      col = "black", lty = 1, lwd = "1.5",
-     ylim = c(0.05,0.5), xlim = c(290,720),
+     ylim = c(0.05,0.9), xlim = c(290,720),
      ylab = expression(paste(K_d)),
      xlab = "Wavelength (nm)")
 
@@ -718,7 +718,7 @@ pdf(file = "AH_depth_profile_20151215_Kd_UV.pdf",
 plot(JAZ_wavelengths$V1,
      PAL1516_AH_Kd_20151215,"l",
      col = "black", lty = 1, lwd = "1.5",
-     ylim = c(0.05,0.5), xlim = c(290,315),
+     ylim = c(0.05,0.9), xlim = c(290,315),
      ylab = expression(K_d),
      xlab = "Wavelength (nm)")
 

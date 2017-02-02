@@ -1547,6 +1547,10 @@ Marchetti_diatom_cultures_pos.pmol_total.final =
 write.csv(Marchetti_diatom_cultures_pos.pmol_total.final,
           file = "UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.final.csv")
 
+# # run if looking to reimport from file here
+# Marchetti_diatom_cultures_pos.pmol_total.final = read.csv("data/nice/LOBSTAHS_lipid_identities/UNC_Marchetti_diatom_cultures_IP-DAG_pmol_totals.final.csv")
+# Marchetti_diatom_cultures_pos.pmol_total.final = Marchetti_diatom_cultures_pos.pmol_total.final[,-c(1)]
+
 # extract, calculate, append total # of C atoms in each ID'd molecule
 
 Marchetti_diatom_cultures_pos.pmol_total.final$total_no_C =
