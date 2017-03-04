@@ -7,4 +7,4 @@ The processed HPLC-MS data objects and output (in .csv format) are available at 
 
 The final version of my thesis is available at http://dx.doi.org/10.1575/1912/8721
 
-The protocol for preparation of liposomes used in the photo-oxidation experiments has been published at http://dx.doi.org/10.17504/protocols.io.hajb2cn
+The protocol for preparation of liposomes used in the photo-oxidation experiments has been published at http://dx.doi.org/10.17504/protocols.io.haub2ew
