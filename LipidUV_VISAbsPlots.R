@@ -19,7 +19,7 @@ initial.wd = getwd()
 
 # load in "older" (fall 2016) data
 # set wd to data location
-setwd("/Users/jrcollins/Code/LipidPhotoOxBox/data/raw/Evolution_300/lipids_in_MeOH_initial") 
+setwd("/Users/jamesrco/Code/LipidPhotoOxBox/data/raw/Evolution_300/lipids_in_MeOH_initial") 
 
 # read in data, concatenate into single data frame
 # original profiles made at 1.113 mM concentration on 10 Aug 2016
@@ -84,12 +84,19 @@ LipidAbsData_init$epsilon_M_cm_PC22_0 = LipidAbsData_init$abs_PC22_0/(molarity_M
 # require a small baseline correction for the second batch of 22:6 data
 LipidAbsData_init$epsilon_M_cm_PC22_6_dil = LipidAbsData_init$abs_PC22_6_dil/(molarity_M_20161026*pathlength_cm)
 
+# also, calculate some Napierian molar extinction coefficients (kappa, in per M per cm); requires scaling factor of ln(10)
+
+LipidAbsData_init$kappa_M_cm_PC22_6 = LipidAbsData_init$epsilon_M_cm_PC22_6*log(10)
+LipidAbsData_init$kappa_M_cm_PC22_1 = LipidAbsData_init$epsilon_M_cm_PC22_1*log(10)
+LipidAbsData_init$kappa_M_cm_PC22_0 = LipidAbsData_init$epsilon_M_cm_PC22_0*log(10)
+LipidAbsData_init$kappa_M_cm_PC22_6_dil = LipidAbsData_init$epsilon_M_cm_PC22_6_dil*log(10)
+
 # reset the working directory
 setwd(initial.wd)
 
 # load in new (verification run) Jan 2017 data
 # set wd to data location
-setwd("/Users/jrcollins/Code/LipidPhotoOxBox/data/raw/Evolution_300/lipids_in_MeOH_rerun_Jan2017") 
+setwd("/Users/jamesrco/Code/LipidPhotoOxBox/data/raw/Evolution_300/lipids_in_MeOH_rerun_Jan2017") 
 
 # read in data, concatenate into single data frame
 # verification run, including DHA, of new standards from Avanti and Cayman Chem run on 17 Jan 2017
@@ -139,7 +146,15 @@ LipidAbsData_Jan17$epsilon_M_cm_PC22_6_00285mM = LipidAbsData_Jan17$abs_PC22_6_0
 LipidAbsData_Jan17$epsilon_M_cm_PC22_1_1113mM = LipidAbsData_Jan17$abs_PC22_1_1113mM/((1.113/1000)*pathlength_cm)
 LipidAbsData_Jan17$epsilon_M_cm_DHA_01032mM = LipidAbsData_Jan17$abs_DHA_01032mM/((0.1032/1000)*pathlength_cm)
 
-# make plots for liposome experiment chapter
+# also, calculate some Napierian molar extinction coefficients (kappa, in per M per cm); requires scaling factor of ln(10)
+LipidAbsData_Jan17$kappa_M_cm_PC22_6_011387mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_6_011387mM*log(10)
+LipidAbsData_Jan17$kappa_M_cm_PC22_6_01576055mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_6_01576055mM*log(10)
+LipidAbsData_Jan17$kappa_M_cm_PC22_6_005679mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_6_005679mM*log(10)
+LipidAbsData_Jan17$kappa_M_cm_PC22_6_00285mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_6_00285mM*log(10)
+LipidAbsData_Jan17$kappa_M_cm_PC22_1_1113mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_1_1113mM*log(10)
+LipidAbsData_Jan17$kappa_M_cm_DHA_01032mM = LipidAbsData_Jan17$epsilon_M_cm_DHA_01032mM*log(10)
+
+# make plots for liposome experiment chapter/paper
 
 # first, using older fall 2016 data
 
@@ -157,7 +172,7 @@ pdf(file = "PCLipidAbs_22-0,22-1.pdf",
 par(mar=c(5,5,1,1))
 plot(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_0,"l",
      col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
-     ylim = c(0,1.75), xlim = c(225,500), ylab = "Absorbance",
+     ylim = c(0,1.75), xlim = c(225,500), ylab = "Decadic absorbance",
      xlab = "Wavelength (nm)")
 lines(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_1,
       col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
@@ -183,7 +198,7 @@ par(mar=c(5,5,1,1))
 plot(LipidAbsData_init$lambda_nm[seq(1,nrow(LipidAbsData_init),5)],
      LipidAbsData_init$abs_PC22_6_dil[seq(1,nrow(LipidAbsData_init),5)],"l",
      col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5",
-     ylim = c(0,0.75), xlim = c(225,500), ylab = "Absorbance",
+     ylim = c(0,0.75), xlim = c(225,500), ylab = "Decadic absorbance",
      xlab = "Wavelength (nm)")
 
 legend(x = 450, y = 2, bty = "n",
@@ -203,7 +218,7 @@ pdf(file = "PCLipidAbs_inset_290_315.pdf",
 par(mar=c(5,5,1,1))
 plot(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_0,"l",
      col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
-     ylim = c(0,3.5), xlim = c(290,315), ylab = "Absorbance",
+     ylim = c(0,3.5), xlim = c(290,315), ylab = "Decadic absorbance",
      xlab = "Wavelength (nm)")
 lines(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_1,
       col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
@@ -213,14 +228,15 @@ lines(LipidAbsData_init$lambda_nm[seq(1,nrow(LipidAbsData_init),5)],
 
 dev.off()
 
-# decadic molar extinction coefficients
+# molar extinction coefficients
+# plot of decadic values
 
 absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
 absPlotLty = c("solid","dashed","dotdash") # define lty
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
-pdf(file = "PCLipidMolExtCoeff.pdf",
+pdf(file = "PCLipidMolExtCoeff_decadic.pdf",
     width = 8, height = 6, pointsize = 12,
     bg = "white")
 
@@ -234,6 +250,36 @@ lines(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$epsilon_M_cm_PC22_1),
       col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
 lines(LipidAbsData_init$lambda_nm[seq(1,nrow(LipidAbsData_init),5)],
       log(LipidAbsData_init$epsilon_M_cm_PC22_6_dil[seq(1,nrow(LipidAbsData_init),5)]),
+      col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5")
+
+legend(x = 400, y = 8, bty = "n",
+       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC"),
+       col = absPlotCol, lty = absPlotLty, lwd = 2)
+
+dev.off()
+
+# molar extinction coefficients
+# plot of Napierian values
+
+absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
+absPlotLty = c("solid","dashed","dotdash") # define lty
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "PCLipidMolExtCoeff_Napierian.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+plot(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$kappa_M_cm_PC22_0),"l",
+     col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
+     ylim = c(0,10), xlim = c(225,500),
+     ylab = expression(paste("log ",kappa[i]," (",M^-1," ",cm^-1,")")),
+     xlab = "Wavelength (nm)")
+lines(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$kappa_M_cm_PC22_1),
+      col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
+lines(LipidAbsData_init$lambda_nm[seq(1,nrow(LipidAbsData_init),5)],
+      log(LipidAbsData_init$kappa_M_cm_PC22_6_dil[seq(1,nrow(LipidAbsData_init),5)]),
       col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5")
 
 legend(x = 400, y = 8, bty = "n",
@@ -259,7 +305,7 @@ pdf(file = "PCLipidAbs_22-0,22-1.pdf",
 par(mar=c(5,5,1,1))
 plot(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_0,"l",
      col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
-     ylim = c(0,1.75), xlim = c(225,500), ylab = "Absorbance",
+     ylim = c(0,1.75), xlim = c(225,500), ylab = "Decadic absorbance",
      xlab = "Wavelength (nm)")
 lines(LipidAbsData_init$lambda_nm,LipidAbsData_init$abs_PC22_1,
       col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
@@ -288,7 +334,7 @@ pdf(file = "PCLipidAbs_22-6_DHA.pdf",
 par(mar=c(5,5,1,1))
 plot(LipidAbsData_Jan17$lambda_nm,LipidAbsData_Jan17$abs_PC22_6_011387mM,"l",
      col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5",
-     ylim = c(0,1.1), xlim = c(225,500), ylab = "Absorbance",
+     ylim = c(0,1.1), xlim = c(225,500), ylab = "Decadic absorbance",
      xlab = "Wavelength (nm)")
 lines(LipidAbsData_Jan17$lambda_nm,LipidAbsData_Jan17$abs_DHA_01032mM,
       col = absPlotCol[4], lty = absPlotLty[4], lwd = "1.5")
@@ -334,7 +380,7 @@ dev.off()
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
-pdf(file = "PCLipidMolExtCoeff_with_DHA.pdf",
+pdf(file = "PCLipidMolExtCoeff_with_DHA_decadic.pdf",
     width = 8, height = 6, pointsize = 12,
     bg = "white")
 
@@ -356,14 +402,48 @@ legend(x = 350, y = 6, bty = "n",
 
 dev.off()
 
+# Napierian molar extinction coefficients
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "PCLipidMolExtCoeff_with_DHA_Napierian.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,1))
+plot(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$kappa_M_cm_PC22_0),"l",
+     col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
+     ylim = c(0,7), xlim = c(225,500),
+     ylab = expression(paste("log ",kappa[i]," (",M^-1," ",cm^-1,")")),
+     xlab = "Wavelength (nm)")
+lines(LipidAbsData_init$lambda_nm,log(LipidAbsData_init$kappa_M_cm_PC22_1),
+      col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
+lines(LipidAbsData_Jan17$lambda_nm,log(LipidAbsData_Jan17$kappa_M_cm_PC22_6_011387mM),
+      col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5")
+lines(LipidAbsData_Jan17$lambda_nm,log(LipidAbsData_Jan17$kappa_M_cm_DHA_01032mM),
+      col = absPlotCol[4], lty = absPlotLty[4], lwd = "1.5")
+legend(x = 350, y = 6, bty = "n",
+       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC","DHA"),
+       col = absPlotCol, lty = absPlotLty, lwd = 2)
+
+dev.off()
+
 # save a data object containing the combined, validated extinction results reported in thesis/manuscript
 LipidAbsData =
-  LipidAbsData_Jan17[,-c(2:7,9:12)]
+  LipidAbsData_Jan17[,-c(2:7,9:12,15:18)]
 LipidAbsData$epsilon_M_cm_PC22_1 = LipidAbsData_init$epsilon_M_cm_PC22_1[1:1551]
 LipidAbsData$epsilon_M_cm_PC22_0 = LipidAbsData_init$epsilon_M_cm_PC22_0[1:1551]
-colnames(LipidAbsData)[2:3] = c("epsilon_M_cm_PC22_6","epsilon_M_cm_DHA")
+LipidAbsData$kappa_M_cm_PC22_1 = LipidAbsData_init$kappa_M_cm_PC22_1[1:1551]
+LipidAbsData$kappa_M_cm_PC22_0 = LipidAbsData_init$kappa_M_cm_PC22_0[1:1551]
 
-save(LipidAbsData,file = "PC_lipid_UV-VIS_molar_extinction_data.RData")
+colnames(LipidAbsData)[2:5] = c("epsilon_M_cm_PC22_6","epsilon_M_cm_DHA",
+                                    "kappa_M_cm_PC22_6","kappa_M_cm_DHA")
+
+# some reordering
+
+LipidAbsData = LipidAbsData[,c(1:3,6,7,4,5,8,9)]
+
+save(LipidAbsData,file = "/Users/jamesrco/Code/LipidPhotoOxBox/data/nice/container_and_lipid_absorbances/PC_lipid_UV-VIS_molar_extinction_data.RData")
 
 # some data
 
