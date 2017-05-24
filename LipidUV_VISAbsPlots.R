@@ -2,7 +2,9 @@
 #
 # Purpose: Read, format, plot data from UV-VIS spectrophotometer absorbance
 # profiles of the various lipids for the lipid photo-ox project; make some
-# calculations of decadic molar extinction coefficients and other properties
+# calculations of molar absorption ("extinction") coefficients and other properties
+#
+# Calculations of coefficients in both decadic and Napierian units
 #
 # Created: 9/6/2016 by James Collins, james.r.collins@aya.yale.edu
 # Released under MIT License
@@ -68,7 +70,7 @@ for (i in 1:nrow(LipidAbsData_init)) {
   
 }
  
-# calculate decadic molar extinction coefficients (epsilon, in per M per cm)
+# calculate decadic molar absorption coefficients (epsilon, in per M per cm)
 
 # specify some constants
 pathlength_cm = 10 # pathlength of cuvette used, in cm (same for all dates)
@@ -84,7 +86,7 @@ LipidAbsData_init$epsilon_M_cm_PC22_0 = LipidAbsData_init$abs_PC22_0/(molarity_M
 # require a small baseline correction for the second batch of 22:6 data
 LipidAbsData_init$epsilon_M_cm_PC22_6_dil = LipidAbsData_init$abs_PC22_6_dil/(molarity_M_20161026*pathlength_cm)
 
-# also, calculate some Napierian molar extinction coefficients (kappa, in per M per cm); requires scaling factor of ln(10)
+# also, calculate some Napierian molar absorption coefficients (kappa, in per M per cm); requires scaling factor of ln(10)
 
 LipidAbsData_init$kappa_M_cm_PC22_6 = LipidAbsData_init$epsilon_M_cm_PC22_6*log(10)
 LipidAbsData_init$kappa_M_cm_PC22_1 = LipidAbsData_init$epsilon_M_cm_PC22_1*log(10)
@@ -135,7 +137,7 @@ colnames(LipidAbsData_Jan17) = c("lambda_nm",
                                 "abs_PC22_1_1113mM",
                                 "abs_DHA_01032mM")
 
-# calculate decadic molar extinction coefficients (epsilon, in per M per cm)
+# calculate decadic molar absorption coefficients (epsilon, in per M per cm)
 
 # calculations
 # concentrations must be in mol/L
@@ -146,7 +148,7 @@ LipidAbsData_Jan17$epsilon_M_cm_PC22_6_00285mM = LipidAbsData_Jan17$abs_PC22_6_0
 LipidAbsData_Jan17$epsilon_M_cm_PC22_1_1113mM = LipidAbsData_Jan17$abs_PC22_1_1113mM/((1.113/1000)*pathlength_cm)
 LipidAbsData_Jan17$epsilon_M_cm_DHA_01032mM = LipidAbsData_Jan17$abs_DHA_01032mM/((0.1032/1000)*pathlength_cm)
 
-# also, calculate some Napierian molar extinction coefficients (kappa, in per M per cm); requires scaling factor of ln(10)
+# also, calculate some Napierian molar absorption coefficients (kappa, in per M per cm); requires scaling factor of ln(10)
 LipidAbsData_Jan17$kappa_M_cm_PC22_6_011387mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_6_011387mM*log(10)
 LipidAbsData_Jan17$kappa_M_cm_PC22_6_01576055mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_6_01576055mM*log(10)
 LipidAbsData_Jan17$kappa_M_cm_PC22_6_005679mM = LipidAbsData_Jan17$epsilon_M_cm_PC22_6_005679mM*log(10)
@@ -228,7 +230,7 @@ lines(LipidAbsData_init$lambda_nm[seq(1,nrow(LipidAbsData_init),5)],
 
 dev.off()
 
-# molar extinction coefficients
+# molar absorption coefficients
 # plot of decadic values
 
 absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
@@ -258,7 +260,7 @@ legend(x = 400, y = 8, bty = "n",
 
 dev.off()
 
-# molar extinction coefficients
+# molar absorption coefficients
 # plot of Napierian values
 
 absPlotCol = hsv(c(0.2, 0.57, 0.95), 1, 1, 0.8) # define colors
@@ -369,7 +371,7 @@ dev.off()
 # dev.off()
 
 
-# decadic molar extinction coefficients
+# decadic molar absorption coefficients
 
 # epsilon_M_cm_PC22_6_011387mM
 # epsilon_M_cm_PC22_6_01576055mM
@@ -402,7 +404,7 @@ legend(x = 350, y = 6, bty = "n",
 
 dev.off()
 
-# Napierian molar extinction coefficients
+# Napierian molar absorption coefficients
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
@@ -428,7 +430,7 @@ legend(x = 350, y = 6, bty = "n",
 
 dev.off()
 
-# save a data object containing the combined, validated extinction results reported in thesis/manuscript
+# save a data object containing the combined, validated absorption results reported in thesis/manuscript
 LipidAbsData =
   LipidAbsData_Jan17[,-c(2:7,9:12,15:18)]
 LipidAbsData$epsilon_M_cm_PC22_1 = LipidAbsData_init$epsilon_M_cm_PC22_1[1:1551]
@@ -443,7 +445,7 @@ colnames(LipidAbsData)[2:5] = c("epsilon_M_cm_PC22_6","epsilon_M_cm_DHA",
 
 LipidAbsData = LipidAbsData[,c(1:3,6,7,4,5,8,9)]
 
-save(LipidAbsData,file = "/Users/jamesrco/Code/LipidPhotoOxBox/data/nice/container_and_lipid_absorbances/PC_lipid_UV-VIS_molar_extinction_data.RData")
+save(LipidAbsData,file = "/Users/jamesrco/Code/LipidPhotoOxBox/data/nice/container_and_lipid_absorbances/PC_lipid_UV-VIS_molar_absorption_data.RData")
 
 # some data
 
