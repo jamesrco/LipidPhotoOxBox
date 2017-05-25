@@ -5,7 +5,7 @@
 # Jaz UV-VIS spectrophotometer J.R.C. deployed at Palmer Station during the 
 # 2013-2014 field season
 #
-# Also, some calculations of the diffuse attenuation coefficient, Kd, from
+# Also, calculations of the diffuse attenuation coefficient, Kd, from
 # individual JAZ scans
 #
 # Created: 9/2/16 by James Collins, james.r.collins@aya.yale.edu
@@ -25,8 +25,8 @@
 library(stringr)
 library(RSEIS)
 
-setwd("/Users/jrcollins/Code/LipidPhotoOxBox")
-initial.wd = getwd()
+setwd("/Users/jamesrco/Code/LipidPhotoOxBox")
+base.wd = getwd()
 
 ##### daily UVA, UVB dosages ##### 
 
@@ -61,161 +61,132 @@ DD_UVB_1314_incident = DD_UVB_incident[DD_UVB_incident$Date>as.POSIXct('2013-06-
 DD_UVA_1314_incident = DD_UVA_incident[DD_UVA_incident$Date>as.POSIXct('2013-06-22') &
                                          DD_UVA_incident$Date<as.POSIXct('2014-06-22'),]
 
-# plot(DD_UVB_1314_incident$Date,DD_UVB_1314_incident$E290.315_kJ_m2, "l", lwd = 1)
+plot(DD_UVB_1314_incident$Date,DD_UVB_1314_incident$E290.315_kJ_m2, "l", lwd = 1)
+
+# save the data files
+save(DD_UVB_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVB_daily_dose_1314.RData"))
+save(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVA_daily_dose_1314.RData"))
+
+# export to .csv
+write.csv(DD_UVB_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVB_daily_dose_1314.csv"))
+write.csv(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVA_daily_dose_1314.csv"))
+
+# # JAZ data
 # 
-# # save the data files
-# save(DD_UVB_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVB_1314.RData")
-# save(DD_UVA_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVA_1314.RData")
-#
-# # export to .csv
-# write.csv(DD_UVB_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVB_1314.csv")
-# write.csv(DD_UVA_1314_incident, file = "NOAA_ESRL_AntUV_DD_UVA_1314.csv")
+# # read in data, from .csv output generated in MATLAB (see the MATLAB script
+# # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
+# 
+# setwd(base.wd)
+# setwd("data/nice/JAZ_UV_VIS") 
+# 
+# DD_UVB_1314_subsurf = read.csv("Daily_int_UVB_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
+#          stringsAsFactors = FALSE, header = FALSE)
+# colnames(DD_UVB_1314_subsurf) = c("Date_raw","Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2")
+# 
+# DD_UVA_1314_subsurf = read.csv("Daily_int_UVA_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
+#                                stringsAsFactors = FALSE, header = FALSE)
+# colnames(DD_UVA_1314_subsurf) = c("Date_raw","Daily_UVA_dose_0.6m_subsurface_Palmer_kJ_m2")
+# 
+# # date conversion
+# DD_UVB_1314_subsurf$Date = strptime(DD_UVB_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
+# DD_UVA_1314_subsurf$Date = strptime(DD_UVA_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
+# 
+# # match relevant data from the two datasets, calculate average UVB xmiss
+# 
+# DD_UVB_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVB_1314_subsurf)))
+# colnames(DD_UVB_xmiss_PAL1314) = c("Date","DD_UVB_incident_kJ_m2","DD_UVB_subsurf_kJ_m2","Percent_xmiss")
+# DD_UVB_xmiss_PAL1314$Date = DD_UVB_1314_subsurf$Date
+# DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2 = DD_UVB_1314_subsurf$Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2
+# 
+# for (i in 1:nrow(DD_UVB_xmiss_PAL1314)) {
+#   
+#   if (any(DD_UVB_1314_incident$Date_simple %in% DD_UVB_xmiss_PAL1314$Date[i])) {
+#     # there is matching data in the NOAA dataset
+#    
+#     DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2[i] =
+#       DD_UVB_1314_incident$E290.315_kJ_m2[which(DD_UVB_1314_incident$Date_simple %in% DD_UVB_xmiss_PAL1314$Date[i])]
+#     
+#   }
+#   
+# }
+# 
+# DD_UVB_xmiss_PAL1314$Percent_xmiss = DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2/
+#   DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
+# 
+# # calculate mean, sd % xmiss
+# 
+# mean(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# sd(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# 
+# # save the table
+# 
+# save(DD_UVB_xmiss_PAL1314, file = "Daily_dose_UVB_PAL1314.RData")
+# 
+# # match relevant data from the two datasets, calculate average UVA xmiss
+# 
+# DD_UVA_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVA_1314_subsurf)))
+# colnames(DD_UVA_xmiss_PAL1314) = c("Date","DD_UVA_incident_kJ_m2","DD_UVA_subsurf_kJ_m2","Percent_xmiss")
+# DD_UVA_xmiss_PAL1314$Date = DD_UVA_1314_subsurf$Date
+# DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2 = DD_UVA_1314_subsurf$Daily_UVA_dose_0.6m_subsurface_Palmer_kJ_m2
+# 
+# for (i in 1:nrow(DD_UVA_xmiss_PAL1314)) {
+#   
+#   if (any(DD_UVA_1314_incident$Date_simple %in% DD_UVA_xmiss_PAL1314$Date[i])) {
+#     # there is matching data in the NOAA dataset
+#     
+#     DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2[i] =
+#       DD_UVA_1314_incident$E315.400_kJ_m2[which(DD_UVA_1314_incident$Date_simple %in% DD_UVA_xmiss_PAL1314$Date[i])]
+#     
+#   }
+#   
+# }
+# 
+# DD_UVA_xmiss_PAL1314$Percent_xmiss = DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2/
+#   DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2
+# 
+# # calculate mean, sd % xmiss
+# 
+# mean(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# sd(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# 
+# # save the table
+# 
+# save(DD_UVA_xmiss_PAL1314, file = "Daily_dose_UVA_PAL1314.RData")
+# 
+# # calculate average UVR (UVA + UVB) xmiss
+# 
+# DD_UVR_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVA_1314_subsurf)))
+# colnames(DD_UVR_xmiss_PAL1314) = c("Date","DD_UVR_incident_kJ_m2","DD_UVR_subsurf_kJ_m2","Percent_xmiss")
+# DD_UVR_xmiss_PAL1314$Date = DD_UVA_xmiss_PAL1314$Date
+# 
+# DD_UVR_xmiss_PAL1314$DD_UVR_incident_kJ_m2 =
+#   DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2+
+#   DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
+# 
+# DD_UVR_xmiss_PAL1314$DD_UVR_subsurf_kJ_m2 =
+#   DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2+
+#   DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2
+# 
+# DD_UVR_xmiss_PAL1314$Percent_xmiss =
+#   DD_UVR_xmiss_PAL1314$DD_UVR_subsurf_kJ_m2/
+#   DD_UVR_xmiss_PAL1314$DD_UVR_incident_kJ_m2
+# 
+# # calculate mean, sd % xmiss
+# 
+# mean(DD_UVR_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# sd(DD_UVR_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# 
+# # save the table
+# 
+# save(DD_UVR_xmiss_PAL1314, file = "Daily_dose_UVR_PAL1314.RData")
 
-# JAZ data
-
-# read in data, from .csv output generated in MATLAB (see the MATLAB script
-# JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
-
-setwd(initial.wd)
-setwd("data/nice/JAZ_UV_VIS") 
-
-DD_UVB_1314_subsurf = read.csv("Daily_int_UVB_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
-         stringsAsFactors = FALSE, header = FALSE)
-colnames(DD_UVB_1314_subsurf) = c("Date_raw","Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2")
-
-DD_UVA_1314_subsurf = read.csv("Daily_int_UVA_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
-                               stringsAsFactors = FALSE, header = FALSE)
-colnames(DD_UVA_1314_subsurf) = c("Date_raw","Daily_UVA_dose_0.6m_subsurface_Palmer_kJ_m2")
-
-# date conversion
-DD_UVB_1314_subsurf$Date = strptime(DD_UVB_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
-DD_UVA_1314_subsurf$Date = strptime(DD_UVA_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
-
-# match relevant data from the two datasets, calculate average UVB xmiss
-
-DD_UVB_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVB_1314_subsurf)))
-colnames(DD_UVB_xmiss_PAL1314) = c("Date","DD_UVB_incident_kJ_m2","DD_UVB_subsurf_kJ_m2","Percent_xmiss")
-DD_UVB_xmiss_PAL1314$Date = DD_UVB_1314_subsurf$Date
-DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2 = DD_UVB_1314_subsurf$Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2
-
-for (i in 1:nrow(DD_UVB_xmiss_PAL1314)) {
-  
-  if (any(DD_UVB_1314_incident$Date_simple %in% DD_UVB_xmiss_PAL1314$Date[i])) {
-    # there is matching data in the NOAA dataset
-   
-    DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2[i] =
-      DD_UVB_1314_incident$E290.315_kJ_m2[which(DD_UVB_1314_incident$Date_simple %in% DD_UVB_xmiss_PAL1314$Date[i])]
-    
-  }
-  
-}
-
-DD_UVB_xmiss_PAL1314$Percent_xmiss = DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2/
-  DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
-
-# calculate mean, sd % xmiss
-
-mean(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
-sd(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
-
-# save the table
-
-save(DD_UVB_xmiss_PAL1314, file = "Daily_dose_UVB_PAL1314.RData")
-
-# match relevant data from the two datasets, calculate average UVA xmiss
-
-DD_UVA_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVA_1314_subsurf)))
-colnames(DD_UVA_xmiss_PAL1314) = c("Date","DD_UVA_incident_kJ_m2","DD_UVA_subsurf_kJ_m2","Percent_xmiss")
-DD_UVA_xmiss_PAL1314$Date = DD_UVA_1314_subsurf$Date
-DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2 = DD_UVA_1314_subsurf$Daily_UVA_dose_0.6m_subsurface_Palmer_kJ_m2
-
-for (i in 1:nrow(DD_UVA_xmiss_PAL1314)) {
-  
-  if (any(DD_UVA_1314_incident$Date_simple %in% DD_UVA_xmiss_PAL1314$Date[i])) {
-    # there is matching data in the NOAA dataset
-    
-    DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2[i] =
-      DD_UVA_1314_incident$E315.400_kJ_m2[which(DD_UVA_1314_incident$Date_simple %in% DD_UVA_xmiss_PAL1314$Date[i])]
-    
-  }
-  
-}
-
-DD_UVA_xmiss_PAL1314$Percent_xmiss = DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2/
-  DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2
-
-# calculate mean, sd % xmiss
-
-mean(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
-sd(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
-
-# save the table
-
-save(DD_UVA_xmiss_PAL1314, file = "Daily_dose_UVA_PAL1314.RData")
-
-# calculate average UVR (UVA + UVB) xmiss
-
-DD_UVR_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVA_1314_subsurf)))
-colnames(DD_UVR_xmiss_PAL1314) = c("Date","DD_UVR_incident_kJ_m2","DD_UVR_subsurf_kJ_m2","Percent_xmiss")
-DD_UVR_xmiss_PAL1314$Date = DD_UVA_xmiss_PAL1314$Date
-
-DD_UVR_xmiss_PAL1314$DD_UVR_incident_kJ_m2 =
-  DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2+
-  DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
-
-DD_UVR_xmiss_PAL1314$DD_UVR_subsurf_kJ_m2 =
-  DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_kJ_m2+
-  DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2
-
-DD_UVR_xmiss_PAL1314$Percent_xmiss =
-  DD_UVR_xmiss_PAL1314$DD_UVR_subsurf_kJ_m2/
-  DD_UVR_xmiss_PAL1314$DD_UVR_incident_kJ_m2
-
-# calculate mean, sd % xmiss
-
-mean(DD_UVR_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
-sd(DD_UVR_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
-
-# save the table
-
-save(DD_UVR_xmiss_PAL1314, file = "Daily_dose_UVR_PAL1314.RData")
-
-##### load, process wavelength-specific ("hi-res") data ##### 
-
-# JAZ data
-
-setwd(initial.wd)
-setwd("data/nice/JAZ_UV_VIS") 
-
-# read in data, from .csv output generated in MATLAB (see the MATLAB script
-# JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
-
-PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2 = read.csv("JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.csv", 
-                                     stringsAsFactors = FALSE, header = FALSE)
-
-# read in wavelength metadata for this JAZ instrument
-
-JAZ_wavelengths = read.csv("/Users/jrcollins/Code/Optics_Photochem/JAZ_wavelengths.csv",
-                           header = FALSE)
-
-# assign column names
-
-colnames(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2) = c("Date_raw_julian",
-                                                             "Inttime_microseconds",
-                                                             "Badscans_fullspectrum",
-                                                             "Badscans_UVB",
-                                                             JAZ_wavelengths$V1)
-
-# create timestamp
-
-# convert dates from messed up Excel format
-PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT = as.POSIXct(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Date_raw_julian*60*60*24, tz = "GMT", origin = "0000-01-01")-1*60*60*24
-
+##### load, process wavelength-specific ("hi-res") data #####
+# 
 # NOAA data
 
 # data is in separate files, so have to read them in sequentially
 
-setwd(initial.wd)
+setwd(base.wd)
 setwd("data/raw/ESRL_GMD_AntUV/ver2") 
 
 # get list of files
@@ -274,237 +245,266 @@ PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT = strptime(PAL1314_NOAA_AntUV_sp
 
 # save the matrix
 
-save(PAL1314_NOAA_AntUV_spectra_uW_cm2, file = "Incident_UV-VIS_spectra_PAL1314_uW_cm2.RData")
+save(PAL1314_NOAA_AntUV_spectra_uW_cm2, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Incident_UV-VIS_spectra_PAL1314_uW_cm2.RData"))
 
-##### use data from 11-13 Nov 11 (when JAZ was deployed in open air atop tank) for intercalibration with NOAA radiometer #####
+# # JAZ data
+# 
+# setwd(base.wd)
+# setwd("data/nice/JAZ_UV_VIS") 
+# 
+# # read in data, from .csv output generated in MATLAB (see the MATLAB script
+# # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
+# 
+# PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2 = read.csv("JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.csv", 
+#                                      stringsAsFactors = FALSE, header = FALSE)
+# 
+# # read in wavelength metadata for this JAZ instrument
+# 
+# JAZ_wavelengths = read.csv("/Users/jrcollins/Code/Optics_Photochem/JAZ_wavelengths.csv",
+#                            header = FALSE)
+# 
+# # assign column names
+# 
+# colnames(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2) = c("Date_raw_julian",
+#                                                              "Inttime_microseconds",
+#                                                              "Badscans_fullspectrum",
+#                                                              "Badscans_UVB",
+#                                                              JAZ_wavelengths$V1)
+# 
+# # create timestamp
+# 
+# # convert dates from messed up Excel format
+# PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT = as.POSIXct(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Date_raw_julian*60*60*24, tz = "GMT", origin = "0000-01-01")-1*60*60*24
 
-# load in JAZ data
-
-setwd(initial.wd)
-setwd("data/raw/JAZ_UV_VIS")
-
-# read in data, from .csv output generated in MATLAB (see the MATLAB script
-# JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
-
-PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2 = read.csv("JAZ_UV-VIS_open_air_full_spectra_PAL1314_11_13Nov13_uW_cm2.csv", 
-                                                                   stringsAsFactors = FALSE, header = FALSE)
-
-# assign column names (assumes JAZ_wavelenths has already been loaded above)
-
-colnames(PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2) = c("Date_raw_julian",
-                                                                      "Inttime_microseconds",
-                                                                      "Badscans_fullspectrum",
-                                                                      "Badscans_UVB",
-                                                                      JAZ_wavelengths$V1)
-
-# create timestamp
-
-# convert dates from messed up Excel format
-PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT = as.POSIXct(PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Date_raw_julian*60*60*24, tz = "GMT", origin = "0000-01-01")-1*60*60*24
-
-# match elements of NOAA data set with JAZ scans, then take a look at correlation
-
-# subset NOAA data to range of interest
-
-PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset = 
-  PAL1314_NOAA_AntUV_spectra_uW_cm2[
-    PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT>=
-      as.POSIXct('2013-11-11 12:00:00', tz = "GMT") & 
-      PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT<=
-      as.POSIXct('2013-11-13 12:00:00', tz = "GMT")
-    ,]
-
-# first, determine which elements to pull from each JAZ data string
-
-JAZ.match.index.intercal = vector(length = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)-1), mode = "numeric")
-
-for (i in 1:length(JAZ.match.index.intercal)) {
-  
-  JAZ.match.index.intercal[i] =
-    which((abs(as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)[i+1])-
-                 JAZ_wavelengths$V1)
-           ==min(abs(JAZ_wavelengths$V1-as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)[i+1])))))
-  
-}
-
-# preallocate matrices to hold data on surface penetration
-
-PAL1314_intercal= as.data.frame(matrix(data = NA, ncol = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)-1), nrow = nrow(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)))
-colnames(PAL1314_intercal) = colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)]
-
-# append timestamps
-
-PAL1314_intercal$Timestamp_GMT = PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset[,1]
-
-# create matrices for scatterplot
-PAL1314_intercal.NOAA = PAL1314_intercal
-PAL1314_intercal.JAZ = PAL1314_intercal
-
-# perform matching & calculations
-
-for (i in 1:nrow(PAL1314_intercal)) {
-  
-  # find matching time in the JAZ data, if it exists
-  # we'll want something +/- 30 seconds of the timestamp in the NOAA data
-  
-  possible.time.match =
-    which((abs(PAL1314_intercal$Timestamp_GMT[i]-
-                 PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT)
-           ==min(abs(PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT
-                     -PAL1314_intercal$Timestamp_GMT[i]))))
-  
-  if (as.numeric(abs(PAL1314_intercal$Timestamp_GMT[i]-
-          PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT[possible.time.match]))<=
-      15) { # we have a "matching" reading within 30 seconds --> calculate ratio & record
-    
-    PAL1314_intercal[i,1:(ncol(PAL1314_intercal)-1)] = 
-      
-      PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2[possible.time.match,JAZ.match.index.intercal]/
-      PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset[i,2:ncol(PAL1314_intercal)]
-    
-    # also, dump data to our two matrices for scatterplot
-    
-    PAL1314_intercal.NOAA[i,1:(ncol(PAL1314_intercal)-1)] =
-      PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset[i,2:ncol(PAL1314_intercal)]
-    PAL1314_intercal.JAZ[i,1:(ncol(PAL1314_intercal)-1)] =
-      PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2[possible.time.match,JAZ.match.index.intercal]
-  }
-  
-}
-
-# calculate mean values for each wavelength, plot
-
-PAL1314_NOAA.mean = apply(PAL1314_intercal.NOAA[,1:(ncol(PAL1314_intercal.NOAA)-1)],2,mean,na.rm = TRUE)
-PAL1314_NOAA.sd = apply(PAL1314_intercal.NOAA[,1:(ncol(PAL1314_intercal.NOAA)-1)],2,sd,na.rm = TRUE)
-PAL1314_JAZ.mean = apply(PAL1314_intercal.JAZ[,1:(ncol(PAL1314_intercal.JAZ)-1)],2,mean,na.rm = TRUE)
-PAL1314_JAZ.sd = apply(PAL1314_intercal.JAZ[,1:(ncol(PAL1314_intercal.JAZ)-1)],2,sd,na.rm = TRUE)
-plot(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
-     PAL1314_NOAA.mean,
-     xlim = c(290,600),type="l",col="blue")
+# ##### use data from 11-13 Nov 11 (when JAZ was deployed in open air atop tank) for intercalibration with NOAA radiometer #####
+# 
+# # load in JAZ data
+# 
+# setwd(base.wd)
+# setwd("data/raw/JAZ_UV_VIS")
+# 
+# # read in data, from .csv output generated in MATLAB (see the MATLAB script
+# # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
+# 
+# PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2 = read.csv("JAZ_UV-VIS_open_air_full_spectra_PAL1314_11_13Nov13_uW_cm2.csv", 
+#                                                                    stringsAsFactors = FALSE, header = FALSE)
+# 
+# # assign column names (assumes JAZ_wavelenths has already been loaded above)
+# 
+# colnames(PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2) = c("Date_raw_julian",
+#                                                                       "Inttime_microseconds",
+#                                                                       "Badscans_fullspectrum",
+#                                                                       "Badscans_UVB",
+#                                                                       JAZ_wavelengths$V1)
+# 
+# # create timestamp
+# 
+# # convert dates from messed up Excel format
+# PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT = as.POSIXct(PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Date_raw_julian*60*60*24, tz = "GMT", origin = "0000-01-01")-1*60*60*24
+# 
+# # match elements of NOAA data set with JAZ scans, then take a look at correlation
+# 
+# # subset NOAA data to range of interest
+# 
+# PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset = 
+#   PAL1314_NOAA_AntUV_spectra_uW_cm2[
+#     PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT>=
+#       as.POSIXct('2013-11-11 12:00:00', tz = "GMT") & 
+#       PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT<=
+#       as.POSIXct('2013-11-13 12:00:00', tz = "GMT")
+#     ,]
+# 
+# # first, determine which elements to pull from each JAZ data string
+# 
+# JAZ.match.index.intercal = vector(length = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)-1), mode = "numeric")
+# 
+# for (i in 1:length(JAZ.match.index.intercal)) {
+#   
+#   JAZ.match.index.intercal[i] =
+#     which((abs(as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)[i+1])-
+#                  JAZ_wavelengths$V1)
+#            ==min(abs(JAZ_wavelengths$V1-as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)[i+1])))))
+#   
+# }
+# 
+# # preallocate matrices to hold data on surface penetration
+# 
+# PAL1314_intercal= as.data.frame(matrix(data = NA, ncol = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)-1), nrow = nrow(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)))
+# colnames(PAL1314_intercal) = colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset)]
+# 
+# # append timestamps
+# 
+# PAL1314_intercal$Timestamp_GMT = PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset[,1]
+# 
+# # create matrices for scatterplot
+# PAL1314_intercal.NOAA = PAL1314_intercal
+# PAL1314_intercal.JAZ = PAL1314_intercal
+# 
+# # perform matching & calculations
+# 
+# for (i in 1:nrow(PAL1314_intercal)) {
+#   
+#   # find matching time in the JAZ data, if it exists
+#   # we'll want something +/- 30 seconds of the timestamp in the NOAA data
+#   
+#   possible.time.match =
+#     which((abs(PAL1314_intercal$Timestamp_GMT[i]-
+#                  PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT)
+#            ==min(abs(PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT
+#                      -PAL1314_intercal$Timestamp_GMT[i]))))
+#   
+#   if (as.numeric(abs(PAL1314_intercal$Timestamp_GMT[i]-
+#           PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2$Timestamp_GMT[possible.time.match]))<=
+#       15) { # we have a "matching" reading within 30 seconds --> calculate ratio & record
+#     
+#     PAL1314_intercal[i,1:(ncol(PAL1314_intercal)-1)] = 
+#       
+#       PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2[possible.time.match,JAZ.match.index.intercal]/
+#       PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset[i,2:ncol(PAL1314_intercal)]
+#     
+#     # also, dump data to our two matrices for scatterplot
+#     
+#     PAL1314_intercal.NOAA[i,1:(ncol(PAL1314_intercal)-1)] =
+#       PAL1314_NOAA_AntUV_spectra_uW_cm2.intercal.subset[i,2:ncol(PAL1314_intercal)]
+#     PAL1314_intercal.JAZ[i,1:(ncol(PAL1314_intercal)-1)] =
+#       PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2[possible.time.match,JAZ.match.index.intercal]
+#   }
+#   
+# }
+# 
+# # calculate mean values for each wavelength, plot
+# 
+# PAL1314_NOAA.mean = apply(PAL1314_intercal.NOAA[,1:(ncol(PAL1314_intercal.NOAA)-1)],2,mean,na.rm = TRUE)
+# PAL1314_NOAA.sd = apply(PAL1314_intercal.NOAA[,1:(ncol(PAL1314_intercal.NOAA)-1)],2,sd,na.rm = TRUE)
+# PAL1314_JAZ.mean = apply(PAL1314_intercal.JAZ[,1:(ncol(PAL1314_intercal.JAZ)-1)],2,mean,na.rm = TRUE)
+# PAL1314_JAZ.sd = apply(PAL1314_intercal.JAZ[,1:(ncol(PAL1314_intercal.JAZ)-1)],2,sd,na.rm = TRUE)
+# plot(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
+#      PAL1314_NOAA.mean,
+#      xlim = c(290,600),type="l",col="blue")
+# # polygon(c(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),rev(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]))),
+# #         c(PAL1314_NOAA.mean+PAL1314_NOAA.sd,rev(PAL1314_NOAA.mean-PAL1314_NOAA.sd)),
+# #         col="lightskyblue")
+# # polygon(c(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),rev(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]))),
+# #         c(PAL1314_JAZ.mean+PAL1314_JAZ.sd,rev(PAL1314_JAZ.mean-PAL1314_JAZ.sd)),
+# #         col="lightsalmon")
+# lines(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
+#       PAL1314_NOAA.mean,
+#       col="blue")
+# lines(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
+#       PAL1314_JAZ.mean,col="red")
+# 
+# # plot intercalibration ratio
+# 
+# PAL1314_intercal.mean = apply(PAL1314_intercal[,1:(ncol(PAL1314_intercal)-1)],2,mean,na.rm = TRUE)
+# plot(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
+#      PAL1314_intercal.mean,
+#      ylim = c(-3,3),
+#      xlim = c(290,600))
+# 
+# PAL1314_intercal.mean = apply(PAL1314_intercal[,1:(ncol(PAL1314_intercal)-1)],2,mean,na.rm = TRUE)
+# PAL1314_intercal.sd = apply(PAL1314_intercal[,1:(ncol(PAL1314_intercal)-1)],2,sd,na.rm = TRUE)
+# plot(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
+#      PAL1314_intercal.mean, type = "p", pch = 16, cex = 0.3, 
+#      ylim = c(-10,10),
+#      xlim = c(290,600))
 # polygon(c(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),rev(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]))),
-#         c(PAL1314_NOAA.mean+PAL1314_NOAA.sd,rev(PAL1314_NOAA.mean-PAL1314_NOAA.sd)),
-#         col="lightskyblue")
-# polygon(c(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),rev(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]))),
-#         c(PAL1314_JAZ.mean+PAL1314_JAZ.sd,rev(PAL1314_JAZ.mean-PAL1314_JAZ.sd)),
-#         col="lightsalmon")
-lines(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
-      PAL1314_NOAA.mean,
-      col="blue")
-lines(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
-      PAL1314_JAZ.mean,col="red")
+#   c(PAL1314_intercal.mean+PAL1314_intercal.sd,rev(PAL1314_intercal.mean-PAL1314_intercal.sd)),
+#   col=grey(0.95))
+# points(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
+#      PAL1314_intercal.mean, pch = 16, cex = 0.3)
+# 
+# NOAA.caldat = unlist(PAL1314_intercal.NOAA[1:(ncol(PAL1314_intercal.NOAA)-1)])
+# NOAA.caldat = NOAA.caldat[!is.na(NOAA.caldat)]
+# NOAA.caldat = as.matrix(NOAA.caldat)
+# 
+# JAZ.caldat = unlist(PAL1314_intercal.JAZ[1:(ncol(PAL1314_intercal.JAZ)-1)])
+# JAZ.caldat = JAZ.caldat[!is.na(JAZ.caldat)]
+# JAZ.caldat = as.matrix(JAZ.caldat)
+# 
+# # write.csv(NOAA.caldat,file="NOAA.caldat.csv")
+# # write.csv(JAZ.caldat,file="JAZ.caldat.csv")
+# 
+# plot(NOAA.caldat/JAZ.caldat,ylim = c(-3,3))
+# 
+# fit.lm = lm(JAZ.caldat~NOAA.caldat)
+# fit.res = resid(fit.lm)
+# plot(NOAA.caldat,fit.res)
+# 
+# fit.lm = lm(JAZ.caldat~NOAA.caldat)
+# summary(fit.lm)
+# 
+# plot(NOAA.caldat,
+#      JAZ.caldat,
+#      pch=16,cex=0.1)
+# abline(0,1,col="red")
+# abline(fit.lm, col="blue")
 
-# plot intercalibration ratio
+# ##### match elements of NOAA data set with JAZ scans, then calculate surface penetration ##### 
+# 
+# # will use the NOAA data as our index since they were sampled at more sparse
+# # time & wavelength intervals
+# 
+# # first, determine which elements to pull from each JAZ data string
+# 
+# JAZ.match.index = vector(length = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)-1), mode = "numeric")
+#   
+# for (i in 1:length(JAZ.match.index)) {
+#   
+#   JAZ.match.index[i] =
+#     which((abs(as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[i+1])-
+#               JAZ_wavelengths$V1)
+#         ==min(abs(JAZ_wavelengths$V1-as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[i+1])))))
+#   
+# }
+# 
+# # preallocate matrix to hold data on surface penetration
+# 
+# PAL1314_Surf_pen = as.data.frame(matrix(data = NA, ncol = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)-1), nrow = nrow(PAL1314_NOAA_AntUV_spectra_uW_cm2)))
+# colnames(PAL1314_Surf_pen) = colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)]
+# 
+# # append timestamps
+# 
+# PAL1314_Surf_pen$Timestamp_GMT = PAL1314_NOAA_AntUV_spectra_uW_cm2[,1]
+# 
+# # perform matching & calculations
+# 
+# for (i in 1:nrow(PAL1314_Surf_pen)) {
+#   
+#   # find matching time in the JAZ data, if it exists
+#   # we'll want something +/- 30 seconds of the timestamp in the NOAA data
+#   
+#   possible.time.match =
+#     which((abs(PAL1314_Surf_pen$Timestamp_GMT[i]-
+#                  PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT)
+#            ==min(abs(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT
+#                      -PAL1314_Surf_pen$Timestamp_GMT[i]))))
+#   
+#   if (as.numeric(abs(PAL1314_Surf_pen$Timestamp_GMT[i]-
+#            PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT[possible.time.match]))<=
+#       30*(1/24/60/60)) { # we have a "matching" reading within 30 seconds --> calculate surface penetration (fraction) & record
+#     
+#     PAL1314_Surf_pen[i,1:(ncol(PAL1314_Surf_pen)-1)] = 
+#         
+#       PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2[possible.time.match,JAZ.match.index]/
+#       PAL1314_NOAA_AntUV_spectra_uW_cm2[i,2:ncol(PAL1314_Surf_pen)]
+#       
+#   }
+#   
+# }
+# 
+# # calculate mean values for each wavelength
+# 
+# PAL1314_Surf_pen.mean = apply(PAL1314_Surf_pen[,1:(ncol(PAL1314_Surf_pen)-1)],2,mean,na.rm = TRUE)
+# plot(as.numeric(colnames(PAL1314_Surf_pen)[1:(ncol(PAL1314_Surf_pen)-1)]),
+#      PAL1314_Surf_pen.mean,
+#      ylim = c(0,3),
+#      xlim = c(290,600))
 
-PAL1314_intercal.mean = apply(PAL1314_intercal[,1:(ncol(PAL1314_intercal)-1)],2,mean,na.rm = TRUE)
-plot(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
-     PAL1314_intercal.mean,
-     ylim = c(-3,3),
-     xlim = c(290,600))
-
-PAL1314_intercal.mean = apply(PAL1314_intercal[,1:(ncol(PAL1314_intercal)-1)],2,mean,na.rm = TRUE)
-PAL1314_intercal.sd = apply(PAL1314_intercal[,1:(ncol(PAL1314_intercal)-1)],2,sd,na.rm = TRUE)
-plot(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
-     PAL1314_intercal.mean, type = "p", pch = 16, cex = 0.3, 
-     ylim = c(-10,10),
-     xlim = c(290,600))
-polygon(c(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),rev(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]))),
-  c(PAL1314_intercal.mean+PAL1314_intercal.sd,rev(PAL1314_intercal.mean-PAL1314_intercal.sd)),
-  col=grey(0.95))
-points(as.numeric(colnames(PAL1314_intercal)[1:(ncol(PAL1314_intercal)-1)]),
-     PAL1314_intercal.mean, pch = 16, cex = 0.3)
-
-NOAA.caldat = unlist(PAL1314_intercal.NOAA[1:(ncol(PAL1314_intercal.NOAA)-1)])
-NOAA.caldat = NOAA.caldat[!is.na(NOAA.caldat)]
-NOAA.caldat = as.matrix(NOAA.caldat)
-
-JAZ.caldat = unlist(PAL1314_intercal.JAZ[1:(ncol(PAL1314_intercal.JAZ)-1)])
-JAZ.caldat = JAZ.caldat[!is.na(JAZ.caldat)]
-JAZ.caldat = as.matrix(JAZ.caldat)
-
-# write.csv(NOAA.caldat,file="NOAA.caldat.csv")
-# write.csv(JAZ.caldat,file="JAZ.caldat.csv")
-
-plot(NOAA.caldat/JAZ.caldat,ylim = c(-3,3))
-
-fit.lm = lm(JAZ.caldat~NOAA.caldat)
-fit.res = resid(fit.lm)
-plot(NOAA.caldat,fit.res)
-
-fit.lm = lm(JAZ.caldat~NOAA.caldat)
-summary(fit.lm)
-
-plot(NOAA.caldat,
-     JAZ.caldat,
-     pch=16,cex=0.1)
-abline(0,1,col="red")
-abline(fit.lm, col="blue")
-
-##### match elements of NOAA data set with JAZ scans, then calculate surface penetration ##### 
-
-# will use the NOAA data as our index since they were sampled at more sparse
-# time & wavelength intervals
-
-# first, determine which elements to pull from each JAZ data string
-
-JAZ.match.index = vector(length = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)-1), mode = "numeric")
-  
-for (i in 1:length(JAZ.match.index)) {
-  
-  JAZ.match.index[i] =
-    which((abs(as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[i+1])-
-              JAZ_wavelengths$V1)
-        ==min(abs(JAZ_wavelengths$V1-as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[i+1])))))
-  
-}
-
-# preallocate matrix to hold data on surface penetration
-
-PAL1314_Surf_pen = as.data.frame(matrix(data = NA, ncol = (ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)-1), nrow = nrow(PAL1314_NOAA_AntUV_spectra_uW_cm2)))
-colnames(PAL1314_Surf_pen) = colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)]
-
-# append timestamps
-
-PAL1314_Surf_pen$Timestamp_GMT = PAL1314_NOAA_AntUV_spectra_uW_cm2[,1]
-
-# perform matching & calculations
-
-for (i in 1:nrow(PAL1314_Surf_pen)) {
-  
-  # find matching time in the JAZ data, if it exists
-  # we'll want something +/- 30 seconds of the timestamp in the NOAA data
-  
-  possible.time.match =
-    which((abs(PAL1314_Surf_pen$Timestamp_GMT[i]-
-                 PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT)
-           ==min(abs(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT
-                     -PAL1314_Surf_pen$Timestamp_GMT[i]))))
-  
-  if (as.numeric(abs(PAL1314_Surf_pen$Timestamp_GMT[i]-
-           PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT[possible.time.match]))<=
-      30*(1/24/60/60)) { # we have a "matching" reading within 30 seconds --> calculate surface penetration (fraction) & record
-    
-    PAL1314_Surf_pen[i,1:(ncol(PAL1314_Surf_pen)-1)] = 
-        
-      PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2[possible.time.match,JAZ.match.index]/
-      PAL1314_NOAA_AntUV_spectra_uW_cm2[i,2:ncol(PAL1314_Surf_pen)]
-      
-  }
-  
-}
-
-# calculate mean values for each wavelength
-
-PAL1314_Surf_pen.mean = apply(PAL1314_Surf_pen[,1:(ncol(PAL1314_Surf_pen)-1)],2,mean,na.rm = TRUE)
-plot(as.numeric(colnames(PAL1314_Surf_pen)[1:(ncol(PAL1314_Surf_pen)-1)]),
-     PAL1314_Surf_pen.mean,
-     ylim = c(0,3),
-     xlim = c(290,600))
-
-##### Kd calc & other workup using static depth UV-VIS profile from 2015-2016 season ##### 
+##### Kd  calc & other workup using static depth UV-VIS profile from 2015-2016 season ##### 
 
 # load in JAZ profile data (made on 15 Dec 2015 at Station B, Arthur Harbor)
 
-setwd(initial.wd)
+setwd(base.wd)
 setwd("data/raw/JAZ_UV_VIS")
 
 # read in data, from .csv output generated in MATLAB (see the MATLAB script
@@ -534,7 +534,7 @@ PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2$Depth_m =
 
 # load in surface PAR data taken concurrently with JAZ profile
 
-setwd(initial.wd)
+setwd(base.wd)
 setwd("data/raw/LI_193_PAR")
 
 PAL1516_Stn_B_surface_PAR_20151215_umol_s_m2 = read.csv("PAL1516_Surface_PAR_for_correlation_15Dec15.csv", 
