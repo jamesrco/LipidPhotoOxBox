@@ -64,12 +64,12 @@ DD_UVA_1314_incident = DD_UVA_incident[DD_UVA_incident$Date>as.POSIXct('2013-06-
 plot(DD_UVB_1314_incident$Date,DD_UVB_1314_incident$E290.315_kJ_m2, "l", lwd = 1)
 
 # save the data files
-save(DD_UVB_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVB_daily_dose_1314.RData"))
-save(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVA_daily_dose_1314.RData"))
+save(DD_UVB_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_UVB_dose_incident_NOAA_ESRL_AntUV_DD_PAL1314.RData"))
+save(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_UVA_dose_incident_NOAA_ESRL_AntUV_DD_PAL1314.RData"))
 
 # export to .csv
-write.csv(DD_UVB_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVB_daily_dose_1314.csv"))
-write.csv(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/NOAA_ESRL_AntUV_DD_UVA_daily_dose_1314.csv"))
+write.csv(DD_UVB_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_UVB_dose_incident_NOAA_ESRL_AntUV_DD_PAL1314.csv"))
+write.csv(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_UVA_dose_incident_NOAA_ESRL_AntUV_DD_PAL1314.csv"))
 
 # # JAZ data
 # 
