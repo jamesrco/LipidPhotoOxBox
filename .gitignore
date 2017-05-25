@@ -20,6 +20,9 @@ JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.mat
 # .DS_Store
 *.DS_Store
 
+# Apple system file
+.com.apple.timemachine.supported
+
 # directories & files I dont want indexed, for now
 r_process_files
 rsmDirectory
