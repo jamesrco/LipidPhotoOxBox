@@ -247,34 +247,34 @@ PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT = strptime(PAL1314_NOAA_AntUV_sp
 
 save(PAL1314_NOAA_AntUV_spectra_uW_cm2, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Incident_UV-VIS_spectra_PAL1314_uW_cm2.RData"))
 
-# # JAZ data
-# 
-# setwd(base.wd)
-# setwd("data/nice/JAZ_UV_VIS") 
-# 
-# # read in data, from .csv output generated in MATLAB (see the MATLAB script
-# # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
-# 
-# PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2 = read.csv("JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.csv", 
-#                                      stringsAsFactors = FALSE, header = FALSE)
-# 
-# # read in wavelength metadata for this JAZ instrument
-# 
-# JAZ_wavelengths = read.csv("/Users/jrcollins/Code/Optics_Photochem/JAZ_wavelengths.csv",
-#                            header = FALSE)
-# 
-# # assign column names
-# 
-# colnames(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2) = c("Date_raw_julian",
-#                                                              "Inttime_microseconds",
-#                                                              "Badscans_fullspectrum",
-#                                                              "Badscans_UVB",
-#                                                              JAZ_wavelengths$V1)
-# 
-# # create timestamp
-# 
-# # convert dates from messed up Excel format
-# PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT = as.POSIXct(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Date_raw_julian*60*60*24, tz = "GMT", origin = "0000-01-01")-1*60*60*24
+# JAZ data
+
+setwd(base.wd)
+setwd("data/nice/JAZ_UV_VIS")
+
+# read in data, from .csv output generated in MATLAB (see the MATLAB script
+# JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2 = read.csv("JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.csv",
+                                     stringsAsFactors = FALSE, header = FALSE)
+
+# read in wavelength metadata for this JAZ instrument
+
+JAZ_wavelengths = read.csv("/Users/jamesrco/Code/Optics_Photochem/JAZ_wavelengths.csv",
+                           header = FALSE)
+
+# assign column names
+
+colnames(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2) = c("Date_raw_julian",
+                                                             "Inttime_microseconds",
+                                                             "Badscans_fullspectrum",
+                                                             "Badscans_UVB",
+                                                             JAZ_wavelengths$V1)
+
+# create timestamp
+
+# convert dates from messed up Excel format
+PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Timestamp_GMT = as.POSIXct(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2$Date_raw_julian*60*60*24, tz = "GMT", origin = "0000-01-01")-1*60*60*24
 
 # ##### use data from 11-13 Nov 11 (when JAZ was deployed in open air atop tank) for intercalibration with NOAA radiometer #####
 # 
@@ -286,7 +286,7 @@ save(PAL1314_NOAA_AntUV_spectra_uW_cm2, file = paste0(base.wd,"/data/nice/NOAA_E
 # # read in data, from .csv output generated in MATLAB (see the MATLAB script
 # # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
 # 
-# PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2 = read.csv("JAZ_UV-VIS_open_air_full_spectra_PAL1314_11_13Nov13_uW_cm2.csv", 
+# PAL1314_JAZ_open_air_full_spectrum_11to13Nov13_uW_cm2 = read.csv("JAZ_UV-VIS_open_air_full_spectra_PAL1314_11_13Nov13_uW_cm2.csv",
 #                                                                    stringsAsFactors = FALSE, header = FALSE)
 # 
 # # assign column names (assumes JAZ_wavelenths has already been loaded above)
@@ -558,7 +558,7 @@ PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[,6:(ncol(PAL15
 
 # plots
 
-# full spectrum 290-740 nm
+# full spectrum 315-600 nm, with room for interpolated Kd data from 290-315
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
@@ -572,15 +572,15 @@ color_ramp.depths = colorRampPalette(c("cadetblue1", "darkblue")) # create a col
 
 depth.plot.colors = rev(color_ramp.depths(nrow(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)))
 
-plot(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[270:1500]),
-     PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[1,270:1500],"l",
+plot(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[338:1141]),
+     PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[1,338:1141],"l",
      col = depth.plot.colors[1], lty = 1, lwd = "1.5",
-     ylim = c(0,25), xlim = c(290,720),
+     ylim = c(0,25), xlim = c(290,600),
      ylab = expression(paste("Irradiance (",mu,"W ",cm^-2," ",nm^-1,")")),
      xlab = "Wavelength (nm)")
 
-text(653,
-     PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[1,1300],
+text(589,
+     PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[1,1108],
      labels = c(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected$Depth_m[1]),
      offset = -.25, pos = 3)
 
@@ -588,13 +588,13 @@ text(653,
 
 for (i in c(3,5,7,9,11,13,15,16,17)) {
   
-  lines(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[270:1500]),
-        PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,270:1500],
+  lines(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[338:1141]),
+        PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,338:1141],
         col = depth.plot.colors[i], lty = 1, lwd = "1.5")
   
   if (i %in% c(7,9,11,13,15,16,17)) {
-  text(653,
-       PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,1300],
+  text(589,
+       PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,1108],
        labels = c(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected$Depth_m[i]),
        offset = -.25, pos = 3)
     
@@ -602,72 +602,73 @@ for (i in c(3,5,7,9,11,13,15,16,17)) {
   
 }
 
-# overlay concurrent reading from NOAA radiometer at Palmer, if desired
-# doesnt match up exactly 
-
-PAL1314_NOAA_AntUV_spectra_uW_cm2.sub =
-  PAL1314_NOAA_AntUV_spectra_uW_cm2[which(abs(PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT-
-                                                as.POSIXct('2013-12-15 11:11:00', tz = "GMT")) < 10),]
-
-lines(as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.sub)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.sub)]),
-     PAL1314_NOAA_AntUV_spectra_uW_cm2.sub[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.sub)],
-     col="black")
-
-dev.off()
-
-# UVB-range inset
-
-# make plot for inset (290-315 nm)
-
-par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
-
-pdf(file = "AH_depth_profile_20151215_inset.pdf",
-    width = 4, height = 4, pointsize = 12,
-    bg = "white")
-
-plot(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[270:1500]),
-     PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[3,270:1500],"l",
-     col = depth.plot.colors[1], lty = 1, lwd = "1.5",
-     ylim = c(0,5), xlim = c(290,315),
-     ylab = expression(paste("Irradiance (",mu,"W ",cm^-2," ",nm^-1,")")),
-     xlab = "Wavelength (nm)")
-
-text(315,
-     PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[3,338],
-     labels = c(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected$Depth_m[3]),
-     offset = -.5, pos = 3)
-
-# overlay other depths
-
-for (i in c(7,11,15,16,17)) {
-  
-  lines(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[270:1500]),
-        PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,270:1500],
-        col = depth.plot.colors[i], lty = 1, lwd = "1.5")
-  
-  if (i %in% c(7,9,11,13,15,16,17)) {
-    text(315,
-         PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,338],
-         labels = c(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected$Depth_m[i]),
-         offset = -.5, pos = 3)
-    
-  }
-  
-}
+# # overlay concurrent reading from NOAA radiometer at Palmer, if desired
+# # doesnt match up exactly 
+# 
+# PAL1314_NOAA_AntUV_spectra_uW_cm2.sub =
+#   PAL1314_NOAA_AntUV_spectra_uW_cm2[which(abs(PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT-
+#                                                 as.POSIXct('2013-12-15 11:11:00', tz = "GMT")) < 10),]
+# 
+# lines(as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.sub)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.sub)]),
+#      PAL1314_NOAA_AntUV_spectra_uW_cm2.sub[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2.sub)],
+#      col="black")
 
 dev.off()
+# 
+# # UVB-range inset
+# 
+# # make plot for inset (290-315 nm)
+# 
+# par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+# 
+# pdf(file = "AH_depth_profile_20151215_inset.pdf",
+#     width = 4, height = 4, pointsize = 12,
+#     bg = "white")
+# 
+# plot(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[270:1500]),
+#      PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[3,270:1500],"l",
+#      col = depth.plot.colors[1], lty = 1, lwd = "1.5",
+#      ylim = c(0,5), xlim = c(290,315),
+#      ylab = expression(paste("Irradiance (",mu,"W ",cm^-2," ",nm^-1,")")),
+#      xlab = "Wavelength (nm)")
+# 
+# text(315,
+#      PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[3,338],
+#      labels = c(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected$Depth_m[3]),
+#      offset = -.5, pos = 3)
+# 
+# # overlay other depths
+# 
+# for (i in c(7,11,15,16,17)) {
+#   
+#   lines(as.numeric(colnames(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected)[270:1500]),
+#         PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,270:1500],
+#         col = depth.plot.colors[i], lty = 1, lwd = "1.5")
+#   
+#   if (i %in% c(7,9,11,13,15,16,17)) {
+#     text(315,
+#          PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[i,338],
+#          labels = c(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected$Depth_m[i]),
+#          offset = -.5, pos = 3)
+#     
+#   }
+#   
+# }
+# 
+# dev.off()
 
-# now, calculate Kds for various wavelengths
+# now, calculate Kds for wavelengths 320-700 nm (Jaz data < 320 nm are too noisy)
+# 320 nm is 346th element in the Jaz wavelengths vector; 700 nm is 1437th
 
 # preallocate matrix to hold data
 
-PAL1516_AH_Kd_20151215 = as.data.frame(matrix(data = NA, ncol = nrow(JAZ_wavelengths), nrow = 1))
+PAL1516_AH_Kd_20151215 = as.data.frame(matrix(data = NA, ncol = nrow(JAZ_wavelengths), nrow = 2))
 colnames(PAL1516_AH_Kd_20151215) = JAZ_wavelengths$V1
 
 # use 0.5 m (assumed to be the subsurface incident irradiance, E(0))
 # and 7 m depth irradiance data (as E(z)) to calculate Kd with z = 7
 
-for (i in 1:ncol(PAL1516_AH_Kd_20151215)) {
+for (i in 346:1437) {
   
 PAL1516_AH_Kd_20151215[1,i] = 
   
@@ -676,53 +677,108 @@ PAL1516_AH_Kd_20151215[1,i] =
 
 }
 
-# save corrected irradiance data and Kds 
+# clean up, transform result 
+PAL1516_AH_Kd_20151215_per_meter = as.data.frame(t(PAL1516_AH_Kd_20151215))
+colnames(PAL1516_AH_Kd_20151215_per_meter) = c("Kd_per_meter","Kd_per_meter_fitted")
 
-save(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, file = "JAZ_UV_VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.RData")
+# set any of these calculated Kds with value > 1 = NA
+PAL1516_AH_Kd_20151215_per_meter[PAL1516_AH_Kd_20151215_per_meter>=1] = NA
 
-write.csv(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, file = "JAZ_UV_VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.csv")
+# now, fit an exponential model to estimate Kds for wavelengths 290-320 nm
+# will use data from 320-370 nm as basis for fitting curve, then back-extrapolate
 
-PAL1516_AH_Kd_20151215_per_meter = t(PAL1516_AH_Kd_20151215)
+Kd_fit_subset = log(PAL1516_AH_Kd_20151215_per_meter[346:482])
+Wavelength_fit_subset = as.numeric(rownames(PAL1516_AH_Kd_20151215_per_meter)[346:482])
 
-colnames(PAL1516_AH_Kd_20151215_per_meter) = c("Kd_per_meter")
+fit.exp = lm(Kd_fit_subset ~ Wavelength_fit_subset)
 
-save(PAL1516_AH_Kd_20151215_per_meter, file = "Kd_PAL1516_Arthur_Hbr_Stn_B_20151215.RData")
+# get some information
+summary(fit.exp)
 
-write.csv(PAL1516_AH_Kd_20151215_per_meter, file = "Kd_PAL1516_Arthur_Hbr_Stn_B_20151215.csv")
+# predict values for 290-320 nm using model we just created
 
-# plot
+UVB_pred_subset = as.numeric(rownames(PAL1516_AH_Kd_20151215_per_meter)[264:346])
+Kd_UVB.pred = exp(predict(fit.exp,list(Wavelength_fit_subset=UVB_pred_subset)))
+
+# create vector of fitted values for range of data we used to fit the curve routine
+
+Kd_fitrange_wavelengths = as.numeric(rownames(PAL1516_AH_Kd_20151215_per_meter)[346:482])
+Kd_fitrange.fitted = exp(predict(fit.exp,list(Wavelength_fit_subset=Kd_fitrange_wavelengths)))
+
+# quick plot to see if this all makes sense
+
+plot(JAZ_wavelengths$V1,
+     PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter,"l",
+     col = "black", lty = 1, lwd = "1.5",
+     ylim = c(0.05,0.9), xlim = c(290,600),
+     ylab = expression(paste(K_d)),
+     xlab = "Wavelength (nm)")
+lines(UVB_pred_subset,Kd_UVB.pred,lty=3)
+lines(Kd_fitrange_wavelengths,Kd_fitrange.fitted,lty=3)
+
+# save corrected irradiance data 
+
+save(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, 
+     file = paste0(base.wd,"/data/nice/JAZ_UV_VIS/JAZ_UV_VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.RData"))
+write.csv(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected, 
+          file = paste0(base.wd,"/data/nice/JAZ_UV_VIS/JAZ_UV_VIS_corrected_full_spectra_AH_profile_20151215_Stn_B_PAL1516_uW_cm2.csv"))
+
+# append model-predicted Kd values; save Kds
+
+PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter_fitted[as.numeric(rownames(PAL1516_AH_Kd_20151215_per_meter)) %in%
+                                   Kd_fitrange_wavelengths]=Kd_fitrange.fitted
+PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter_fitted[as.numeric(rownames(PAL1516_AH_Kd_20151215_per_meter)) %in%
+                                   UVB_pred_subset]=Kd_UVB.pred
+
+save(PAL1516_AH_Kd_20151215_per_meter, 
+     file = paste0(base.wd,"/data/nice/derived_light_calculations/Kd_PAL1516_Arthur_Hbr_Stn_B_20151215.RData"))
+write.csv(PAL1516_AH_Kd_20151215_per_meter, 
+          file = paste0(base.wd,"/data/nice/derived_light_calculations/Kd_PAL1516_Arthur_Hbr_Stn_B_20151215.csv"))
+
+# a better plot for the manuscript
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
 pdf(file = "AH_depth_profile_20151215_Kd.pdf",
-    width = 4, height = 3, pointsize = 12,
+    width = 6, height = 3, pointsize = 12,
     bg = "white")
 
-plot(JAZ_wavelengths$V1,
-     PAL1516_AH_Kd_20151215,"l",
-     col = "black", lty = 1, lwd = "1.5",
-     ylim = c(0.05,0.9), xlim = c(290,720),
+# Kds derived directly from observationss
+plot(JAZ_wavelengths$V1[483:nrow(JAZ_wavelengths)],
+     PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[483:nrow(PAL1516_AH_Kd_20151215_per_meter)],
+     "l",
+     col = "black", lty = 1, lwd = "1",
+     ylim = c(0.05,0.9), xlim = c(290,600),
      ylab = expression(paste(K_d)),
      xlab = "Wavelength (nm)")
 
-dev.off()
-
-# just UV wavelengths
-
-par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
-
-pdf(file = "AH_depth_profile_20151215_Kd_UV.pdf",
-    width = 4, height = 3, pointsize = 12,
-    bg = "white")
-
-plot(JAZ_wavelengths$V1,
-     PAL1516_AH_Kd_20151215,"l",
-     col = "black", lty = 1, lwd = "1.5",
-     ylim = c(0.05,0.9), xlim = c(290,315),
-     ylab = expression(K_d),
-     xlab = "Wavelength (nm)")
+# grey out but retain the range used for curve fitting
+lines(JAZ_wavelengths$V1[346:482],
+      PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[346:482],
+      col = "lightgrey")
+      
+# fitted values
+lines(UVB_pred_subset,Kd_UVB.pred,lty=3)
+lines(Kd_fitrange_wavelengths,Kd_fitrange.fitted,lty=3)
 
 dev.off()
+
+# # just UV wavelengths
+# 
+# par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+# 
+# pdf(file = "AH_depth_profile_20151215_Kd_UV.pdf",
+#     width = 4, height = 3, pointsize = 12,
+#     bg = "white")
+# 
+# plot(JAZ_wavelengths$V1,
+#      PAL1516_AH_Kd_20151215,"l",
+#      col = "black", lty = 1, lwd = "1.5",
+#      ylim = c(0.05,0.9), xlim = c(290,315),
+#      ylab = expression(K_d),
+#      xlab = "Wavelength (nm)")
+# 
+# dev.off()
 
 ### other panels for Experiment 13 plot ###
 
