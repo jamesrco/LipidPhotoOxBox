@@ -28,7 +28,13 @@ library(RSEIS)
 setwd("/Users/jamesrco/Code/LipidPhotoOxBox")
 base.wd = getwd()
 
-##### daily UVA, UVB dosages ##### 
+# some definitions
+
+W_per_uW = 1/1000000
+J_per_kJ = 1/1000
+cm2_per_m2 = 10000
+
+##### daily UVA, UVB dosages from NOAA data ##### 
 
 # NOAA data
 
@@ -48,10 +54,10 @@ DD_UVA_incident = as.data.frame(cbind(PAL_AntUV_DD_v2$Date,PAL_AntUV_DD_v2$E315.
 colnames(DD_UVA_incident) = c("Date_raw_julian","E315.400_kJ_m2")
 
 # convert dates from messed up Excel format
-DD_UVB_incident$Date = as.POSIXct('1899-12-30')+(DD_UVB_incident$Date_raw_julian*24*60*60)
+DD_UVB_incident$Date = as.POSIXct('1899-12-30', tz = "GMT")+(DD_UVB_incident$Date_raw_julian*24*60*60)
 DD_UVB_incident$Date_simple = strptime(DD_UVB_incident$Date,"%Y-%m-%d", tz = "GMT")
 
-DD_UVA_incident$Date = as.POSIXct('1899-12-30')+(DD_UVA_incident$Date_raw_julian*24*60*60)
+DD_UVA_incident$Date = as.POSIXct('1899-12-30', tz = "GMT")+(DD_UVA_incident$Date_raw_julian*24*60*60)
 DD_UVA_incident$Date_simple = strptime(DD_UVA_incident$Date,"%Y-%m-%d", tz = "GMT")
 
 # subset, plot 2013-2014 data
@@ -780,7 +786,176 @@ dev.off()
 # 
 # dev.off()
 
-### other panels for Experiment 13 plot ###
+##### use newly calculated/estimated Kds to calculate estimated irradiances at depth #####
+
+# first, use Kds to estimate some fluxes at depths from 0-10 m using incident data
+# in PAL1314_NOAA_AntUV_spectra_uW_cm2 (1 m intervals)
+
+# define depths, interval for calculation
+
+maxdepth = 10
+depthint = 1
+
+depths = seq(from = 0, to = maxdepth, by = 1)
+
+# create a list object to hold the data
+
+PAL1314_est_spectra_at_depth_uW_cm2 =
+  vector("list",length(depths))
+
+names(PAL1314_est_spectra_at_depth_uW_cm2) =
+  depths
+
+# populate first slot with incident (0 m) data
+
+PAL1314_est_spectra_at_depth_uW_cm2[[1]] =
+ as.matrix(PAL1314_NOAA_AntUV_spectra_uW_cm2[,2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)])
+
+# define a function to calculate the estimated irradiance at depth z (in m) and
+# wavelength lambda (nm), given incident irradiance incIrrad
+
+# assumes you have a data frame of Napierian Kds in format identical to
+# PAL1516_AH_Kd_20151215_per_meter, above
+
+estIrrad = function(incIrrad, lambda, z, Kds) {
+  
+  # retrieve "best" Kd for this wavelength
+  
+    # find closest wavelength
+  
+    Kd_ind = which.min(abs(as.numeric(rownames(Kds))-lambda))
+  
+    # use Kd derived directly from measurements if it exists; otherwise, use a
+    # fitted value
+  
+    if (!is.na(Kds[Kd_ind,1])) {
+      
+      Kd = Kds[Kd_ind,1]
+      
+    } else {
+      
+      Kd = Kds[Kd_ind,2]
+      
+    }
+    
+  # calculate the estimated irradiance at depth z
+    
+  estIrrad_z = incIrrad*exp(-Kd*z)
+  
+  # return our estimate irradiance
+
+  return(estIrrad_z)
+  
+}
+    
+# make calculations for 1-10 m (or sequence), by wavelength; store in PAL1314_est_spectra_at_depth_uW_cm2
+
+for (i in 2:length(depths)) {
+  PAL1314_est_spectra_at_depth_uW_cm2[[i]] = mapply(estIrrad, lambda = as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)]),
+              incIrrad = PAL1314_NOAA_AntUV_spectra_uW_cm2[,2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)],
+              z = depths[i],
+              MoreArgs = list(Kds = PAL1516_AH_Kd_20151215_per_meter))
+}
+
+# also, create a single matrix of estimated irradiances at 0.6 m depth
+
+PAL1314_est_spectra_at_0.6m_uW_cm2 = mapply(estIrrad, lambda = as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)]),
+                                                  incIrrad = PAL1314_NOAA_AntUV_spectra_uW_cm2[,2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)],
+                                                  z = 0.6,
+                                                  MoreArgs = list(Kds = PAL1516_AH_Kd_20151215_per_meter))
+
+##### calculate daily spectral doses at various depths using our Kd-adjusted irradiances ##### 
+
+# previously used in situ Jaz data to obtain these integrals, but want to use
+# NOAA data for sake of consistency since that's where our incident daily
+# data come from
+
+# some relevant information for calculation of daily integrals, from NOAA AntUV documentation:
+
+# "Time on daily doses refers to approximate local
+# solar noon (01:00 for McMurdo Station; 16:00 for Palmer Station; 12:00 for South Pole
+# Station; 17:00 for Ushuaia; 20:00 for San Diego, 21:00 for Barrow, and 15:00 for
+# Summit). Integration boundaries for daily dose calculations are the given time +/- 12
+# hours. For example: The daily dose for McMurdo assigned to the Date/Time stamp
+# 36826.04167 (i.e. 10/27/00 01:00 GMT) is the integral of spectral irradiance between
+# 10/26/00 13:00 GMT and 10/27/00 13:00 GMT."
+
+# preallocate objects to hold data
+# will make calculations from 15 Oct - 30 Dec 2013
+# can use objects holding incident data as starting point
+
+DD_UVB_1314_est_at_0.6m_kJ_m2 = DD_UVB_1314_incident[
+  DD_UVB_1314_incident$Date >=
+    as.POSIXct('2013-10-15 00:00:00', tz = "GMT") &
+    DD_UVB_1314_incident$Date <=
+    as.POSIXct('2013-12-30 23:59:59', tz = "GMT")
+  ,c(1,3:4)]
+DD_UVB_1314_est_at_0.6m_kJ_m2$DD_kJ_m2 = NA
+
+DD_UVA_1314_est_at_0.6m_kJ_m2 = DD_UVA_1314_incident[
+  DD_UVA_1314_incident$Date >=
+    as.POSIXct('2013-10-15 00:00:00', tz = "GMT") &
+    DD_UVA_1314_incident$Date <=
+    as.POSIXct('2013-12-30 23:59:59', tz = "GMT")
+  ,c(1,3:4)]
+DD_UVA_1314_est_at_0.6m_kJ_m2$DD_kJ_m2 = NA
+
+# get vector of wavelengths in NOAA data
+
+NOAA_AntUV_lambdas = 
+  as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2)[2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)])
+
+# now, can calculate some daily integrals at 0.6 m
+
+for (i in 1:nrow(DD_UVB_1314_est_at_0.6m_kJ_m2)) { # iterate through dates
+  
+  # pull out relevant data for this date, bearing in mind the +/- 12 hr 
+  # convention described above
+
+  PAL1314_est_spectra.today =  
+  PAL1314_est_spectra_at_0.6m_uW_cm2[
+   PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT>
+    DD_UVB_1314_est_at_0.6m_kJ_m2$Date[i]-60*60*12 & 
+    PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT<=
+     DD_UVB_1314_est_at_0.6m_kJ_m2$Date[i]+60*60*12,]
+  
+  Todays.timestamps = 
+    PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT[
+      PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT>
+        DD_UVB_1314_est_at_0.6m_kJ_m2$Date[i]-60*60*12 & 
+        PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT<=
+        DD_UVB_1314_est_at_0.6m_kJ_m2$Date[i]+60*60*12]
+  
+  # preallocate a vector for spectral integrals
+  
+  Todays.integrals_cum_uW_cm2 = 
+    vector(mode = "numeric", ncol(PAL1314_est_spectra.today))
+  
+  for (j in 1:length(Todays.integrals_cum_uW_cm2)) { # iterate through wavelengths, integrate by time
+    
+    Todays.integrals_cum_uW_cm2[j] = caTools::trapz(Todays.timestamps, PAL1314_est_spectra.today[,j])
+    
+  }
+  
+  # integrate by wavelength; scale; store
+  
+  DD_UVB_1314_est_at_0.6m_kJ_m2$DD_kJ_m2[i] = 
+    
+    caTools::trapz(NOAA_AntUV_lambdas[NOAA_AntUV_lambdas>=290 & NOAA_AntUV_lambdas<315],
+                   Todays.integrals_cum_uW_cm2[NOAA_AntUV_lambdas>=290 &
+                                                 NOAA_AntUV_lambdas<315])*W_per_uW*J_per_kJ*cm2_per_m2
+    
+  DD_UVA_1314_est_at_0.6m_kJ_m2$DD_kJ_m2[i] = 
+    
+    caTools::trapz(NOAA_AntUV_lambdas[NOAA_AntUV_lambdas>=315 & NOAA_AntUV_lambdas<400],
+                   Todays.integrals_cum_uW_cm2[NOAA_AntUV_lambdas>=315 &
+                                                 NOAA_AntUV_lambdas<400])*W_per_uW*J_per_kJ*cm2_per_m2
+
+}
+
+
+
+#####  other panels for Experiment 13 plot ##### 
 
 # instantaneous/cumulative UVB dosage
 
@@ -848,12 +1023,6 @@ mean.PAL1314.14Dec.NOAA.instUVB =
 detach("package:RSEIS", unload=TRUE)
 library(caTools)
 
-# some definitions
-
-W_per_uW = 1/1000000
-J_per_kJ = 1/1000
-cm2_per_m2 = 10000
-
 # preallocate vector
 
 PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB =
@@ -910,7 +1079,7 @@ mtext(side = 4,
 
 dev.off()
 
-### pull out JAZ data subset for 2 December 2013 (Exp_03a)
+##### pull out JAZ data subset for 2 December 2013 (Exp_03a) #####
 
 PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.02Dec = 
   PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2[
