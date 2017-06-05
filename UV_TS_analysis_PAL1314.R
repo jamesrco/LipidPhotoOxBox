@@ -1002,8 +1002,11 @@ PAL1314_est_spectra_at_depth_uW_cm2$Timestamp_GMT = PAL1314_NOAA_AntUV_spectra_u
 PAL1314_est_spectra_at_depth_uW_cm2$lambda_nm = NOAA_AntUV_lambdas
 
 save(PAL1314_est_spectra_at_depth_uW_cm2, 
-     file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Est_UV-VIS_spectra_at_depth_from_Kds_and_NOAA_data_PAL1314_uW_cm2.RData"))
+     file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Est_UV_VIS_spectra_at_depth_from_Kds_and_NOAA_data_PAL1314_uW_cm2.RData"))
 
+
+*******
+  
 # calculate % transmission to 0.6 m for the various integrals
 
 DD_UVB_percent_xmiss = DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2/
