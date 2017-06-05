@@ -18,7 +18,7 @@
 initial.wd = getwd()
 
 # set wd to data location
-setwd("/Users/jrcollins/Code/LipidPhotoOxBox/data/raw/Evolution_300/container_transmittance_profiles") 
+setwd("/Users/jamesrco/Code/LipidPhotoOxBox/data/raw/Evolution_300/container_transmittance_profiles") 
 
 # read in data, concatenate into single data frame
 quartz = read.csv("Quartz_%T_190_to_800.csv", 
