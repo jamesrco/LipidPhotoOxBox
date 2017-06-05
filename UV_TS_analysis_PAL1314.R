@@ -77,26 +77,25 @@ save(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV
 write.csv(DD_UVB_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_UVB_dose_incident_NOAA_ESRL_AntUV_DD_PAL1314.csv"))
 write.csv(DD_UVA_1314_incident, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_UVA_dose_incident_NOAA_ESRL_AntUV_DD_PAL1314.csv"))
 
-# # JAZ data
-# 
-# # read in data, from .csv output generated in MATLAB (see the MATLAB script
-# # JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
-# 
-# setwd(base.wd)
-# setwd("data/nice/JAZ_UV_VIS") 
-# 
-# DD_UVB_1314_subsurf = read.csv("Daily_int_UVB_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
-#          stringsAsFactors = FALSE, header = FALSE)
-# colnames(DD_UVB_1314_subsurf) = c("Date_raw","Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2")
-# 
-# DD_UVA_1314_subsurf = read.csv("Daily_int_UVA_dose_0.6m_subsurface_PAL1314_kJ_m2.csv", 
-#                                stringsAsFactors = FALSE, header = FALSE)
-# colnames(DD_UVA_1314_subsurf) = c("Date_raw","Daily_UVA_dose_0.6m_subsurface_Palmer_kJ_m2")
-# 
-# # date conversion
-# DD_UVB_1314_subsurf$Date = strptime(DD_UVB_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
-# DD_UVA_1314_subsurf$Date = strptime(DD_UVA_1314_subsurf$Date_raw, "%m/%d/%y", tz = "GMT")
-# 
+# JAZ data
+
+# read in data, from .csv output generated in MATLAB (see the MATLAB script
+# JAZ_data_read.m in the GitHub repo https://github.com/jamesrco/Optics_Photochem)
+
+setwd(base.wd)
+setwd("data/nice/JAZ_UV_VIS")
+
+DD_UVB_1314_subsurf_from_Jaz = read.csv("Daily_int_UVB_dose_0.6m_subsurface_PAL1314_kJ_m2.csv",
+         stringsAsFactors = FALSE, header = FALSE)
+colnames(DD_UVB_1314_subsurf_from_Jaz) = c("Date_raw","Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2")
+
+# date conversion
+DD_UVB_1314_subsurf_from_Jaz$Datetime_GMT = strptime(DD_UVB_1314_subsurf_from_Jaz$Date_raw, "%m/%d/%y", tz = "GMT")
+
+# eliminate some bad data
+
+DD_UVB_1314_subsurf_from_Jaz.QA = DD_UVB_1314_subsurf_from_Jaz[-c(40:44),]
+
 # # match relevant data from the two datasets, calculate average UVB xmiss
 # 
 # DD_UVB_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVB_1314_subsurf)))
@@ -1004,18 +1003,91 @@ PAL1314_est_spectra_at_depth_uW_cm2$lambda_nm = NOAA_AntUV_lambdas
 save(PAL1314_est_spectra_at_depth_uW_cm2, 
      file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Est_UV_VIS_spectra_at_depth_from_Kds_and_NOAA_data_PAL1314_uW_cm2.RData"))
 
-
-*******
-  
 # calculate % transmission to 0.6 m for the various integrals
 
-DD_UVB_percent_xmiss = DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2/
-   DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
+# UVA
+
+# match relevant data from the two datasets, calculate average UVA xmiss
+
+DD_UVA_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 4, nrow = nrow(DD_UVA_1314_est_at_0.6m_kJ_m2)))
+colnames(DD_UVA_xmiss_PAL1314) = c("Datetime_GMT","DD_UVA_incident_kJ_m2","DD_UVA_subsurf_from_Kd_kJ_m2","Percent_xmiss")
+DD_UVA_xmiss_PAL1314$Datetime_GMT = DD_UVA_1314_est_at_0.6m_kJ_m2$Date
+DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_from_Kd_kJ_m2 = DD_UVA_1314_est_at_0.6m_kJ_m2$DD_kJ_m2
+
+for (i in 1:nrow(DD_UVA_xmiss_PAL1314)) {
+
+  if (any(DD_UVA_1314_incident$Date %in% DD_UVA_xmiss_PAL1314$Datetime_GMT[i])) {
+    # there is matching data in the incident NOAA data
+
+    DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2[i] =
+      DD_UVA_1314_incident$E315.400_kJ_m2[which(DD_UVA_1314_incident$Date %in% DD_UVA_xmiss_PAL1314$Datetime_GMT[i])]
+
+  }
+
+}
+
+DD_UVA_xmiss_PAL1314$Percent_xmiss = DD_UVA_xmiss_PAL1314$DD_UVA_subsurf_from_Kd_kJ_m2/
+  DD_UVA_xmiss_PAL1314$DD_UVA_incident_kJ_m2
+
+# calculate mean, sd % xmiss
+
+mean(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+sd(DD_UVA_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
 # 
-# # calculate mean, sd % xmiss
+# # save the table
 # 
-# mean(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
-# sd(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# save(DD_UVA_xmiss_PAL1314, file = "Daily_dose_UVA_PAL1314.RData")
+
+# UVB
+
+# match relevant data from the three datasets, calculate average UVB xmiss
+
+DD_UVB_xmiss_PAL1314 = as.data.frame(matrix(data = NA, ncol = 6, nrow = nrow(DD_UVB_1314_est_at_0.6m_kJ_m2)))
+colnames(DD_UVB_xmiss_PAL1314) = c("Datetime_GMT","DD_UVB_incident_kJ_m2","DD_UVB_subsurf_from_Kd_kJ_m2","DD_UVB_subsurf_from_Jaz_kJ_m2","Percent_xmiss_NOAA","Percent_xmiss_Jaz")
+
+DD_UVB_xmiss_PAL1314$Datetime_GMT = DD_UVB_1314_est_at_0.6m_kJ_m2$Date
+DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_from_Kd_kJ_m2 = DD_UVB_1314_est_at_0.6m_kJ_m2$DD_kJ_m2
+
+for (i in 1:nrow(DD_UVB_xmiss_PAL1314)) {
+  
+  if (any(DD_UVB_1314_incident$Date %in% DD_UVB_xmiss_PAL1314$Datetime_GMT[i])) {
+    # there is matching data in the incident NOAA data
+    
+    DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2[i] =
+      DD_UVB_1314_incident$E290.315_kJ_m2[which(DD_UVB_1314_incident$Date %in% DD_UVB_xmiss_PAL1314$Datetime_GMT[i])]
+    
+  }
+  
+}
+
+for (i in 1:nrow(DD_UVB_xmiss_PAL1314)) {
+  
+  if (any(as.POSIXct(strptime(DD_UVB_1314_subsurf_from_Jaz.QA$Datetime_GMT, format = "%Y-%m-%d"), tz = "GMT") %in% as.POSIXct(strptime(DD_UVB_xmiss_PAL1314$Datetime_GMT, format = "%Y-%m-%d"), tz = "GMT")[i])) {
+    # there is matching data in the Jaz data
+    
+    DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_from_Jaz_kJ_m2[i] =
+      DD_UVB_1314_subsurf_from_Jaz.QA$Daily_UVB_dose_0.6m_subsurface_Palmer_kJ_m2[which(as.POSIXct(strptime(DD_UVB_1314_subsurf_from_Jaz.QA$Datetime_GMT, format = "%Y-%m-%d"), tz = "GMT") %in% as.POSIXct(strptime(DD_UVB_xmiss_PAL1314$Datetime_GMT, format = "%Y-%m-%d"), tz = "GMT")[i])]
+    
+  }
+  
+}
+
+# remove some NaNs
+DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_from_Jaz_kJ_m2[is.nan(DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_from_Jaz_kJ_m2)] = NA
+
+DD_UVB_xmiss_PAL1314$Percent_xmiss_NOAA = DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_from_Kd_kJ_m2/
+  DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
+
+DD_UVB_xmiss_PAL1314$Percent_xmiss_Jaz = DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_from_Jaz_kJ_m2/
+  DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
+
+# calculate mean, sd % xmiss
+
+mean(DD_UVB_xmiss_PAL1314$Percent_xmiss_NOAA, na.rm = TRUE)
+sd(DD_UVB_xmiss_PAL1314$Percent_xmiss_NOAA, na.rm = TRUE)
+
+mean(DD_UVB_xmiss_PAL1314$Percent_xmiss_Jaz, na.rm = TRUE)
+sd(DD_UVB_xmiss_PAL1314$Percent_xmiss_Jaz, na.rm = TRUE)
 
 #####  other panels for Experiment 13 plot ##### 
 
