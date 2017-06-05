@@ -693,7 +693,7 @@ PAL1516_AH_Kd_20151215_per_meter[PAL1516_AH_Kd_20151215_per_meter>=1] = NA
 # now, fit an exponential model to estimate Kds for wavelengths 290-320 nm
 # will use data from 320-370 nm as basis for fitting curve, then back-extrapolate
 
-Kd_fit_subset = log(PAL1516_AH_Kd_20151215_per_meter[346:482])
+Kd_fit_subset = log(PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[346:482])
 Wavelength_fit_subset = as.numeric(rownames(PAL1516_AH_Kd_20151215_per_meter)[346:482])
 
 fit.exp = lm(Kd_fit_subset ~ Wavelength_fit_subset)
@@ -855,6 +855,15 @@ for (i in 2:length(depths)) {
               incIrrad = PAL1314_NOAA_AntUV_spectra_uW_cm2[,2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)],
               z = depths[i],
               MoreArgs = list(Kds = PAL1516_AH_Kd_20151215_per_meter))
+  
+  # change any irradiances < 0 to 0
+  
+  PAL1314_est_spectra_at_depth_uW_cm2[[i]][PAL1314_est_spectra_at_depth_uW_cm2[[i]]<0] = 0
+  
+  # set colnames, rownames
+  
+  colnames(PAL1314_est_spectra_at_depth_uW_cm2[[i]]) = colnames(PAL1314_est_spectra_at_depth_uW_cm2[[1]])
+  
 }
 
 # also, create a single matrix of estimated irradiances at 0.6 m depth
@@ -863,6 +872,10 @@ PAL1314_est_spectra_at_0.6m_uW_cm2 = mapply(estIrrad, lambda = as.numeric(colnam
                                                   incIrrad = PAL1314_NOAA_AntUV_spectra_uW_cm2[,2:ncol(PAL1314_NOAA_AntUV_spectra_uW_cm2)],
                                                   z = 0.6,
                                                   MoreArgs = list(Kds = PAL1516_AH_Kd_20151215_per_meter))
+
+# change any irradiances < 0 to 0
+
+PAL1314_est_spectra_at_0.6m_uW_cm2[PAL1314_est_spectra_at_0.6m_uW_cm2<0] = 0
 
 ##### calculate daily spectral doses at various depths using our Kd-adjusted irradiances ##### 
 
@@ -926,34 +939,80 @@ for (i in 1:nrow(DD_UVB_1314_est_at_0.6m_kJ_m2)) { # iterate through dates
         PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT<=
         DD_UVB_1314_est_at_0.6m_kJ_m2$Date[i]+60*60*12]
   
-  # preallocate a vector for spectral integrals
+  # create a vector of times in seconds
   
-  Todays.integrals_cum_uW_cm2 = 
-    vector(mode = "numeric", ncol(PAL1314_est_spectra.today))
+  Timevector.s = Todays.timestamps-(DD_UVB_1314_est_at_0.6m_kJ_m2$Date[i]-60*60*12)
   
-  for (j in 1:length(Todays.integrals_cum_uW_cm2)) { # iterate through wavelengths, integrate by time
+  units(Timevector.s) = "secs"
+  
+  Timevector.s = as.numeric(Timevector.s)
+  
+  # preallocate vector for spectral integrals
+  
+  Wavelength_integrals_UVB = 
+    vector(mode = "numeric", length(Todays.timestamps))
+  
+  Wavelength_integrals_UVA = 
+    vector(mode = "numeric", length(Todays.timestamps))
+  
+  for (j in 1:length(Wavelength_integrals_UVB)) { # iterate through tinme, integrate by wavelength
     
-    Todays.integrals_cum_uW_cm2[j] = caTools::trapz(Todays.timestamps, PAL1314_est_spectra.today[,j])
+    Wavelength_integrals_UVB[j] = caTools::trapz(NOAA_AntUV_lambdas[NOAA_AntUV_lambdas>=290 & NOAA_AntUV_lambdas<315],
+                     PAL1314_est_spectra.today[j,NOAA_AntUV_lambdas>=290 &
+                                                   NOAA_AntUV_lambdas<315])
+    
+    Wavelength_integrals_UVA[j] = caTools::trapz(NOAA_AntUV_lambdas[NOAA_AntUV_lambdas>=315 & NOAA_AntUV_lambdas<400],
+                                                 PAL1314_est_spectra.today[j,NOAA_AntUV_lambdas>=315 &
+                                                                             NOAA_AntUV_lambdas<400])
     
   }
   
-  # integrate by wavelength; scale; store
+  # integrate by time; scale; store
   
   DD_UVB_1314_est_at_0.6m_kJ_m2$DD_kJ_m2[i] = 
     
-    caTools::trapz(NOAA_AntUV_lambdas[NOAA_AntUV_lambdas>=290 & NOAA_AntUV_lambdas<315],
-                   Todays.integrals_cum_uW_cm2[NOAA_AntUV_lambdas>=290 &
-                                                 NOAA_AntUV_lambdas<315])*W_per_uW*J_per_kJ*cm2_per_m2
+    caTools::trapz(Timevector.s,
+                   Wavelength_integrals_UVB*W_per_uW*J_per_kJ*cm2_per_m2)
     
   DD_UVA_1314_est_at_0.6m_kJ_m2$DD_kJ_m2[i] = 
     
-    caTools::trapz(NOAA_AntUV_lambdas[NOAA_AntUV_lambdas>=315 & NOAA_AntUV_lambdas<400],
-                   Todays.integrals_cum_uW_cm2[NOAA_AntUV_lambdas>=315 &
-                                                 NOAA_AntUV_lambdas<400])*W_per_uW*J_per_kJ*cm2_per_m2
-
+    caTools::trapz(Timevector.s,
+                   Wavelength_integrals_UVA*W_per_uW*J_per_kJ*cm2_per_m2)
+  
 }
 
+# collect data and save
 
+# estimates at 0.6 m
+
+DD_1314_est_at_0.6m_kJ_m2 = DD_UVB_1314_est_at_0.6m_kJ_m2
+colnames(DD_1314_est_at_0.6m_kJ_m2)[c(2,4)] = c("Date_GMT","DD_UVB_est_at_0.6m_kJ_m2")
+DD_1314_est_at_0.6m_kJ_m2$DD_UVA_est_at_0.6m_kJ_m2 = DD_UVA_1314_est_at_0.6m_kJ_m2$DD_kJ_m2
+
+save(DD_1314_est_at_0.6m_kJ_m2, 
+     file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_doses_0.6m_from_Kds_and_NOAA_data_PAL1314.RData"))
+write.csv(DD_1314_est_at_0.6m_kJ_m2, 
+          file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Daily_int_doses_0.6m_from_Kds_and_NOAA_data_PAL1314.csv"))
+
+# estimates for other depths
+
+# append times, wavelengths
+
+PAL1314_est_spectra_at_depth_uW_cm2$Timestamp_GMT = PAL1314_NOAA_AntUV_spectra_uW_cm2$Timestamp_GMT
+PAL1314_est_spectra_at_depth_uW_cm2$lambda_nm = NOAA_AntUV_lambdas
+
+save(PAL1314_est_spectra_at_depth_uW_cm2, 
+     file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Est_UV-VIS_spectra_at_depth_from_Kds_and_NOAA_data_PAL1314_uW_cm2.RData"))
+
+# calculate % transmission to 0.6 m for the various integrals
+
+DD_UVB_percent_xmiss = DD_UVB_xmiss_PAL1314$DD_UVB_subsurf_kJ_m2/
+   DD_UVB_xmiss_PAL1314$DD_UVB_incident_kJ_m2
+# 
+# # calculate mean, sd % xmiss
+# 
+# mean(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
+# sd(DD_UVB_xmiss_PAL1314$Percent_xmiss, na.rm = TRUE)
 
 #####  other panels for Experiment 13 plot ##### 
 
