@@ -1,1 +1,1 @@
-Est_UV-VIS_spectra_at_depth_from_Kds_and_NOAA_data_PAL1314_uW_cm2.RData filter=lfs diff=lfs merge=lfs -text
+data/nice/NOAA_ESRL_GMD_AntUV/Est_UV-VIS_spectra_at_depth_from_Kds_and_NOAA_data_PAL1314_uW_cm2.RData filter=lfs diff=lfs merge=lfs -text
