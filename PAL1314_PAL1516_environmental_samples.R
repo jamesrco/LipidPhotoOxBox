@@ -16,7 +16,7 @@ library(stringr)
 
 # set wd
 
-setwd("/Users/jrcollins/Code/LipidPhotoOxBox/")
+setwd("/Users/jamesrco/Code/LipidPhotoOxBox/")
 
 ### load some necessary metadata; define functions ###
 
