@@ -3,6 +3,9 @@
 # Purpose: Calculate apparent quantum yields for photolysis of PUFA-containing
 # PC species examined in the PAL1314 liposome experiments 
 
+# Formulae have been updated since time of thesis publication; now consistent
+# with those found in manuscript in prep for submission
+
 # ****** Assumes some variables created by PAL1314_liposome_expts.R,
 # LipidUV_VISAbsPlots.R, ContainerUV_VISTransPlots.R, and
 # UV_TS_analysis_PAL1314.R are already in user's workspace; these files can be
@@ -11,7 +14,7 @@
 # Created 10/26/16 by J.R.C.
 
 # set working directory to parent LipidPhotoOxBox repo
-setwd("/Users/jrcollins/Code/LipidPhotoOxBox")
+setwd("/Users/jamesrco/Code/LipidPhotoOxBox")
 
 ##### seawater contribution to absorbance ##### 
 
@@ -285,7 +288,9 @@ d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1] = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.ph
 d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[2] = sqrt((d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[2])^2+
                                                        (d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[2])^2)
 
-##### calculation of total radiation received #####
+##### calculation of total radiation received at each wavelength during the experiment #####
+# produces the E_n,p,sigma defined in Equation 7 in the manuscript
+
 # i.e., the radiation received by the JAZ sensor, in the deck tank, 
 # at the same depth as the vials, over course of Exp 13
 
@@ -326,25 +331,42 @@ detach("package:RSEIS", unload=TRUE)
 library(caTools)
 
 # preallocate vector
-PAL1314.JAZ.14Dec.sub_umol_photons_m2_total = vector(mode = "double",
+PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2 = vector(mode = "double",
                                                      length = ncol(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub))
 
-for (i in 1:length(PAL1314.JAZ.14Dec.sub_umol_photons_m2_total)) {
+for (i in 1:length(PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2)) {
   
   # requires vector of times in second from UV_TS_analysis_PAL1314.R, with t = 0 being timepoint at beginning of experiment
   
-  PAL1314.JAZ.14Dec.sub_umol_photons_m2_total[i] =
+  PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2[i] =
     caTools::trapz(Exp13_timeint.s[1:length(Exp13_timeint.s)],PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub[,i])
   
 }
 
-##### calculation of wavelength-specific absorbances, from Exp 13 ##### 
+##### workup of data from Experiment 13 ##### 
 
-# define a few parameters
+# define a few parameters and retrieve some data that won't change with wavelength
+
+# retrieve initial concentrations of lipids in experiments, and (for PC 22:6) change in concentration data
+
+# PC 22:6
+Init_conc_PC22_6_pmol_mL = 
+  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")]
+
+d22_6_dt.UVA = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[1]
+
+d22_6_dt.UVB = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1]
+
+d22_6_dt.UVA_UVB = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[1]
+
+# PC 22:6
+Init_conc_PC22_6_pmol_mL = 
+  Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")]
+
 
 # effective pathlength through minor axis of quartz vials used in experiment
-# since vials were left on their side throughout experiment = 1/2 diameter
-Quartz_vial_pathlength_cm = 1
+# since vials were left on their side throughout experiment = diameter (2 cm)
+Quartz_vial_pathlength_cm = 2
 m3_per_L = 0.001
 cm_per_m = 100
 
@@ -364,19 +386,19 @@ for (i in 1:numSim) {
   
   # ------ end optional monte carlo code
   
-# preallocate matrix to hold Ks values
+# preallocate matrix to hold values of term under integral in Eq. 6 in manuscript
 # first column will be for quartz vial, second for EPA vial
   
-# Ks will be in units of mol photons/mol rxn/time (time is implied; it is the
+# term under integral will be in units of mol photons/volume/time (time is implied; it is the
 # 8.2 hr sampling interval of the experiment)
 
 
-Ks_Exp13_PC_22_6 = matrix(NA, ncol = 2, nrow =
-                          length(PAL1314.JAZ.14Dec.sub_umol_photons_m2_total))
+Integral_Exp13_PC_22_6 = matrix(NA, ncol = 2, nrow =
+                          length(PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2))
 
-colnames(Ks_Exp13_PC_22_6) = c("Ks_PC_22_6_quartz","Ks_PC_22_6_EPA")
+colnames(Integral_Exp13_PC_22_6) = c("Integral_PC_22_6_quartz","Integral_PC_22_6_EPA")
 
-for (j in 1:nrow(Ks_Exp13_PC_22_6)) { # iterate by wavelength
+for (j in 1:nrow(Integral_Exp13_PC_22_6)) { # iterate by wavelength
   
   if (lambda_nm_JAZ[j]<500) { # since don't have any lipid absorbance data above 500 nm
     
@@ -384,9 +406,19 @@ for (j in 1:nrow(Ks_Exp13_PC_22_6)) { # iterate by wavelength
     # in some cases, variables were sampled at different intervals from each other
     
     # time-integrated photon flux at this wavelength (over sampling interval) 
-    E_mol_photons_m2 = PAL1314.JAZ.14Dec.sub_umol_photons_m2_total[j]/1000000
+    E_n_p_sigma_photons_m2 = PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2[j]/1000000
     
-    # decadic molar absorption coefficient from LipidAbsData$epsilon_M_cm_PC22_6
+    # vessel transmittances for this wavelength
+    
+    T_quartz = FracTrans$transmittance_quartz_pct[abs(FracTrans$lambda_nm-lambda_nm_JAZ[j])==min(abs(FracTrans$lambda_nm-lambda_nm_JAZ[j]))]
+    
+    T_EPA = FracTrans$transmittance_borosilicate_pct[abs(FracTrans$lambda_nm-lambda_nm_JAZ[j])==min(abs(FracTrans$lambda_nm-lambda_nm_JAZ[j]))]
+    
+    # total alpha of all elements in system; Eq. 8 in manuscript
+    
+    alpha_total_per_m = 
+      
+    # Nap molar absorption coefficient from LipidAbsData$epsilon_M_cm_PC22_6
     # calculated in LipidUV_VISAbsPlots.R
     epsilon_per_M_per_cm = LipidAbsData$epsilon_M_cm_PC22_6[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]
 
@@ -398,12 +430,6 @@ for (j in 1:nrow(Ks_Exp13_PC_22_6)) { # iterate by wavelength
 
     alpha_per_m = rnorm(1, mean = alpha_per_m, sd = alpha_per_m.sd)
     # ------ end optional monte carlo code
-    
-    # vessel transmittances for this wavelength
-    
-    T_quartz = FracTrans$transmittance_quartz_pct[abs(FracTrans$lambda_nm-lambda_nm_JAZ[j])==min(abs(FracTrans$lambda_nm-lambda_nm_JAZ[j]))]
-    
-    T_EPA = FracTrans$transmittance_borosilicate_pct[abs(FracTrans$lambda_nm-lambda_nm_JAZ[j])==min(abs(FracTrans$lambda_nm-lambda_nm_JAZ[j]))]
     
     # finally, calculate Ks for this wavelength
     # have to make some unit conversions
