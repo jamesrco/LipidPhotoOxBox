@@ -40,7 +40,7 @@ pmol_per_mol = 10^12
 detach("package:RSEIS", unload=TRUE)
 library(caTools)
 
-#### preallocate results objects ####
+#### preallocate results objects for volumetric rate calculations ####
 
 # will make calculations for each of 9 depths, 1-10 m (for which we calculated photon fluxes in UV_TS_analysis_PAL1314.R)
 
@@ -691,7 +691,7 @@ for (i in 2:length(depths)) {
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
       C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
@@ -711,7 +711,7 @@ for (i in 2:length(depths)) {
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
       C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
@@ -731,7 +731,7 @@ for (i in 2:length(depths)) {
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
       C_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
@@ -751,7 +751,7 @@ for (i in 2:length(depths)) {
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
       C_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
@@ -771,7 +771,7 @@ for (i in 2:length(depths)) {
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
       C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
@@ -791,7 +791,7 @@ for (i in 2:length(depths)) {
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
       C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
@@ -801,204 +801,265 @@ for (i in 2:length(depths)) {
   
 }
 
-#### workup and visualization of results ####
+#### perform integration over depth of mixed layer ####
 
-# # high-PUFA fraction, all lipids, UVB
-# PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 
-# PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 
-# C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 
-# C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 
-# 
-# # high-PUFA fraction, all lipids, TUVR
-# PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401
-# PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 
-# C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401
-# C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 
-# 
-# # mid-PUFA fraction, all lipids, UVB
-# PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401 
-# PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401
-# C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401
-# C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401
-# 
-# # mid-PUFA fraction, all lipids, TUVR
-# PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401
-# PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401
-# C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401
-# C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401
+# *** from here, just carrying forward results using UVA-band AQY ***
 
-# convert the numbers in the high-PUFA fraction to units of ug C/m3/d
-
-# high-PUFA fraction, all lipids, UVB
-PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 
-PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 
-C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
-C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
+# preallocate objects
 
 # high-PUFA fraction, all lipids, UVA
-PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401 
-PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401 
-C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
-C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
-
-# high-PUFA fraction, all lipids, TUVR
-PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401
-PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 
-C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
-C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
-
-# mid-PUFA fraction, all lipids, TUVR
-PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401
-PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 
-C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
-C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
+PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401 =
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401) = lipidox.calcdates
+colnames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401 =
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401) = lipidox.calcdates
+colnames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401 = 
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401) = lipidox.calcdates
+colnames(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401 =
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401) = lipidox.calcdates
+colnames(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
 # mid-PUFA fraction, all lipids, UVA
-PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401
-PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401 
-C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
-C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401 =
-  C_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401 * 12.01 * (1/10^6) * 10^3
+PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401 =
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401) = lipidox.calcdates
+colnames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401 =
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401) = lipidox.calcdates
+colnames(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401 = 
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401) = lipidox.calcdates
+colnames(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
+C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401 = 
+  as.data.frame(matrix(NA,length(lipidox.calcdates),ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)))
+rownames(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401) = lipidox.calcdates
+colnames(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401) = colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)
 
-# make some objects with these data with continuous dates (no gaps)
-
-Jazfulldata.dates.nogaps = DD_UVB_1314_subsurf$Date
-
-C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401.nogaps = as.data.frame(matrix(NA,length(Jazfulldata.dates.nogaps),ncol(C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401)))
-colnames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  colnames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401)
-rownames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401.nogaps) =
-  Jazfulldata.dates.nogaps
-
-for (i in 1:nrow(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps)) {
+for (i in 1:length(lipidox.calcdates)) {
   
-  if (rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps)[i] %in% 
-      rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401)) {
+  # define depth of ML to be used; see manuscript Section 3.1, also spreadsheet
+  # "MLD Calculations" in LipidPhotoOxBox/data/raw/PAL1314_LMG1401_PAL_LTER_data/Selected CTD - PAL-LTER 2013-2014.xlsx
+  
+  if (lipidox.calcdates[i]<as.POSIXct('2013-12-18 00:00:00', tz = "GMT")) {
     
-    C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401),]
+    MLD.AH = 7 # MLD at Station B on 12/12/13
     
-    C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401),]
+  } else if (lipidox.calcdates[i]>=as.POSIXct('2013-12-18 00:00:00', tz = "GMT") &
+             lipidox.calcdates[i]<as.POSIXct('2013-12-25 00:00:00', tz = "GMT")
+             ) {
     
-    C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401),]
+    MLD.AH = 5 # MLD at Station B on 12/14/13
     
-    C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401),]
+  } else if (lipidox.calcdates[i]>=as.POSIXct('2013-12-25 00:00:00', tz = "GMT")) {
     
-    C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.PAL1314_LMG1401),]
+    MLD.AH = 10 # MLD at Station B on 12/27/13
     
-    C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.TUVR.hi_PUFA.sigma.PAL1314_LMG1401),]
+  }
+  
+  for (j in 1:ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L)) {
     
-    C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.PAL1314_LMG1401),]
+    PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401[i,j] = 
+      caTools::trapz(seq(1:MLD.AH), 
+                     unlist(lapply(PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))*
+                       L_per_m3)
     
-    C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401),]
+    PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[i,j] =
+      caTools::trapz(seq(1:MLD.AH), 
+                     unlist(lapply(PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))*
+                       L_per_m3)
     
-    C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401),]
+    C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401[i,j] =
+      caTools::trapz(seq(1:MLD.AH),
+                     unlist(lapply(C_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))* 12.01 * (1/10^6) * 10^3)
     
-    C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401.nogaps[i,] =
-      C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[
-        rownames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401.nogaps)[i]==
-          rownames(C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401),]
+    C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[i,j] =
+      caTools::trapz(seq(1:MLD.AH),
+                     unlist(lapply(C_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))* 12.01 * (1/10^6) * 10^3)
+    
+    PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401[i,j] = 
+      caTools::trapz(seq(1:MLD.AH), 
+                     unlist(lapply(PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))*
+                       L_per_m3)
+    
+    PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[i,j] =
+      caTools::trapz(seq(1:MLD.AH), 
+                     unlist(lapply(PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))*
+                       L_per_m3)
+    
+    C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401[i,j] =
+      caTools::trapz(seq(1:MLD.AH),
+                     unlist(lapply(C_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))* 12.01 * (1/10^6) * 10^3)
+    
+    C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[i,j] =
+      caTools::trapz(seq(1:MLD.AH),
+                     unlist(lapply(C_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[1:MLD.AH], function(x) x[i,j]))* 12.01 * (1/10^6) * 10^3)
     
   }
   
 }
 
-# pull in PAL1314 BP data, for comparison
+#### pull in, work up PAL1314 BP data, for comparison ####
 
-PAL1314.BP = read.csv("/Users/jrcollins/Code/LipidPhotoOxBox/data/raw/PAL1314_LMG1401_PAL_LTER_data/PAL1314 Bacterial Production (Station).csv", skip = 1)
+PAL1314.BP = read.csv("/Users/jamesrco/Code/LipidPhotoOxBox/data/raw/PAL1314_LMG1401_PAL_LTER_data/PAL1314 Bacterial Production (Station).csv", skip = 1, stringsAsFactors = FALSE)
+
+# change missing values to NA
+PAL1314.BP$Leucine.Incorp...pmol.L.hr.[PAL1314.BP$Leucine.Incorp...pmol.L.hr.==-999.00] = NA
 
 # convert leucine numbers to units of ug C/m3/d, using most conservative assumptions (ID = 1, conversion factor of 1.5 kg C/mol leu)
 
 PAL1314.BP$BP_ugC_m3_d = PAL1314.BP$Leucine.Incorp...pmol.L.hr. * 36
+
+# append a vector of dates in POSIXct format
+
+PAL1314.BP$Date.POSIXct = as.POSIXct(PAL1314.BP$Date.GMT, format = "%m/%d/%y", tz = "GMT")
+  
+# calculate some depth-integrated BP rates for the mixed layer
+
+# load in MLD data
+
+PAL1314.MLD.Depths = read.csv("/Users/jamesrco/Code/LipidPhotoOxBox/data/raw/PAL1314_LMG1401_PAL_LTER_data/PAL1314 - MLD Depths.csv", skip = 3, stringsAsFactors = FALSE)
+
+# append a vector of dates in POSIXct format
+
+PAL1314.MLD.Depths$Date.POSIXct = as.POSIXct(PAL1314.MLD.Depths$Date, format = "%m/%d/%y", tz = "GMT")
+
+# obtain list of dates <= 1/2/14 for which we want to calculate depth-integrated BP
+
+PAL1314.BP.depthint.dates =
+  unique(PAL1314.BP$Date.POSIXct)[unique(PAL1314.BP$Date.POSIXct)<=
+                                    as.POSIXct('2014-01-02', tz = "GMT")]
+
+# preallocate object for depth int BP calcs
+
+PAL1314.BP.depthint.ugC_m2_d =
+  as.data.frame(matrix(NA,length(PAL1314.BP.depthint.dates),4))
+PAL1314.BP.depthint.ugC_m2_d[,1] = PAL1314.BP.depthint.dates
+rownames(PAL1314.BP.depthint.ugC_m2_d) = PAL1314.BP.depthint.dates
+colnames(PAL1314.BP.depthint.ugC_m2_d) = c("Date","SWI","B","E")
+
+# perform calculations
+
+for (i in 1:nrow(PAL1314.BP.depthint)) {
+  
+  for (j in 2:ncol(PAL1314.BP.depthint)) {
+    
+    # determine whether we have data for this station on this date
+    
+    BPdat.subset.ugC_m3_d = 
+      PAL1314.BP[PAL1314.BP$Date.POSIXct==PAL1314.BP.depthint.ugC_m2_d$Date[i] &
+                   PAL1314.BP$Station.Name==colnames(PAL1314.BP.depthint.ugC_m2_d)[j],
+                 c("Depth..m.","BP_ugC_m3_d")]
+    
+    if (nrow(BPdat.subset.ugC_m3_d)>0) { # we have data, proceed
+      
+      # eliminate any entries for value = NA
+      
+      BPdat.subset.ugC_m3_d = BPdat.subset.ugC_m3_d[!(is.na(BPdat.subset.ugC_m3_d$BP_ugC_m3_d)),]
+      
+      # need to average the data if from SWI since replicates were taken
+      
+      if (colnames(PAL1314.BP.depthint.ugC_m2_d)[j]=="SWI") {
+        
+        SWI.BP.mean = mean(BPdat.subset.ugC_m3_d$BP_ugC_m3_d)
+        BPdat.subset.ugC_m3_d$Depth..m. = BPdat.subset.ugC_m3_d$Depth..m.[1]
+        BPdat.subset.ugC_m3_d$BP_ugC_m3_d = SWI.BP.mean
+        BPdat.subset.ugC_m3_d = BPdat.subset.ugC_m3_d[1,]
+        
+      }
+      
+      # obtain most relevant MLD; using Station B values for SWI
+      
+      # pull out possible values
+      
+      if (colnames(PAL1314.BP.depthint.ugC_m2_d)[j]=="SWI") {
+        
+        MLDs.thisstation = PAL1314.MLD.Depths[PAL1314.MLD.Depths$Station.Name=="B",]
+        
+      } else {
+        
+        MLDs.thisstation = PAL1314.MLD.Depths[PAL1314.MLD.Depths$Station.Name==
+                                                colnames(PAL1314.BP.depthint.ugC_m2_d)[j],]
+        
+      }
+      
+      # select closest value temporally
+      
+      relevant.MLD.m = MLDs.thisstation$MLD.depth.m[
+        which.min(abs(PAL1314.BP.depthint.ugC_m2_d$Date[i]-MLDs.thisstation$Date.POSIXct))]
+      
+      # calculate depth-integrated BP
+      
+      # assume uniform values at all depths in ML for SWI case
+      
+      if (colnames(PAL1314.BP.depthint.ugC_m2_d)[j]=="SWI") {
+        
+        PAL1314.BP.depthint.ugC_m2_d[i,j] =
+          caTools::trapz(c(0,relevant.MLD.m),rep(BPdat.subset.ugC_m3_d$BP_ugC_m3_d,2))
+        
+      } else {
+        
+        if (relevant.MLD.m %in% BPdat.subset.ugC_m3_d$Depth..m.) {
+          
+          BPdat.subset.ugC_m3_d.ML_only = 
+            BPdat.subset.ugC_m3_d[BPdat.subset.ugC_m3_d$Depth..m.<=relevant.MLD.m,]
+          
+        } else {
+          
+          # need to estimate BP by linear interpolation at depth of ML
+          
+          # obtain BP observations for the two depths bracketing the MLD
+          
+          deeper.MLDs.ind = which((BPdat.subset.ugC_m3_d$Depth..m.-relevant.MLD.m)>0)
+          next.deepest.from.target = min(BPdat.subset.ugC_m3_d$Depth..m.[deeper.MLDs.ind])
+          
+          shallower.MLDs.ind = which((BPdat.subset.ugC_m3_d$Depth..m.-relevant.MLD.m)<0)
+          next.shallowest.from.target = max(BPdat.subset.ugC_m3_d$Depth..m.[shallower.MLDs.ind])
+          
+          BP.bracket = c(BPdat.subset.ugC_m3_d$BP_ugC_m3_d[BPdat.subset.ugC_m3_d$Depth..m.==next.shallowest.from.target],
+                         BPdat.subset.ugC_m3_d$BP_ugC_m3_d[BPdat.subset.ugC_m3_d$Depth..m.==next.deepest.from.target])
+          
+          depth.bracket = c(next.shallowest.from.target,next.deepest.from.target)
+          
+          # predict BP at MLD by linear interpolation
+          
+          linfit.BP = lm(BP.bracket~depth.bracket)
+          
+          BP.est.at.MLD_ugC_m3_d = predict.lm(linfit.BP, data.frame(depth.bracket = relevant.MLD.m))
+          
+          # construct subset of needed values
+          
+          BPdat.subset.ugC_m3_d.ML_only =
+            rbind(BPdat.subset.ugC_m3_d[BPdat.subset.ugC_m3_d$Depth..m.<relevant.MLD.m,],
+                  as.numeric(data.frame(relevant.MLD.m,BP.est.at.MLD_ugC_m3_d)))
+          
+        }
+        
+        # now, calculate depth-int BP; store
+        
+        # reorder data frame
+        
+        BPdat.subset.ugC_m3_d.ML_only = 
+          BPdat.subset.ugC_m3_d.ML_only[order(BPdat.subset.ugC_m3_d.ML_only$Depth..m.),]
+        
+        PAL1314.BP.depthint.ugC_m2_d[i,j] =
+          caTools::trapz(BPdat.subset.ugC_m3_d.ML_only$Depth..m.,
+                         BPdat.subset.ugC_m3_d.ML_only$BP_ugC_m3_d)
+        
+      }
+      
+    }
+    
+  }
+  
+}
 
 # make a plot; use most proximate lipid concentration data (temporally)
 
@@ -1010,90 +1071,55 @@ pdf(file = "Lipid_AQY_results_w_BP.pdf",
 
 par(mar=c(5,5,1,5))
 
-plot(Jazfulldata.dates.nogaps[1:40],C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:40],"o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred",
-     ylim = c(0,1000),
-     xlim = c(as.numeric(Jazfulldata.dates.nogaps[1]),as.numeric(as.POSIXct("2014-01-05"))),
-     ylab = "ug C per m3 per day",
+plot(lipidox.calcdates,
+     C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000,
+     "o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred",
+     ylim = c(0,10),
+     xlim = c(as.numeric(lipidox.calcdates[1]),as.numeric(as.POSIXct("2014-01-05"))),
+     ylab = "mg C per m2 per day",
      xlab = "Date (2013-2014)",
      xaxt = "n"
      )
 
-axis.POSIXct(1, at = seq(Jazfulldata.dates.nogaps[1], as.POSIXct("2014-01-06"), by = "5 days"), format = "%d %b")
+axis.POSIXct(1, at = seq(lipidox.calcdates[1], as.POSIXct("2014-01-06"), by = "5 days"), format = "%d %b")
 
-polygon(c(Jazfulldata.dates[1:27],
-          rev(Jazfulldata.dates[1:27])),
-        c(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27]+
-            C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27],
-          rev(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27]-
-                C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27])),
+polygon(c(lipidox.calcdates,
+          rev(lipidox.calcdates)),
+        c(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000+
+            C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000,
+          rev(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000-
+                C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000)),
         border = NA, col = "mistyrose")
 
-polygon(c(Jazfulldata.dates[27:35],
-          rev(Jazfulldata.dates[27:35])),
-        c(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401$LMG1401_004_QE003116[27:35]+
-            C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$LMG1401_004_QE003116[27:35],
-          rev(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401$LMG1401_004_QE003116[27:35]-
-                C_xformed_ug_C_m3_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$LMG1401_004_QE003116[27:35])),
-        border = NA, col = "mistyrose")
-
-polygon(c(Jazfulldata.dates[1:27],
-          rev(Jazfulldata.dates[1:27])),
-        c(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27]+
-            C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27],
-          rev(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27]-
-                C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:27])),
+polygon(c(lipidox.calcdates,
+          rev(lipidox.calcdates)),
+        c(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000+
+            C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000,
+          rev(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000-
+                C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000)),
         border = NA, col = "azure")
 
-polygon(c(Jazfulldata.dates[27:35],
-          rev(Jazfulldata.dates[27:35])),
-        c(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401$LMG1401_004_QE003116[27:35]+
-            C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$LMG1401_004_QE003116[27:35],
-          rev(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401$LMG1401_004_QE003116[27:35]-
-                C_xformed_ug_C_m3_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$LMG1401_004_QE003116[27:35])),
-        border = NA, col = "azure")
+lines(lipidox.calcdates,C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000,"o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred")
 
-lines(Jazfulldata.dates.nogaps[1:40],C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:40],"o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred")
-
-lines(Jazfulldata.dates.nogaps[41:63],C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps$LMG1401_004_QE003116[41:63], type = "o", pch = 22, bg = "black", cex = 0.4, col = "darkred")
-# lines(Jazfulldata.dates.nogaps[1:40],C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:40], lty=2, type = "o", pch = 22, bg = "white")
-# lines(Jazfulldata.dates.nogaps[41:63],C_xformed_ug_C_m3_d.UVB.hi_PUFA.PAL1314_LMG1401.nogaps$LMG1401_004_QE003116[41:63], lty=2, type = "o", pch = 22, bg = "white")
-
-lines(Jazfulldata.dates.nogaps[1:40],C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401.nogaps$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:40], lty=3, type = "o", pch = 21, bg = "cyan", cex = 0.4, col = "cyan")
-
-lines(Jazfulldata.dates.nogaps[41:63],C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401.nogaps$LMG1401_004_QE003116[41:63], lty=3, type = "o", pch = 21, bg = "cyan", cex = 0.4, col = "cyan")
+lines(lipidox.calcdates,C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000, lty=3, type = "o", pch = 21, bg = "cyan", cex = 0.4, col = "cyan")
 
 # superimpose BP data
 
-# extract relevant data
+points(PAL1314.BP.depthint.ugC_m2_d$Date[!is.na(PAL1314.BP.depthint.ugC_m2_d$E)],
+       PAL1314.BP.depthint.ugC_m2_d$E[!is.na(PAL1314.BP.depthint.ugC_m2_d$E)]/1000,
+       pch = 22, bg = "black", cex = 1.2)
 
-BP.subset.B = PAL1314.BP[(PAL1314.BP$Depth..m.==0 & PAL1314.BP$Station.Name %in% c("B")),]
-BP.subset.E = PAL1314.BP[(PAL1314.BP$Depth..m.==0 & PAL1314.BP$Station.Name %in% c("E")),]
-BP.subset.SWI = PAL1314.BP[PAL1314.BP$Station.Name=="SWI",]
+points(PAL1314.BP.depthint.ugC_m2_d$Date[!is.na(PAL1314.BP.depthint.ugC_m2_d$SWI)],
+       PAL1314.BP.depthint.ugC_m2_d$SWI[!is.na(PAL1314.BP.depthint.ugC_m2_d$SWI)]/1000,
+       pch = 22, bg = "white", cex = 1.2)
 
-BP.subset.SWI.means = as.data.frame(matrix(NA,length(unique(BP.subset.SWI$Date.GMT)),2))
-colnames(BP.subset.SWI.means) =  c("Date.GMT","BP_ugC_m3_d")
-BP.subset.SWI.means$Date.GMT = unique(BP.subset.SWI$Date.GMT)
-
-for (i in 1:nrow(BP.subset.SWI.means)) {
-  
-  BP.subset.SWI.means$BP_ugC_m3_d[i] =
-    mean(BP.subset.SWI$BP_ugC_m3_d[BP.subset.SWI$Date.GMT==BP.subset.SWI.means$Date.GMT[i]])
-  
-}
-
-points(as.POSIXct(as.character(BP.subset.E$Date.GMT), format = "%m/%d/%y", tz = "GMT"),
-       BP.subset.E$BP_ugC_m3_d, pch = 22, bg = "black", cex = 1.2)
-
-points(as.POSIXct(as.character(BP.subset.SWI.means$Date.GMT), format = "%m/%d/%y", tz = "GMT"),
-       BP.subset.SWI.means$BP_ugC_m3_d, pch = 22, bg = "white", cex = 1.2)
-
-points(as.POSIXct(as.character(BP.subset.B$Date.GMT), format = "%m/%d/%y", tz = "GMT"),
-       BP.subset.B$BP_ugC_m3_d, pch = 21, bg = "black", cex = 1.2)
+points(PAL1314.BP.depthint.ugC_m2_d$Date[!is.na(PAL1314.BP.depthint.ugC_m2_d$B)],
+       PAL1314.BP.depthint.ugC_m2_d$B[!is.na(PAL1314.BP.depthint.ugC_m2_d$B)]/1000,
+       pch = 21, bg = "black", cex = 1.2)
 
 dev.off()
 
 # second plot with the higher-value BP samples
-
 
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
@@ -1103,43 +1129,79 @@ pdf(file = "Lipid_AQY_results_high_BP.pdf",
 
 par(mar=c(5,5,1,5))
 
-plot(Jazfulldata.dates.nogaps[1:40],C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401.nogaps$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120[1:40],"o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred",
-     ylim = c(1000,2500),
-     xlim = c(as.numeric(Jazfulldata.dates.nogaps[1]),as.numeric(as.POSIXct("2014-01-05"))),
-     ylab = "ug C per m3 per day",
+plot(lipidox.calcdates,
+     C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000,
+     "o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred",
+     ylim = c(10,45),
+     xlim = c(as.numeric(lipidox.calcdates[1]),as.numeric(as.POSIXct("2014-01-05"))),
+     ylab = "mg C per m2 per day",
      xlab = "Date (2013-2014)",
      xaxt = "n"
 )
 
 # superimpose BP data
 
-# extract relevant data
+points(PAL1314.BP.depthint.ugC_m2_d$Date[!is.na(PAL1314.BP.depthint.ugC_m2_d$E)],
+       PAL1314.BP.depthint.ugC_m2_d$E[!is.na(PAL1314.BP.depthint.ugC_m2_d$E)]/1000,
+       pch = 22, bg = "black", cex = 1.2)
 
-BP.subset.B = PAL1314.BP[(PAL1314.BP$Depth..m.==0 & PAL1314.BP$Station.Name %in% c("B")),]
-BP.subset.E = PAL1314.BP[(PAL1314.BP$Depth..m.==0 & PAL1314.BP$Station.Name %in% c("E")),]
-BP.subset.SWI = PAL1314.BP[PAL1314.BP$Station.Name=="SWI",]
+points(PAL1314.BP.depthint.ugC_m2_d$Date[!is.na(PAL1314.BP.depthint.ugC_m2_d$SWI)],
+       PAL1314.BP.depthint.ugC_m2_d$SWI[!is.na(PAL1314.BP.depthint.ugC_m2_d$SWI)]/1000,
+       pch = 22, bg = "white", cex = 1.2)
 
-BP.subset.SWI.means = as.data.frame(matrix(NA,length(unique(BP.subset.SWI$Date.GMT)),2))
-colnames(BP.subset.SWI.means) =  c("Date.GMT","BP_ugC_m3_d")
-BP.subset.SWI.means$Date.GMT = unique(BP.subset.SWI$Date.GMT)
-
-for (i in 1:nrow(BP.subset.SWI.means)) {
-  
-  BP.subset.SWI.means$BP_ugC_m3_d[i] =
-    mean(BP.subset.SWI$BP_ugC_m3_d[BP.subset.SWI$Date.GMT==BP.subset.SWI.means$Date.GMT[i]])
-  
-}
-
-points(as.POSIXct(as.character(BP.subset.E$Date.GMT), format = "%m/%d/%y", tz = "GMT"),
-       BP.subset.E$BP_ugC_m3_d, pch = 22, bg = "black", cex = 1.2)
-
-points(as.POSIXct(as.character(BP.subset.SWI.means$Date.GMT), format = "%m/%d/%y", tz = "GMT"),
-       BP.subset.SWI.means$BP_ugC_m3_d, pch = 22, bg = "white", cex = 1.2)
-
-points(as.POSIXct(as.character(BP.subset.B$Date.GMT), format = "%m/%d/%y", tz = "GMT"),
-       BP.subset.B$BP_ugC_m3_d, pch = 21, bg = "black", cex = 1.2)
+points(PAL1314.BP.depthint.ugC_m2_d$Date[!is.na(PAL1314.BP.depthint.ugC_m2_d$B)],
+       PAL1314.BP.depthint.ugC_m2_d$B[!is.na(PAL1314.BP.depthint.ugC_m2_d$B)]/1000,
+       pch = 21, bg = "black", cex = 1.2)
 
 dev.off()
+
+# last plot, with alternate y-axis
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "Lipid_AQY_results_w_BP_lipid_units.pdf",
+    width = 6.5, height = 3.5, pointsize = 10,
+    bg = "white")
+
+par(mar=c(5,5,1,5))
+
+plot(lipidox.calcdates,
+     PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000,
+     "o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred",
+     ylim = c(0,12),
+     yaxp = c(0,12,24),
+     xlim = c(as.numeric(lipidox.calcdates[1]),as.numeric(as.POSIXct("2014-01-05"))),
+     ylab = "umol IP-DAG per m2 per day",
+     xlab = "Date (2013-2014)",
+     xaxt = "n"
+)
+
+axis.POSIXct(1, at = seq(lipidox.calcdates[1], as.POSIXct("2014-01-06"), by = "5 days"), format = "%d %b")
+
+polygon(c(lipidox.calcdates,
+          rev(lipidox.calcdates)),
+        c(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000+
+            PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000,
+          rev(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000-
+                PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000)),
+        border = NA, col = "mistyrose")
+
+polygon(c(lipidox.calcdates,
+          rev(lipidox.calcdates)),
+        c(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000+
+            PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000,
+          rev(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000-
+                PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000)),
+        border = NA, col = "azure")
+
+lines(lipidox.calcdates,PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000,"o", pch = 22, bg = "darkred", cex = 0.4, col = "darkred")
+
+lines(lipidox.calcdates,PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401$PAL1314_Stn_E_3m_2Jan14_0.2um_QE003120/1000000, lty=3, type = "o", pch = 21, bg = "cyan", cex = 0.4, col = "cyan")
+
+dev.off()
+
+
+
 
 # some stats
 
@@ -1155,26 +1217,26 @@ sd(unlist(PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,]/PUFA_fracs.PAL1314_LMG1401.pmo
 
 # means of daily oxidation rate estimates
 
-apply(PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401,2,mean)
-apply(PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401,2,sd)
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401,2,mean)
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401,2,sd)
 
-apply(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401,2,mean)
-apply(C_xformed_ug_C_m3_d.UVA.mid_PUFA.PAL1314_LMG1401,2,sd)
+apply(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401,2,mean)
+apply(C_xformed_ML_ug_C_m2_d.UVA.mid_PUFA.PAL1314_LMG1401,2,sd)
 
-apply(PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401,2,mean)
-apply(PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401,2,sd)
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,mean)
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,sd)
 
-apply(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401,2,mean)
-apply(C_xformed_ug_C_m3_d.UVA.hi_PUFA.PAL1314_LMG1401,2,sd)
+apply(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,mean)
+apply(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,sd)
 
 # BP averages, untuil 1/2/14
 
-mean(BP.subset.B$BP_ugC_m3_d[1:5])
-sd(BP.subset.B$BP_ugC_m3_d[1:5])
+mean(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
+sd(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
 
-mean(BP.subset.E$BP_ugC_m3_d[1:2])
-sd(BP.subset.E$BP_ugC_m3_d[1:2])
+mean(PAL1314.BP.depthint.ugC_m2_d$E, na.rm = T)
+sd(PAL1314.BP.depthint.ugC_m2_d$E, na.rm = T)
 
-mean(BP.subset.SWI.means$BP_ugC_m3_d[1:5])
-sd(BP.subset.SWI.means$BP_ugC_m3_d[1:5])
+mean(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
+sd(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
 
