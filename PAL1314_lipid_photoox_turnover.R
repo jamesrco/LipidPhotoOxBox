@@ -1229,7 +1229,7 @@ apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,sd)
 apply(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,mean)
 apply(C_xformed_ML_ug_C_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,sd)
 
-# BP averages, untuil 1/2/14
+# BP averages, until 1/2/14
 
 mean(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
 sd(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
