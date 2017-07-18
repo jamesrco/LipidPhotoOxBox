@@ -31,5 +31,5 @@ xset_a.RData
 /data/raw/JAZ_UV_VIS/raw_spectra/*
 /data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD300-366/*
 /data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD200-299/*
-/data/raw/Orbi_MS_data/*
+# /data/raw/Orbi_MS_data/* # now tracking with git-lfs
 *.JazIrrad"
