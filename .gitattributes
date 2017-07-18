@@ -1,2 +1,6 @@
 data/nice/NOAA_ESRL_GMD_AntUV/Est_UV_VIS_spectra_at_depth_from_Kds_and_NOAA_data_PAL1314_uW_cm2.RData filter=lfs diff=lfs merge=lfs -text
 data/raw/Orbi_MS_data/** filter=lfs diff=lfs merge=lfs -text
+JAZ_UV-VIS_spec_data_PAL1314_all.mat filter=lfs diff=lfs merge=lfs -text
+JAZ_UV-VIS_full_spectra_all_PAL1314_uW_cm2.mat filter=lfs diff=lfs merge=lfs -text
+JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.csv filter=lfs diff=lfs merge=lfs -text
+JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.mat filter=lfs diff=lfs merge=lfs -text

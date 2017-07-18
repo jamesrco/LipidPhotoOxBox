@@ -8,12 +8,6 @@
 # MATLAB temp files
 *.m~
 
-# data files that are too big
-JAZ_UV-VIS_spec_data_PAL1314_all.mat
-JAZ_UV-VIS_full_spectra_all_PAL1314_uW_cm2.mat
-JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.csv
-JAZ_UV-VIS_full_spectra_0.6m_subsurface_PAL1314_uW_cm2_QA.mat
-
 # RData but not *.RData
 .RData
 
@@ -31,5 +25,4 @@ xset_a.RData
 /data/raw/JAZ_UV_VIS/raw_spectra/*
 /data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD300-366/*
 /data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD200-299/*
-# /data/raw/Orbi_MS_data/* # now tracking with git-lfs
 *.JazIrrad"
