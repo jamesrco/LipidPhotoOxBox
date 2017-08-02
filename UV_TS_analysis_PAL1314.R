@@ -1091,7 +1091,7 @@ sd(DD_UVB_xmiss_PAL1314$Percent_xmiss_Jaz, na.rm = TRUE)
 
 #####  other panels for Experiment 13 plot ##### 
 
-# instantaneous/cumulative UVB dosage
+# instantaneous/cumulative dosages
 
 # subset to ranges of interest
 
@@ -1105,11 +1105,23 @@ PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec =
       as.POSIXct('2013-12-14 20:50:00', tz = "GMT") # 17:50 local time
       ,]
 
+# UVB
+
 PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB = 
   PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec[,
         c(1:4,
           4+which(JAZ_wavelengths>=290 & JAZ_wavelengths<=315),
           ncol(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec))]
+
+
+# UVR
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR = 
+  PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec[,
+          c(1:4,
+            4+which(JAZ_wavelengths>=290 & JAZ_wavelengths<=395.5),
+          ncol(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec))]
+
 
 # NOAA data
 
@@ -1124,10 +1136,13 @@ PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec =
 PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec.UVB = 
   PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec[,which(as.numeric(colnames(PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec))<=315)]
 
-# instantaneous UVB doses
+# instantaneous doses
 
 PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVB = 
   apply(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB[,5:(ncol(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB)-1)],1,sum)
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVR = 
+  apply(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR[,5:(ncol(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR)-1)],1,sum)
 
 PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec.instUVB = 
   apply(PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec.UVB,1,sum)
@@ -1137,6 +1152,10 @@ PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec.instUVB =
 plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB$Timestamp_GMT,
   PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVB,col="red",
   ylim = c(0,500)) 
+
+plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR$Timestamp_GMT,
+     PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVR,col="red",
+     ylim = c(0,5000)) 
 
 # superimpose points from NOAA data
 points(PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec$Timestamp_GMT,
@@ -1150,22 +1169,24 @@ mean.PAL1314.14Dec.JAZ.instUVB =
 mean.PAL1314.14Dec.NOAA.instUVB = 
   mean(PAL1314_NOAA_AntUV_spectra_uW_cm2.14Dec.instUVB)
 
-# calculate cumulative dosage
+# calculate cumulative dosages
 
 # need library caTools, first have to detach RSEIS since there's a conflict with a function name
 
 detach("package:RSEIS", unload=TRUE)
 library(caTools)
 
+# vector of times in seconds, with t = 0 being timepoint at beginning of experiment
+
+Exp13_timeint.s = as.numeric(rev(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB$Timestamp_GMT[nrow(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB)]-
+                                   PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB$Timestamp_GMT))
+
+# UVB
+
 # preallocate vector
 
 PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB =
   vector(length = length(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVB))
-
-# vector of times in seconds, with t = 0 being timepoint at beginning of experiment
-
-Exp13_timeint.s = as.numeric(rev(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB$Timestamp_GMT[nrow(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB)]-
-      PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVB$Timestamp_GMT))
 
 for (i in 1:length(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB)) {
   
@@ -1177,6 +1198,24 @@ for (i in 1:length(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB))
 
 PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB.kJ_m2 =
   PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVB*W_per_uW*J_per_kJ*cm2_per_m2
+
+# UVR
+
+# preallocate vector
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVR =
+  vector(length = length(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVR))
+
+for (i in 1:length(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVR)) {
+  
+  PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVR[i] =
+    
+    caTools::trapz(Exp13_timeint.s[1:i],PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVR[1:i])
+  
+}
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVR.kJ_m2 =
+  PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVR*W_per_uW*J_per_kJ*cm2_per_m2
 
 # plot of instaneous and cumulative UVB dosage at 0.6 m
 
@@ -1212,6 +1251,114 @@ mtext(side = 4,
       expression(paste("Cumulative UVB dose received at 0.6 m (kJ ",m^-2,")")))
 
 dev.off()
+
+# plot of instaneous and cumulative UVR dosage at 0.6 m
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "14Dec_UVR_timeseries.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,5))
+
+plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR$Timestamp_GMT,
+     PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.instUVR,
+     col = "black",
+     type = "l",
+     ylab = expression(paste("Instantaneous UVR irradiance at 0.6 m (",mu,"W ",cm^-2," ",s^-1,")")),
+     xlab = "Time (GMT)"
+)
+
+par(new = T)
+
+plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR$Timestamp_GMT,
+     PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.cumUVR.kJ_m2,
+     col = "black",
+     type = "l", lty = 2,
+     axes = FALSE,
+     ylab = "",
+     xlab = "")
+
+axis(side = 4)
+mtext(side = 4,
+      line = 3,
+      expression(paste("Cumulative UVR dose received at 0.6 m (kJ ",m^-2,")")))
+
+dev.off()
+
+# alternative plots in photon units
+
+# *** requires data frames lambda_nm_JAZ and 
+# PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub from
+# PAL1314_AQY_calc.R
+
+# subset to just UVR wavelengths
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR =
+  PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub[,
+       which(JAZ_wavelengths>=290 & JAZ_wavelengths<=395.5)]
+
+# instantaneous dosages
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.totalinstUVR = 
+  apply(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR,1,sum)
+
+# cumulative
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR =
+  vector(length = length(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.totalinstUVR))
+
+for (i in 1:length(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR)) {
+  
+  PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR[i] =
+    
+    caTools::trapz(Exp13_timeint.s[1:i],PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.totalinstUVR[1:i])
+  
+}
+
+# a quick check of math, comparing to a number from PAL1314_AQY_calc.R which should be same as last value in
+# PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR
+
+sum(PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2[which(JAZ_wavelengths>=290 & JAZ_wavelengths<=395.5)])
+
+# now, the plot...
+
+# plot of instaneous and cumulative UVR dosage at 0.6 m, in photon units
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "14Dec_UVR_timeseries_umol_photons_m2.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,1,5))
+
+plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR$Timestamp_GMT,
+     PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.totalinstUVR,
+     col = "black",
+     type = "l",
+     ylab = expression(paste("Instantaneous UVR dose at 0.6 m (",mu,"mol photons",m^-2," ",s^-1,")")),
+     xlab = "Time (GMT)"
+)
+
+par(new = T)
+
+plot(PAL1314_JAZ_subsurf_hires_full_spectrum_uW_cm2.14Dec.UVR$Timestamp_GMT,
+     PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR,
+     col = "black",
+     type = "l", lty = 2,
+     axes = FALSE,
+     ylab = "",
+     xlab = "")
+
+axis(side = 4)
+mtext(side = 4,
+      line = 3,
+      expression(paste("Cumulative UVR dose received at 0.6 m (umol photons ",m^-2,")")))
+
+dev.off()
+
 
 ##### pull out JAZ data subset for 2 December 2013 (Exp_03a) #####
 
