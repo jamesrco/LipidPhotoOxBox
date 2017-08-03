@@ -201,7 +201,7 @@ dev.off()
 
 par(oma=c(0,0,0,0)) # set margins
 
-pdf(file = "Exp13_heatmap_PC22-6plus.pdf",
+pdf(file = "Exp13_heatmap_PC22-6plus_UVRonly.pdf",
     width = 7, height = 9.5, pointsize = 12,
     bg = "white")
 
