@@ -197,6 +197,21 @@ heatmap.2(Exp_13_features.HM.foldchange.log2.sub226[,2:ncol(Exp_13_features.HM.f
 
 dev.off()
 
+# an alternate plot without the -UVB treatment samples
+
+par(oma=c(0,0,0,0)) # set margins
+
+pdf(file = "Exp13_heatmap_PC22-6plus.pdf",
+    width = 7, height = 9.5, pointsize = 12,
+    bg = "white")
+
+#par(mar=c(5,5,1,1))
+
+heatmap.2(Exp_13_features.HM.foldchange.log2.sub226[,c(2:3,6:9)],breaks=breaks.set,col=hm.colors,scale="none",Colv=TRUE,trace="none",Rowv=TRUE,dendrogram="both",na.color="grey",key=T,
+          density.info=c("none"),margins=c(16,16),cellnote=Exp_13_features.HM.sigsymbols[,c(1:2,5:8)])
+
+dev.off()
+
 # now, a small heatmap of just the other unoxidized parent lipids in this same
 # experiment, for comparison purposes
 
