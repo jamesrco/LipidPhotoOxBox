@@ -1322,6 +1322,46 @@ for (i in 1:length(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec
 
 sum(PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2[which(JAZ_wavelengths>=290 & JAZ_wavelengths<=395.5)])
 
+# also calculating cumulative, adjusted for reduction in transmissivity in quartz vials
+# *** requires "FracTrans" and some additional objects from PAL1314_AQY_calc.R
+
+# preallocate matrix, get list of UVR lambdas from JAZ
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR.quartz =
+  matrix(NA, nrow = nrow(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR),
+         ncol = ncol(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR))
+
+UVR.lambdas =
+  JAZ_wavelengths[which(JAZ_wavelengths>=290 & JAZ_wavelengths<=395.5),1]
+
+# adjust values
+
+for (i in 1:ncol(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR.quartz)) {
+  
+  PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR.quartz[,i] =
+    PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR[,i]*
+    FracTrans$transmittance_quartz_pct[abs(FracTrans$lambda_nm-UVR.lambdas[i])==min(abs(FracTrans$lambda_nm-UVR.lambdas[i]))]
+  
+}
+
+# instantaneous dosages, adjusted for quartz transmissivity
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.totalinstUVR.quartz = 
+  apply(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.UVR.quartz,1,sum)
+
+# cumulative, adjusted for quartz transmissivity
+
+PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR.quartz =
+  vector(length = length(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.totalinstUVR.quartz))
+
+for (i in 1:length(PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR.quartz)) {
+  
+  PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2.14Dec.cumUVR.quartz[i] =
+    
+    caTools::trapz(Exp13_timeint.s[1:i],PAL1314_JAZ_subsurf_hires_full_spectrum_umol_photons_m2_s.14Dec.sub.totalinstUVR.quartz[1:i])
+  
+}
+
 # now, the plot...
 
 # plot of instaneous and cumulative UVR dosage at 0.6 m, in photon units
