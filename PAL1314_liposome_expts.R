@@ -1827,8 +1827,21 @@ for (i in 1:length(Exp_13_MDA.unique.ttps)) {
       paste0(Exp_13_MDA.unique.ttps[i],".se")
     
     
-  }
+}
+
+# Tukey for MDA results
+
+# subset to first/last
+MDA.fl = MDA_assay_Exp13_14Dec13[c(1:6,20:36),3:4]
+
+MDA.mod = lm(MDA_conc_umol_L ~ ttp.ID, data = MDA.fl)
+print(anova(MDA.mod))
+MDA.aov = aov(MDA.mod)
+tukey = TukeyHSD(MDA.aov, conf.level = 0.95, "ttp.ID")
+print(tukey)
   
+# plot
+
 par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
 
 pdf(file = "Exp13_MDA_assay_barplot.pdf",
