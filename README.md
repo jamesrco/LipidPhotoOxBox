@@ -5,11 +5,13 @@ This repository contains code and data to support Collins et al., *The diverse p
 
 Citations and references:
 
-* Code in this repository can now be cited as: [10.5281/zenodo.841930](http://doi.org/10.5281/zenodo.841930).
+* Code in this repository can now be cited as: [10.5281/zenodo.841930](https://doi.org/10.5281/zenodo.841930).
 
-* The final version of my thesis is available at [10.1575/1912/8721](http://dx.doi.org/10.1575/1912/8721).
+* Quality-controlled data (water column lipid concentrations, UV radiation doses, and water column attenuation coefficients) are permanently archived to [10.1594/PANGAEA.879582](https://doi.org/10.1594/PANGAEA.879582).
 
-* The protocol for preparation of liposomes used in the photo-oxidation experiments has been published at [10.17504/protocols.io.haub2ew](http://dx.doi.org/10.17504/protocols.io.haub2ew).
+* The final version of my thesis is available at [10.1575/1912/8721](https://doi.org/10.1575/1912/8721).
+
+* The protocol for preparation of liposomes used in the photo-oxidation experiments has been published at [10.17504/protocols.io.haub2ew](https://doi.org/10.17504/protocols.io.haub2ew).
 
 The only data necessary for full recreation of the results that do not appear in this reposistory (due to their large size) are the original (.raw) and .mzXML mass spectrometer data files. I am working to provide these in permanent home on the Internet. In the meantime, please email me and I'm happy to provide a Dropbox link for direct download.
 
