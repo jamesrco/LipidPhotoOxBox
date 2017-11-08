@@ -117,3 +117,75 @@ for (i in 1:nrow(PAL1314_E_n_p_sigma_umol_photons_m2_d_311_333nm)) {
                                                                                   NOAA_AntUV_lambdas<=333]))
 }
 
+# for Jaz data from Dec 14 2013
+
+PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2_330_380m =
+  caTools::trapz(JAZ_wavelengths[(JAZ_wavelengths>=330 & JAZ_wavelengths<=380)],
+                 as.numeric(PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2[JAZ_wavelengths>=330 & 
+                                                                            JAZ_wavelengths<=380]))
+
+PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2_311_333m =
+  caTools::trapz(JAZ_wavelengths[(JAZ_wavelengths>=311 & JAZ_wavelengths<=333)],
+                 as.numeric(PAL1314.JAZ.14Dec.E_n_p_sigma_umol_photons_m2[JAZ_wavelengths>=311 & 
+                                                                            JAZ_wavelengths<=333]))
+
+# A new plot showing percent xmiss of the PC lipids and some materials together
+
+
+# Napierian molar absorption coefficients
+
+absPlotCol = hsv(c(0.1, 0.35, 0.6, 0.85), 1, 1, 0.8) # define colors
+absPlotLty = c("solid","dashed","dotdash","dotted") # define lty
+
+transPlotCol = c("darkblue","skyblue","darkred","coral1","black") # define colors
+transPlotLty = c("solid","dashed","dotted","dotdash","twodash") # define lty
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "PCLipidMolExtCoeff_with_DHA_Napierian_plus_materials.pdf",
+    width = 8, height = 6, pointsize = 12,
+    bg = "white")
+
+par(mar=c(5,5,2,5))
+plot(LipidAbsData_init[1:801,c("lambda_nm")],log(LipidAbsData_init[1:801,c("kappa_M_cm_PC22_0")]),"l",
+     col = absPlotCol[1], lty = absPlotLty[1], lwd = "1.5",
+     ylim = c(0,8), xlim = c(225,500),
+     ylab = expression(paste("log ",kappa[i]," (",M^-1," ",cm^-1,")")),
+     xlab = "Wavelength (nm)")
+lines(LipidAbsData_init[1:801,c("lambda_nm")],log(LipidAbsData_init[1:801,c("kappa_M_cm_PC22_1")]),
+      col = absPlotCol[2], lty = absPlotLty[2], lwd = "1.5")
+lines(LipidAbsData_init[1:801,c("lambda_nm")],log(LipidAbsData_Jan17[1:801,c("kappa_M_cm_PC22_6_011387mM")]),
+      col = absPlotCol[3], lty = absPlotLty[3], lwd = "1.5")
+lines(LipidAbsData_init[1:801,c("lambda_nm")],log(LipidAbsData_Jan17[1:801,c("kappa_M_cm_DHA_01032mM")]),
+      col = absPlotCol[4], lty = absPlotLty[4], lwd = "1.5")
+
+# append xmiss spectra 
+
+par(new = T)
+plot(PctTransData$lambda_nm,PctTransData$transmittance_quartz_pct,"l",
+     col = transPlotCol[1], lty = transPlotLty[1], lwd = "1",
+     ylim = c(0,100), xlim = c(225,500),
+     axes=F, xlab=NA, ylab=NA)
+lines(PctTransData$lambda_nm,PctTransData$transmittance_borosilicate_pct,
+      col = transPlotCol[2], lty = transPlotLty[2], lwd = "2")
+lines(PctTransData$lambda_nm,PctTransData$transmittance_tedlar_PVF_pct,
+      col = transPlotCol[3], lty = transPlotLty[3], lwd = "2")
+lines(PctTransData$lambda_nm,PctTransData$transmittance_PVF_PET_pct,
+      col = transPlotCol[4], lty = transPlotLty[4], lwd = "2")
+lines(as.numeric(as.character(PC_bottle[-c(1:8),1])),
+      as.numeric(as.character(PC_bottle[-c(1:8),2])),
+      col = transPlotCol[5], lty = transPlotLty[5], lwd = "2")
+
+axis(side = 4)
+mtext(side = 4, line = 3, "Percent transmittance")
+
+legend(x = 370, y = 35, bty = "n",
+       legend = c("Quartz glass vial","Borosilicate glass vial","PVF incubation bag",
+                  "PVF bag w/PET screen","PC bottle"),
+       col = transPlotCol, lty = transPlotLty, lwd = 2)
+
+legend(x = 370, y = 60, bty = "n",
+       legend = c("22:0/22:0 PC","22:1/22:1 PC","22:6/22:6 PC","DHA"),
+       col = absPlotCol, lty = absPlotLty, lwd = 2)
+
+dev.off()
