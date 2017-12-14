@@ -859,11 +859,13 @@ Surf_reflect_frac = read.csv("data/nice/Surf_reflectance_Kirk_2001_Table2.1.csv"
 # fit a curve
 
 y = Surf_reflect_frac$Reflectance
-x = Surf_reflect_frac$Theta_a_deg
+x = Surf_reflect_frac$Theta_z_deg
   
 nls.fit.surf_reflect = nls(y~a*b^x-c,list(x,y),c(a=0.5,b=1.25,c=30), nls.control(maxiter=5000),
                           lower = c(0.000001,0.5,-1000), algorithm = "port",
                           upper = c(6,3,500))
+
+# plot(x,fitted(nls.fit.surf_reflect))
 
 # make calculations
 
@@ -871,9 +873,9 @@ calcPen = function(irradiance, time, lat, long, reflectance.model) {
   
   # retrieve reflectance for the appropriate solar zenith angle 
   
-  Theta_a = SZA(time, lat, long)
+  Theta_z = SZA(time, lat, long)
   
-  refFrac = predict(reflectance.model, list(x=Theta_a))
+  refFrac = predict(reflectance.model, list(x=Theta_z))
   
   if (refFrac>1) {
     
