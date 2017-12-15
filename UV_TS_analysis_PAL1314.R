@@ -684,34 +684,49 @@ dev.off()
 # now, calculate Kds for wavelengths 320-700 nm (Jaz data < 320 nm are too noisy)
 # 320 nm is 346th element in the Jaz wavelengths vector; 700 nm is 1437th
 
-# preallocate matrix to hold data
-
-PAL1516_AH_Kd_20151215 = as.data.frame(matrix(data = NA, ncol = nrow(JAZ_wavelengths), nrow = 2))
-colnames(PAL1516_AH_Kd_20151215) = JAZ_wavelengths$V1
-
-# use 0.5 m (assumed to be the subsurface incident irradiance, E(0))
-# and 7 m depth irradiance data (as E(z)) to calculate Kd with z = 7
+PAL1516_AH_Kd_20151215.alldepths = as.data.frame(matrix(data = NA, ncol = nrow(JAZ_wavelengths), nrow = 14))
+colnames(PAL1516_AH_Kd_20151215.alldepths) = JAZ_wavelengths$V1
 
 for (i in 346:1437) {
   
-PAL1516_AH_Kd_20151215[1,i] = 
+  for (j in 1:14) {
+    
+    PAL1516_AH_Kd_20151215.alldepths[j,i] = 
+      
+      (log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[j,i+5])-
+         log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[16,i+5]))/-PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2$Depth_m[j]
+    
+  }
   
-  (log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[3,i+5])-
-     log(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[16,i+5]))/-7
-
 }
 
-# clean up, transform result 
-PAL1516_AH_Kd_20151215_per_meter = as.data.frame(t(PAL1516_AH_Kd_20151215))
-colnames(PAL1516_AH_Kd_20151215_per_meter) = c("Kd_per_meter","Kd_per_meter_fitted")
+PAL1516_AH_Kd_20151215 = as.data.frame(matrix(data = NA, nrow = nrow(JAZ_wavelengths),
+                                                       ncol = 4))
+
+colnames(PAL1516_AH_Kd_20151215) = c("Wavelength_nm","Kd_per_meter","Kd_per_meter.sd","Kd_per_meter_fitted")
+PAL1516_AH_Kd_20151215$Wavelength_nm = JAZ_wavelengths$V1
+
+for (i in 1:nrow(PAL1516_AH_Kd_20151215)) {
+  
+  PAL1516_AH_Kd_20151215$Kd_per_meter[i] = mean(PAL1516_AH_Kd_20151215.alldepths[,i],
+                                                          na.rm = T)
+  PAL1516_AH_Kd_20151215$Kd_per_meter.sd[i] = sd(PAL1516_AH_Kd_20151215.alldepths[,i],
+                                                      na.rm = T)
+  
+}
 
 # set any of these calculated Kds with value > 1 = NA
-PAL1516_AH_Kd_20151215_per_meter[PAL1516_AH_Kd_20151215_per_meter>=1] = NA
+PAL1516_AH_Kd_20151215$Kd_per_meter[PAL1516_AH_Kd_20151215$Kd_per_meter>=1] = NA
+PAL1516_AH_Kd_20151215$Kd_per_meter.sd[PAL1516_AH_Kd_20151215$Kd_per_meter>=1] = NA
+
+# clean up, transform result 
+PAL1516_AH_Kd_20151215_per_meter = as.data.frame(PAL1516_AH_Kd_20151215)
+rownames(PAL1516_AH_Kd_20151215_per_meter) = JAZ_wavelengths$V1
 
 # now, fit an exponential model to estimate Kds for wavelengths 290-320 nm
 # will use data from 320-370 nm as basis for fitting curve, then back-extrapolate
 
-Kd_fit_subset = log(PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[346:482])
+Kd_fit_subset = log(PAL1516_AH_Kd_20151215$Kd_per_meter[346:482])
 Wavelength_fit_subset = as.numeric(rownames(PAL1516_AH_Kd_20151215_per_meter)[346:482])
 
 fit.exp = lm(Kd_fit_subset ~ Wavelength_fit_subset)
