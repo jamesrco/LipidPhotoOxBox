@@ -626,6 +626,12 @@ for (i in c(3,5,7,9,11,13,15,16,17)) {
   
 }
 
+# calculation for the revised manuscript
+# attenuation of light at 320 nm
+
+apply(PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[1,351:353]/
+  PAL1516_JAZ_Stn_B_profile_20151215_full_spectrum_uW_cm2.corrected[17,351:353],1,mean)*100
+
 # # overlay concurrent reading from NOAA radiometer at Palmer, if desired
 # # doesnt match up exactly 
 # 
