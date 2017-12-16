@@ -191,7 +191,7 @@ legend(x = 370, y = 60, bty = "n",
 
 dev.off()
 
-##### Taking a look at data from 2017 C-OPS profiles #####
+##### Calculating some Kds from the 2017 C-OPS profiles #####
 
 library(Hmisc)
 
@@ -395,8 +395,9 @@ for (i in 1:nrow(PAL17_StnE_Kd_20171116)) {
                                              na.rm = T)
   
 }
+##### Validating PAL1516 Jaz-derived Kds with the 2017 C-OPS data #####
 
-# compare these to the Jaz-derived values from PAL1516
+# compare C-OPS Kds to the Jaz-derived values from PAL1516
 
 Kd.matches_from_PAL1516 = as.data.frame(matrix(data = NA, nrow = 18, ncol = 3))
 colnames(Kd.matches_from_PAL1516) = c("Wavelength_nm","Kd_per_meter","Kd_per_meter_fitted")
@@ -420,35 +421,50 @@ for (i in 1:nrow(Kd.matches_from_PAL1516)) {
   
 }
 
-# take a look at a plot
+# take a look at a plot and save
+
+par(oma=c(0,0,0,0)) # set margins; large dataset seems to require this
+
+pdf(file = "AH_depth_profile_20151215_Kd_new_with_PAL17_data.pdf",
+    width = 6, height = 4, pointsize = 12,
+    bg = "white")
 
 plot(JAZ_wavelengths$V1[483:nrow(JAZ_wavelengths)],
      PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[483:nrow(PAL1516_AH_Kd_20151215_per_meter)],
      "l",
      col = "black", lty = 1, lwd = "1",
-     ylim = c(0.05,0.9), xlim = c(290,550),
+     ylim = c(0.1,0.52), xlim = c(290,550),
      ylab = expression(paste(K_d)),
      xlab = "Wavelength (nm)")
+
+# plot uncertainties
+polygon(c(JAZ_wavelengths$V1[346:1200],
+          rev(JAZ_wavelengths$V1[346:1200])),
+        c((PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter+PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter.sd)[346:1200],
+          rev((PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter-PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter.sd)[346:1200])),
+        border = NA, col = "lightgrey")
+
+# plot main Kd trace again
+lines(JAZ_wavelengths$V1[483:nrow(JAZ_wavelengths)],
+PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[483:nrow(PAL1516_AH_Kd_20151215_per_meter)],
+col = "black", lty = 1, lwd = "1")
 
 # grey out but retain the range used for curve fitting
 lines(JAZ_wavelengths$V1[346:482],
       PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[346:482],
       col = "lightgrey")
 
-lines(JAZ_wavelengths$V1[483:nrow(JAZ_wavelengths)],
-      (PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter+PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter.sd)[483:nrow(PAL1516_AH_Kd_20151215_per_meter)],
-      col = "lightgrey")
+# dashed line over section used for curve fitting
+lines(JAZ_wavelengths$V1[346:482],
+      PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter[346:482],
+      col = "black",lty=2)
 
-lines(JAZ_wavelengths$V1[483:nrow(JAZ_wavelengths)],
-      (PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter-PAL1516_AH_Kd_20151215_per_meter$Kd_per_meter.sd)[483:nrow(PAL1516_AH_Kd_20151215_per_meter)],
-      col = "lightgrey")
 
 # fitted values
 lines(UVB_pred_subset,Kd_UVB.pred,lty=3)
-lines(Kd_fitrange_wavelengths,Kd_fitrange.fitted,lty=3)
+# lines(Kd_fitrange_wavelengths,Kd_fitrange.fitted,lty=3)
 
 # superimpose Kds from the 2017 C-OPS data
-points(PAL17_StnB_Kd_20171116$Wavelength_nm[1:18],PAL17_StnB_Kd_20171116$Kd_per_m.mean[1:18])
 
 arrows(x0=as.numeric(PAL17_StnB_Kd_20171116$Wavelength_nm[1:18]),
        y0=PAL17_StnB_Kd_20171116$Kd_per_m.mean[1:18]-PAL17_StnB_Kd_20171116$Kd_per_m.sd[1:18],
@@ -457,7 +473,14 @@ arrows(x0=as.numeric(PAL17_StnB_Kd_20171116$Wavelength_nm[1:18]),
        angle=90,
        code=3,
        length=0.04,
-       lwd=0.4)
+       lwd=0.5)
 
-plot(Kd.matches_from_PAL1516$Kd_per_meter,
-     PAL17_StnB_Kd_20171116$Kd_per_m.mean[1:18])
+points(PAL17_StnB_Kd_20171116$Wavelength_nm[1:18],PAL17_StnB_Kd_20171116$Kd_per_m.mean[1:18], lwd = 0.5, cex = 0.8,
+       pch = 21, bg = "white")
+
+dev.off()
+
+# another plot
+
+plot(Kd.matches_from_PAL1516$Kd_per_meter[1:15],
+     PAL17_StnB_Kd_20171116$Kd_per_m.mean[1:15])
