@@ -16,6 +16,9 @@
 # set working directory to parent LipidPhotoOxBox repo
 setwd("/Users/jamesrco/Code/LipidPhotoOxBox")
 
+# need package fdrtool for help with the half-normal distribution sampling
+library(fdrtool)
+
 ##### seawater contribution to absorbance ##### 
 
 # first, pull in and process some spectrophotometric profiles of seawater from Palmer
@@ -375,8 +378,8 @@ Init_conc_PC18_1_pmol_mL =
 # did not extrude adequately
 
 # effective pathlength through minor axis of quartz vials used in experiment
-# since vials were left on their side throughout experiment = diameter (2 cm)
-Quartz_vial_pathlength_cm = 2
+# since vials were left on their side throughout experiment = diameter (1.8 cm)
+Quartz_vial_pathlength_cm.measured = 1.8
 m3_per_L = 0.001
 L_per_m3 = 1000
 cm_per_m = 100
@@ -387,21 +390,21 @@ pmol_per_mol = 1000000000000
 
 ##### (optional) code for calculation of uncertainities using a monte carlo analysis ##### 
 
-# ------ optional monte carlo code
-# define number of simulations
-numSim = 5000
-
-# preallocate matrix to hold values simulated during monte carlo run
-Theta_Exp13_PC_22_6.sim = matrix(nrow = numSim, ncol = 3)
-
-for (i in 1:numSim) {
+# # ------ optional monte carlo code
+# # define number of simulations
+# numSim = 5
+# 
+# # preallocate matrix to hold values simulated during monte carlo run
+# Theta_Exp13_PC_22_6.sim = matrix(nrow = numSim, ncol = 3)
+# 
+# for (i in 1:numSim) {
+#   
+#   # user feedback
+#   cat("Simulation number:",as.character(i),"\n")
+#   
+#   # ------ end optional monte carlo code
   
-  # user feedback
-  cat("Simulation number:",as.character(i),"\n")
-  
-  # ------ end optional monte carlo code
-  
-  # preallocate matrix to hold values of term under integral in Eq. 6 in manuscript
+  # preallocate matrix to hold values of term under integral in Eq. 7 in manuscript
   # first column will be for quartz vial, second for EPA vial
   
   # integrand will be in units of mol photons/wavelength/volume/time (time is implied; it is the
@@ -429,7 +432,7 @@ for (i in 1:numSim) {
       
       T_EPA = FracTrans$transmittance_borosilicate_pct[abs(FracTrans$lambda_nm-lambda_nm_JAZ[j])==min(abs(FracTrans$lambda_nm-lambda_nm_JAZ[j]))]
       
-      # calculate alpha_total from Eq. 8 in manuscript
+      # calculate alpha_total from Eq. A.2 in manuscript appendix
       # using the molar absorption coefficients for the corresponding C22 species where we dont have data for the C18 or C16
       
       alpha_total_per_m =
@@ -440,61 +443,71 @@ for (i in 1:numSim) {
            LipidAbsData$epsilon_M_cm_PC22_1[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC18_1_pmol_mL)*
         cm_per_m*mol_per_pmol*mL_per_L
       
-      # ------ optional monte carlo code
-      # pull parameters from normal distribution constructed from mean + sd
-
-      # alpha_SW
-
-      alpha_SW_per_m.sd = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.sd[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
-      alpha_SW_per_m = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.mean[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
-      alpha_SW_per_m = rnorm(1, mean = alpha_total_per_m, sd = alpha_SW_per_m.sd)
-
-      # starting lipid concentrations and delta (for PC 22:6)
-
-      # PC 22:6
-
-      Init_conc_PC22_6_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")],
-                                       sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])
-
-      d22_6_dt.UVA = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[2])
-
-      d22_6_dt.UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[2])
-
-      d22_6_dt.UVA_UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[2])
-
-      # PC 16:0, 16:0
-      Init_conc_PC16_0_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 32:0"),c("Dark_control_2013-12-14 09:30:00.mean")],
-                                       sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 32:0"),c("Dark_control_2013-12-14 09:30:00.se")])
-
-      # PC 18:0, 18:0
-      Init_conc_PC18_0_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:0"),c("Dark_control_2013-12-14 09:30:00.mean")],
-                                       sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:0"),c("Dark_control_2013-12-14 09:30:00.se")])
-
-      # PC 18:1, 18:1
-      Init_conc_PC18_1_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:2"),c("Dark_control_2013-12-14 09:30:00.mean")],
-                                       sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:2"),c("Dark_control_2013-12-14 09:30:00.se")])
-
-      # PC 22:0, 22:0
-      # did not extrude adequately
-
-      # alpha_total
-
-      alpha_total_per_m =
-        alpha_SW_per_m +
-        (LipidAbsData$kappa_M_cm_PC22_6[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC22_6_pmol_mL +
-           LipidAbsData$kappa_M_cm_PC22_0[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC16_0_pmol_mL +
-           LipidAbsData$kappa_M_cm_PC22_0[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC18_0_pmol_mL +
-           LipidAbsData$epsilon_M_cm_PC22_1[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC18_1_pmol_mL)*
-        cm_per_m*mol_per_pmol*mL_per_L
-
-      # ------ end optional monte carlo code
+      Quartz_vial_pathlength_cm = Quartz_vial_pathlength_cm.measured
       
-      # calculate F_i from Eq. 9 in manuscript
+      # # optional; to diagnose a_total for determination of optical thinness
+      # print(c(lambda_nm_JAZ[j],alpha_total_per_m))
+      # flush.console()
+      
+      # # ------ optional monte carlo code
+      # # pull parameters from normal distribution constructed from mean + sd
+      # 
+      # # Quartz_vial_pathlength_cm
+      # 
+      # Quartz_vial_pathlength_cm = rhalfnorm(1, theta = sd2theta(Quartz_vial_pathlength_cm.measured)) + Quartz_vial_pathlength_cm.measured
+      # 
+      # # alpha_SW
+      # 
+      # alpha_SW_per_m.sd = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.sd[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
+      # alpha_SW_per_m = PAL1314_UV_VIS_SW_abs_profile_means$PAL1314_12Dec13_SW_alpha_per_m.mean[abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j])==min(abs(PAL1314_UV_VIS_SW_abs_profile_means$Wavelength_nm-lambda_nm_JAZ[j]))]
+      # alpha_SW_per_m = rnorm(1, mean = alpha_total_per_m, sd = alpha_SW_per_m.sd)
+      # 
+      # # starting lipid concentrations and delta (for PC 22:6)
+      # 
+      # # PC 22:6
+      # 
+      # Init_conc_PC22_6_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.mean")],
+      #                                  sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 44:12"),c("Dark_control_2013-12-14 09:30:00.se")])
+      # 
+      # d22_6_dt.UVA = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA.photo_ox[2])
+      # 
+      # d22_6_dt.UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVB.photo_ox[2])
+      # 
+      # d22_6_dt.UVA_UVB = rnorm(1, mean = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[1], sd = d22_6_dt.Exp13.pmol_mL_hr.UVA_UVB.photo_ox[2])
+      # 
+      # # PC 16:0, 16:0
+      # Init_conc_PC16_0_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 32:0"),c("Dark_control_2013-12-14 09:30:00.mean")],
+      #                                  sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 32:0"),c("Dark_control_2013-12-14 09:30:00.se")])
+      # 
+      # # PC 18:0, 18:0
+      # Init_conc_PC18_0_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:0"),c("Dark_control_2013-12-14 09:30:00.mean")],
+      #                                  sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:0"),c("Dark_control_2013-12-14 09:30:00.se")])
+      # 
+      # # PC 18:1, 18:1
+      # Init_conc_PC18_1_pmol_mL = rnorm(1, mean = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:2"),c("Dark_control_2013-12-14 09:30:00.mean")],
+      #                                  sd = Exp_13_PC.samp.pmol.mL.norm.mean[c("PC 36:2"),c("Dark_control_2013-12-14 09:30:00.se")])
+      # 
+      # # PC 22:0, 22:0
+      # # did not extrude adequately
+      # 
+      # # alpha_total
+      # 
+      # alpha_total_per_m =
+      #   alpha_SW_per_m +
+      #   (LipidAbsData$kappa_M_cm_PC22_6[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC22_6_pmol_mL +
+      #      LipidAbsData$kappa_M_cm_PC22_0[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC16_0_pmol_mL +
+      #      LipidAbsData$kappa_M_cm_PC22_0[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC18_0_pmol_mL +
+      #      LipidAbsData$epsilon_M_cm_PC22_1[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC18_1_pmol_mL)*
+      #   cm_per_m*mol_per_pmol*mL_per_L
+      # 
+      # # ------ end optional monte carlo code
+      
+      # calculate F_i from Eq. A.3 in manuscript appendix
       
       F_i = ((LipidAbsData$kappa_M_cm_PC22_6[LipidAbsData$lambda_nm==round(lambda_nm_JAZ[j])]*Init_conc_PC22_6_pmol_mL)*cm_per_m*mol_per_pmol*mL_per_L)/
         alpha_total_per_m
       
-      # now, can finally calculate term to right of integral in Eq. 6 in manuscript
+      # now, can finally calculate term to right of integral in Eq. 7 in manuscript
       
       Integrand_Exp13_PC_22_6_mol_photons_m3[j,1] =
         ((E_n_p_sigma_photons_m2*T_quartz*(1-exp(-alpha_total_per_m*(Quartz_vial_pathlength_cm/100))))/(Quartz_vial_pathlength_cm/100))*F_i
@@ -506,7 +519,7 @@ for (i in 1:numSim) {
     
   }
   
-  ##### calculation of polychromatic quantum yields, UVB, UVB, and total UVR (UVA+UVB) ##### 
+  ##### calculation of polychromatic quantum yields, UVA, UVB, and total UVR (UVA+UVB) ##### 
   
   # UVA and total UVR yields only use data out to 395.5 nm, since don't have good
   # extinction data after that point

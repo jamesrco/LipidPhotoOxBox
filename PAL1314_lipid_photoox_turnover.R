@@ -341,7 +341,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401)) {
 
 ##### calculation of total radiation received at each wavelength, each day, each depth #####
 
-# produces the E_n,p,sigma in Eq. 10 in the manuscript
+# produces the E_n,p,sigma in Eq. 8 in the manuscript
 
 # preallocate an object to hold the data
 
@@ -434,7 +434,7 @@ for (i in 1:length(lipidox.calcdates)) {
   
 }
 
-#### calculate values of F_lipid (Eq. 11 in manuscript) ####
+#### calculate values of F_lipid (Eq. A.4 in manuscript appendix) ####
 
 # preallocate some objects to hold results
 
@@ -493,7 +493,7 @@ for (i in 1:length(NOAA_AntUV_lambdas)) {
   
 }
 
-#### Calculate integrands in Eq. 10 in manuscript ####
+#### Calculate integrands in Eq. 8 in manuscript ####
 
 # integrands: units of mol photons/wavelength/volume/time (time is implied; t = 1 day)
 # once integrated (below), will be in units of mol photons/volume/time
@@ -573,7 +573,7 @@ for (i in 1:length(NOAA_AntUV_lambdas)) { # iterate by wavelength
   
 }
     
-#### Now, integrate term under integral in Eq. 10 ####
+#### Now, integrate term under integral in Eq. 8 ####
 
 # integrals: units of mol photons/volume/time
 
@@ -667,7 +667,7 @@ for (i in 2:length(depths)) {
         
 #### Make volumetric lipid oxidation rate calculations for each depth ####
 
-# Eq. 10 in manuscript 
+# Eq. 8 in manuscript 
 
 for (i in 2:length(depths)) {
   
