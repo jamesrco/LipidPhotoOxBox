@@ -42,11 +42,11 @@ library(caTools)
 
 #### preallocate results objects for volumetric rate calculations ####
 
-# will make calculations for each of 9 depths, 1-10 m (for which we calculated photon fluxes in UV_TS_analysis_PAL1314.R)
+# will make calculations for each of 10 depths, 1-10 m (for which we calculated photon fluxes in UV_TS_analysis_PAL1314.R)
 
 # # high-PUFA fraction, all lipids, UVA
 # PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401)) {
 #   
@@ -58,7 +58,7 @@ library(caTools)
 # }
 # 
 # PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -70,7 +70,7 @@ library(caTools)
 # }
 # 
 # C_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401)) {
 #   
@@ -82,7 +82,7 @@ library(caTools)
 # }
 # 
 # C_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401 = 
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -95,7 +95,7 @@ library(caTools)
 # 
 # # high-PUFA fraction, all lipids, UVB
 # PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401)) {
 #   
@@ -107,7 +107,7 @@ library(caTools)
 # }
 # 
 # PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -119,7 +119,7 @@ library(caTools)
 # }
 # 
 # C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401)) {
 #   
@@ -131,7 +131,7 @@ library(caTools)
 # }
 # 
 # C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401 = 
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -144,7 +144,7 @@ library(caTools)
 
 # high-PUFA fraction, all lipids, TUVR
 PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401)) {
   
@@ -156,7 +156,7 @@ for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401)) {
 }
 
 PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401)) {
   
@@ -168,7 +168,7 @@ for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LM
 }
 
 PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
   
@@ -180,7 +180,7 @@ for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LM
 }
 
 C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401)) {
   
@@ -192,7 +192,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401)) {
 }
 
 C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401 = 
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401)) {
   
@@ -204,7 +204,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401)) {
 }
 
 C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401 = 
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
   
@@ -217,7 +217,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 
 # # mid-PUFA fraction, all lipids, UVB
 # PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401)) {
 #   
@@ -229,7 +229,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # }
 # 
 # PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -241,7 +241,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # }
 # 
 # C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401)) {
 #   
@@ -253,7 +253,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # }
 # 
 # C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401 = 
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -266,7 +266,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # 
 # # mid-PUFA fraction, all lipids, UVA
 # PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401)) {
 #   
@@ -278,7 +278,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # }
 # 
 # PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -290,7 +290,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # }
 # 
 # C_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401 =
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401)) {
 #   
@@ -302,7 +302,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # }
 # 
 # C_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401 = 
-#   vector("list",length(depths)-1)
+#   vector("list",length(depths)-2)
 # 
 # for (i in 1:length(C_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401)) {
 #   
@@ -315,7 +315,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401)) {
 
 # high-PUFA fraction, all lipids, TUVR
 PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401)) {
   
@@ -327,7 +327,7 @@ for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401)) 
 }
 
 PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401)) {
   
@@ -339,7 +339,7 @@ for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_L
 }
 
 PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401)) {
   
@@ -351,7 +351,7 @@ for (i in 1:length(PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_L
 }
 
 C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401 =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401)) {
   
@@ -363,7 +363,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401)) {
 }
 
 C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401 = 
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401)) {
   
@@ -375,7 +375,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.PAL1314_LMG1401)) {
 }
 
 C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401 = 
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401)) {
   
@@ -387,7 +387,7 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401)) {
 }
 
 C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401 = 
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401)) {
   
@@ -405,10 +405,10 @@ for (i in 1:length(C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401)) {
 # preallocate an object to hold the data
 
 PAL1314_E_n_p_sigma_umol_photons_m2_d_nm =
-  vector("list",length(depths)-1)
+  vector("list",length(depths)-2)
 
 names(PAL1314_E_n_p_sigma_umol_photons_m2_d_nm) =
-  c(depths[2:length(depths)])
+  c(depths[3:length(depths)])
 
 for (i in 1:length(PAL1314_E_n_p_sigma_umol_photons_m2_d_nm)) {
   
@@ -423,7 +423,7 @@ for (i in 1:length(lipidox.calcdates)) {
   
   # iterate through dates on which we want an estimate, from lipidox.calcdates
   
-  for (j in 2:length(depths)) {
+  for (j in 3:length(depths)) {
     
     # iterate through depths, 1-10 m
     
@@ -524,13 +524,13 @@ for (i in 1:length(NOAA_AntUV_lambdas)) {
     # use Kd derived directly from measurements if it exists; otherwise, use a
     # fitted value
     
-    if (!is.na(PAL1516_AH_Kd_20151215_per_meter[Kd_ind,1])) {
+    if (!is.na(PAL1516_AH_Kd_20151215_per_meter[Kd_ind,2])) {
       
-      Kd.per_meter = PAL1516_AH_Kd_20151215_per_meter[Kd_ind,1]
+      Kd.per_meter = PAL1516_AH_Kd_20151215_per_meter[Kd_ind,2]
       
     } else {
       
-      Kd.per_meter = PAL1516_AH_Kd_20151215_per_meter[Kd_ind,2]
+      Kd.per_meter = PAL1516_AH_Kd_20151215_per_meter[Kd_ind,4]
       
     }
     
@@ -563,25 +563,25 @@ Integrands_mol_photons_m3_nm.hi_PUFA =
   array(data = NA, dim = c(length(lipidox.calcdates),
                            length(NOAA_AntUV_lambdas),
                            ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
-                           length(depths)-1))
+                           length(depths)-2))
 
 dimnames(Integrands_mol_photons_m3_nm.hi_PUFA) =
   list(as.character(lipidox.calcdates),
        NOAA_AntUV_lambdas,
        colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
-       depths[2:length(depths)])
+       depths[3:length(depths)])
 
 Integrands_mol_photons_m3_nm.mid_PUFA =
   array(data = NA, dim = c(length(lipidox.calcdates),
                            length(NOAA_AntUV_lambdas),
                            ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
-                           length(depths)-1))
+                           length(depths)-2))
 
 dimnames(Integrands_mol_photons_m3_nm.mid_PUFA) =
   list(as.character(lipidox.calcdates),
        NOAA_AntUV_lambdas,
        colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
-       depths[2:length(depths)])
+       depths[3:length(depths)])
 
 for (i in 1:length(NOAA_AntUV_lambdas)) { # iterate by wavelength
   
@@ -598,17 +598,17 @@ for (i in 1:length(NOAA_AntUV_lambdas)) { # iterate by wavelength
     # use Kd derived directly from measurements if it exists; otherwise, use a
     # fitted value
     
-    if (!is.na(PAL1516_AH_Kd_20151215_per_meter[Kd_ind,1])) {
-      
-      Kd.per_meter = PAL1516_AH_Kd_20151215_per_meter[Kd_ind,1]
-      
-    } else {
+    if (!is.na(PAL1516_AH_Kd_20151215_per_meter[Kd_ind,2])) {
       
       Kd.per_meter = PAL1516_AH_Kd_20151215_per_meter[Kd_ind,2]
       
+    } else {
+      
+      Kd.per_meter = PAL1516_AH_Kd_20151215_per_meter[Kd_ind,4]
+      
     }
     
-    for (j in 2:length(depths)) { # iterate by depth
+    for (j in 3:length(depths)) { # iterate by depth
       
       for (k in 1:length(lipidox.calcdates)) { # iterate by date
         
@@ -643,16 +643,16 @@ Integral_mol_photons_m3_d =
                            nrow(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
                            ncol(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
                            3,
-                           length(depths)-1))
+                           length(depths)-2))
 
 dimnames(Integral_mol_photons_m3_d) =
   list(as.character(lipidox.calcdates),
        rownames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
        colnames(PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L),
        c("UVB","UVA","TUVR"),
-       depths[2:length(depths)])
+       depths[3:length(depths)])
 
-for (i in 2:length(depths)) {
+for (i in 3:length(depths)) {
   
   for (j in 1:length(lipidox.calcdates)) {
     
@@ -728,7 +728,7 @@ for (i in 2:length(depths)) {
 
 # Eq. 8 in manuscript 
 
-for (i in 2:length(depths)) {
+for (i in 3:length(depths)) {
   
   for (j in 1:length(lipidox.calcdates)) {
     
@@ -736,139 +736,139 @@ for (i in 2:length(depths)) {
       
       # # UVB, hi PUFA fraction
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,2,k,1,i-1]*Theta_Exp13_PC_22_6[3]*
+      # PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,2,k,1,i-2]*Theta_Exp13_PC_22_6[3]*
       #   pmol_per_mol*m3_per_L
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,2,k,1,i-1]*Theta_Exp13_PC_22_6_sigma[3]*
+      # PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,2,k,1,i-2]*Theta_Exp13_PC_22_6_sigma[3]*
       #   pmol_per_mol*m3_per_L
       # 
-      # C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       # 
-      # C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVB.hi_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       # 
       # # UVB, mid PUFA fraction
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,1,k,1,i-1]*Theta_Exp13_PC_22_6[3]*
+      # PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,1,k,1,i-2]*Theta_Exp13_PC_22_6[3]*
       #   pmol_per_mol*m3_per_L
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,1,k,1,i-1]*Theta_Exp13_PC_22_6_sigma[3]*
+      # PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,1,k,1,i-2]*Theta_Exp13_PC_22_6_sigma[3]*
       #   pmol_per_mol*m3_per_L
       # 
-      # C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       # 
-      # C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVB.mid_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       # 
       # # UVA, hi PUFA fraction
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,2,k,2,i-1]*Theta_Exp13_PC_22_6[2]*
+      # PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,2,k,2,i-2]*Theta_Exp13_PC_22_6[2]*
       #   pmol_per_mol*m3_per_L
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,2,k,2,i-1]*Theta_Exp13_PC_22_6_sigma[2]*
+      # PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,2,k,2,i-2]*Theta_Exp13_PC_22_6_sigma[2]*
       #   pmol_per_mol*m3_per_L
       # 
-      # C_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       # 
-      # C_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVA.hi_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       # 
       # # UVA, mid PUFA fraction
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,1,k,2,i-1]*Theta_Exp13_PC_22_6[2]*
+      # PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,1,k,2,i-2]*Theta_Exp13_PC_22_6[2]*
       #   pmol_per_mol*m3_per_L
       # 
-      # PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   Integral_mol_photons_m3_d[j,1,k,2,i-1]*Theta_Exp13_PC_22_6_sigma[2]*
+      # PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   Integral_mol_photons_m3_d[j,1,k,2,i-2]*Theta_Exp13_PC_22_6_sigma[2]*
       #   pmol_per_mol*m3_per_L
       # 
-      # C_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       # 
-      # C_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k] =
-      #   PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-1]][j,k]*
+      # C_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k] =
+      #   PUFA_lipids_xformed_pmol_L_d.UVA.mid_PUFA.sigma.PAL1314_LMG1401[[i-2]][j,k]*
       #   (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
       #      PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
       # TUVR, hi PUFA fraction
       
-      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-        Integral_mol_photons_m3_d[j,2,k,3,i-1]*Theta_Exp13_PC_22_6[1]*
+      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+        Integral_mol_photons_m3_d[j,2,k,3,i-2]*Theta_Exp13_PC_22_6[1]*
         pmol_per_mol*m3_per_L
       
-      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401[[i-1]][j,k] =
-        Integral_mol_photons_m3_d[j,2,k,3,i-1]*Theta_Exp13_PC_22_6_sigma.hi[1]*
+      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401[[i-2]][j,k] =
+        Integral_mol_photons_m3_d[j,2,k,3,i-2]*Theta_Exp13_PC_22_6_sigma.hi[1]*
         pmol_per_mol*m3_per_L
       
-      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401[[i-1]][j,k] =
-        Integral_mol_photons_m3_d[j,2,k,3,i-1]*Theta_Exp13_PC_22_6_sigma.lo[1]*
+      PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401[[i-2]][j,k] =
+        Integral_mol_photons_m3_d[j,2,k,3,i-2]*Theta_Exp13_PC_22_6_sigma.lo[1]*
         pmol_per_mol*m3_per_L
       
-      C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[[i-1]][j,k]*
+      C_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.PAL1314_LMG1401[[i-2]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
-      C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401[[i-1]][j,k]*
+      C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401[[i-2]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.hi.PAL1314_LMG1401[[i-2]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
-      C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401[[i-1]][j,k]*
+      C_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401[[i-2]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.hi_PUFA.sigma.lo.PAL1314_LMG1401[[i-2]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[2,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[2,k])
       
       # TUVR, mid PUFA fraction
       
-      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-        Integral_mol_photons_m3_d[j,1,k,3,i-1]*Theta_Exp13_PC_22_6[1]*
+      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+        Integral_mol_photons_m3_d[j,1,k,3,i-2]*Theta_Exp13_PC_22_6[1]*
         pmol_per_mol*m3_per_L
       
-      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401[[i-1]][j,k] =
-        Integral_mol_photons_m3_d[j,1,k,3,i-1]*Theta_Exp13_PC_22_6_sigma.hi[1]*
+      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401[[i-2]][j,k] =
+        Integral_mol_photons_m3_d[j,1,k,3,i-2]*Theta_Exp13_PC_22_6_sigma.hi[1]*
         pmol_per_mol*m3_per_L
       
-      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401[[i-1]][j,k] =
-        Integral_mol_photons_m3_d[j,1,k,3,i-1]*Theta_Exp13_PC_22_6_sigma.lo[1]*
+      PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401[[i-2]][j,k] =
+        Integral_mol_photons_m3_d[j,1,k,3,i-2]*Theta_Exp13_PC_22_6_sigma.lo[1]*
         pmol_per_mol*m3_per_L
       
-      C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[[i-1]][j,k]*
+      C_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.PAL1314_LMG1401[[i-2]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
-      C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401[[i-1]][j,k]*
+      C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401[[i-2]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.hi.PAL1314_LMG1401[[i-2]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
-      C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401[[i-1]][j,k] =
-        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401[[i-1]][j,k]*
+      C_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401[[i-2]][j,k] =
+        PUFA_lipids_xformed_pmol_L_d.TUVR.mid_PUFA.sigma.lo.PAL1314_LMG1401[[i-2]][j,k]*
         (PUFA_fracs.PAL1314_LMG1401.pmol_C_L[1,k]/
            PUFA_fracs.PAL1314_LMG1401.pmol_lipids_L[1,k])
       
@@ -1611,3 +1611,32 @@ sd(PAL1314.BP.depthint.ugC_m2_d$E, na.rm = T)
 mean(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
 sd(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
 
+# numbers for manuscript
+
+# rates
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,mean)[5]/1000000
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.hi_PUFA.PAL1314_LMG1401,2,sd)[5]/1000000
+
+apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5]/1000
+apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,sd)[5]/1000
+
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401,2,mean)[5]/1000000
+apply(PUFA_lipids_xformed_ML_pmol_m2_d.UVA.mid_PUFA.PAL1314_LMG1401,2,sd)[5]/1000000
+
+apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5]/1000
+apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,sd)[5]/1000
+
+# % of BP
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5])/
+  mean(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5])/
+  mean(PAL1314.BP.depthint.ugC_m2_d$E, na.rm = T)
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5])/
+  mean(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
+
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5])/
+  mean(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5])/
+  mean(PAL1314.BP.depthint.ugC_m2_d$E, na.rm = T)
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5])/
+  mean(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
