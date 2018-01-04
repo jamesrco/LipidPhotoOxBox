@@ -553,9 +553,9 @@ for (i in 1:numSim) {
 
       # Quartz_vial_pathlength_cm
 
-      # Quartz_vial_pathlength_cm = rhalfnorm(1, theta = sd2theta(Quartz_vial_pathlength_cm.measured)) + Quartz_vial_pathlength_cm.measured
+      Quartz_vial_pathlength_cm = rhalfnorm(1, theta = sd2theta(Quartz_vial_pathlength_cm.measured)) + Quartz_vial_pathlength_cm.measured
       
-      Quartz_vial_pathlength_cm = rnorm(1, Quartz_vial_pathlength_cm.measured, Quartz_vial_pathlength_cm.measured)
+      # Quartz_vial_pathlength_cm = rnorm(1, Quartz_vial_pathlength_cm.measured, Quartz_vial_pathlength_cm.measured)
       
       # alpha_SW
 
