@@ -23,6 +23,8 @@ rsmDirectory
 .Rproj.user
 xset_a.RData
 /data/raw/JAZ_UV_VIS/raw_spectra/*
-/data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD300-366/*
-/data/raw/ESRL_GMD_AntUV/ver2/PAL_v22.2_BB_2013_JD200-299/*
+/data/raw/ESRL_GMD_AntUV/ver2/PAL1314/PAL_v22.2_BB_2013_JD300-366/*
+/data/raw/ESRL_GMD_AntUV/ver2/PAL1314/PAL_v22.2_BB_2013_JD200-299/*
+/data/raw/ESRL_GMD_AntUV/ver0/PAL1718/27BC1710_preliminary/*
+/data/raw/ESRL_GMD_AntUV/ver0/PAL1718/27BC1711_preliminary/*
 *.JazIrrad"

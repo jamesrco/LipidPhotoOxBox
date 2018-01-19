@@ -484,3 +484,83 @@ dev.off()
 
 plot(Kd.matches_from_PAL1516$Kd_per_meter[1:15],
      PAL17_StnB_Kd_20171116$Kd_per_m.mean[1:15])
+
+
+##### Time-integrated radiation doses from PAL1718 data #####
+
+# need stringr, RSEIS for this
+
+library(stringr)
+library(RSEIS)
+
+# for comparison with the PAL1718 actinometry data
+
+# first, the (preliminary) NOAA AntUV data
+
+# NOAA data
+
+# data is in separate files, so have to read them in sequentially
+
+setwd(base.wd)
+setwd("data/raw/ESRL_GMD_AntUV/ver0/PAL1718") 
+
+# get list of files
+ver0_UV_VIS_specfiles = list.files(recursive=TRUE, full.names=FALSE, pattern="\\.[0-9]{3}")
+
+# preallocate destination matrix
+# will be pulling the preliminary (uncorrected) spectral data (col 2) from version 0 data files
+# these were provided by Patrick Disterhoft in fall 2017
+
+PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim = as.data.frame(matrix(data = NA, ncol = 642, nrow = length(ver0_UV_VIS_specfiles)))
+
+# determining the wavelength column names is slightly more complicated than for the 
+# version 2 data since the data are at slightly irregular intervals
+# will just use the wavelengths in the first file directly
+colnames(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim) = c("Timestamp_GMT",read.csv(ver0_UV_VIS_specfiles[i], header = FALSE, skip = 2)$V1)
+
+# cycle through files, parse, collect data
+
+for (i in 1:length(ver0_UV_VIS_specfiles)) {
+  
+  # first, extract base filename containing necessary metadata
+  scanFile = str_extract(ver0_UV_VIS_specfiles[i],"BC[0-9]{6}\\.[0-9]{3}$")
+  
+  # extract metadata from the filename
+  scanJuldate = as.numeric(str_extract(scanFile,"[0-9]{3}$")) # julian date
+  scanFile = sub("\\.[0-9]{3}$","",scanFile)
+  scanMin = as.numeric(str_extract(scanFile,"[0-9]{2}$"))
+  scanFile = sub("[0-9]{2}$","",scanFile)
+  scanHour = as.numeric(str_extract(scanFile,"[0-9]{2}$"))
+  scanFile = sub("[0-9]{2}$","",scanFile)
+  scanYear = as.numeric(paste0(20,str_extract(scanFile,"[0-9]{2}$")))
+  scanDay = getmoday(scanJuldate,scanYear)[2]
+  scanMonth = getmoday(scanJuldate,scanYear)[1]
+  
+  # create timestamp
+  scanTS = ISOdatetime(scanYear, scanMonth, scanDay, scanHour, scanMin, 0, tz = "GMT")
+  scanTS.char = as.character(scanTS)
+  
+  # cheap hack for case where hour and minute both = 0 (i.e., midnight)
+  if (scanHour==0 & scanMin==0) {
+    
+    scanTS.char = sub("$", " 00:00:00",scanTS.char)
+    
+  }
+  
+  # extract data from file
+  scanData = read.csv(ver0_UV_VIS_specfiles[i], header = FALSE, skip = 2)
+  
+  # write timestamp, relevant data to destination matrix
+  
+  PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim[i,1] = scanTS.char
+  PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim[i,2:642] = scanData[,2]
+  
+}
+
+# convert date to POSIXlt format
+
+PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim$Timestamp_GMT = strptime(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim$Timestamp_GMT, "%Y-%m-%d %T", tz = "GMT")
+
+# save the matrix
+
+save(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Incident_UV-VIS_spectra_PAL1718_uW_cm2_prelim.RData"))

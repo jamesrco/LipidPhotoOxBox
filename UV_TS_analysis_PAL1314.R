@@ -42,7 +42,7 @@ cm2_per_m2 = 10000
 # NOAA data
 
 # set wd to data location
-setwd("data/raw/ESRL_GMD_AntUV/ver2") 
+setwd("data/raw/ESRL_GMD_AntUV/ver2/PAL1314") 
 
 # read in NOAA ESRL AntUV data (Version 2, daily dosage data), subset as needed
 PAL_AntUV_DD_v2 = read.csv("PAL_all_DailyDose_no_flags_SZA_max_set_to82.csv", 
@@ -195,7 +195,7 @@ DD_UVB_1314_subsurf_from_Jaz.QA = DD_UVB_1314_subsurf_from_Jaz[-c(40:44),]
 # data is in separate files, so have to read them in sequentially
 
 setwd(base.wd)
-setwd("data/raw/ESRL_GMD_AntUV/ver2") 
+setwd("data/raw/ESRL_GMD_AntUV/ver2/PAL1314") 
 
 # get list of files
 ver2_UV_VIS_specfiles = list.files(recursive=TRUE, full.names=FALSE, pattern="\\.[0-9]{3}")
