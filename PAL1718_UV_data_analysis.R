@@ -488,16 +488,25 @@ plot(Kd.matches_from_PAL1516$Kd_per_meter[1:15],
 
 ##### Time-integrated radiation doses from PAL1718 data #####
 
-# need stringr, RSEIS for this
+# from Experiment 4 (14 Nov 17), for comparison with the PAL1718 actinometry data
+
+# need stringr, RSEIS, RAtmosphere for this
 
 library(stringr)
 library(RSEIS)
+library(RAtmosphere)
 
-# for comparison with the PAL1718 actinometry data
+# some metadata for Experiment 4 (conducted 14 Nov 2017)
 
-# first, the (preliminary) NOAA AntUV data
+# incubation start/end times for actinometry (GMT)
+t_init_20171114 = as.POSIXct('2017-11-14 13:42:00', tz = "GMT") # 10:42 local time
+t_final_20171114 = as.POSIXct('2017-11-14 20:50:00', tz = "GMT") # 17:50 local time
 
-# NOAA data
+# response bandwidths for the two actinometers
+NO3_respBand_nm = c(311,333)
+NO2_respBand_nm = c(330,380)
+
+#####  First, the (preliminary) NOAA AntUV data #####
 
 # data is in separate files, so have to read them in sequentially
 
@@ -564,3 +573,222 @@ PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim$Timestamp_GMT = strptime(PAL1718_NOAA_A
 # save the matrix
 
 save(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim, file = paste0(base.wd,"/data/nice/NOAA_ESRL_GMD_AntUV/Incident_UV-VIS_spectra_PAL1718_uW_cm2_prelim.RData"))
+
+# now, compute some photon fluxes to compare with the actinometer results
+
+# calculation of total radiation received at each wavelength during the experiment
+# equivalent to the E_n,p,sigma defined in Equation 7 in the manuscript
+
+# integrated figures in units of photons/cm2/wavelength
+
+# extract subset of data for the experimental time interval
+PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub = 
+  PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim[
+    PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim$Timestamp_GMT>=
+      t_init_20171114 &  # 9:30 local time
+      PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim$Timestamp_GMT<=
+      t_final_20171114 # 17:50 local time
+    ,]
+
+# convert to units of photons/cm2, step by step
+PAL1718_NOAA_AntUV_spectra_W_m2_prelim.14Nov17.sub = 
+  PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub[,5:(ncol(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub)-1)]/100
+
+lambda_nm_AntUV_prelim = as.numeric(colnames(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub)[5:(ncol(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub)-1)])
+
+PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub =
+  matrix(NA, ncol = length(lambda_nm_AntUV_prelim), nrow = nrow(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub))
+
+for (i in 1:ncol(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub)) {
+  
+  PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub[,i] =
+    PAL1718_NOAA_AntUV_spectra_W_m2_prelim.14Nov17.sub[,i]*lambda_nm_AntUV_prelim[i]*0.836*(10^-2)
+  
+}
+
+# integrate over time, by wavelength
+
+# calculate vector of times in seconds, with t = 0 being timepoint at beginning of experiment
+
+timeint.s_Exp4.14Nov17.AntUV = as.numeric(rev(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub$Timestamp_GMT[nrow(PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub)]-
+                                          PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub$Timestamp_GMT))
+
+# first, time integration at each wavelength
+
+# need package caTools, if not loaded already
+
+detach("package:RSEIS", unload=TRUE)
+library(caTools)
+
+# preallocate vector
+PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2 = vector(mode = "double",
+                                                       length = ncol(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub))
+
+for (i in 1:length(PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2)) {
+  
+  PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2[i] =
+    caTools::trapz(timeint.s_Exp4.14Nov17.AntUV[1:length(timeint.s_Exp4.14Nov17.AntUV)],PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub[,i])
+  
+}
+
+# now, adjust these photon fluxes for transmissivity of quartz
+# requires object FracTrans, calculated in PAL1314_AQY_calc.R
+
+# preallocate vector
+
+PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj = vector(mode = "numeric",
+                  length = length(PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2))
+
+for (i in 1:length(PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj)) {
+
+  T_quartz = FracTrans$transmittance_quartz_pct[abs(FracTrans$lambda_nm-lambda_nm_AntUV_prelim[i])==min(abs(FracTrans$lambda_nm-lambda_nm_AntUV_prelim[i]))]
+  
+  if (length(T_quartz)>1) {
+    T_quartz = T_quartz[1]
+  }
+  
+  PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[i] =
+    PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2[i]*T_quartz
+  
+}
+
+# now, integrate over actinometer wavebands
+
+PAL1718.14Nov17_AntUVphotonflux_NO3_respBand_umol_photos_cm2.transAdj =
+  caTools::trapz(lambda_nm_AntUV_prelim[lambda_nm_AntUV_prelim>=NO3_respBand_nm[1] & lambda_nm_AntUV_prelim<=NO3_respBand_nm[2]],PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[lambda_nm_AntUV_prelim>=NO3_respBand_nm[1] & lambda_nm_AntUV_prelim<=NO3_respBand_nm[2]])/10000
+
+PAL1718.14Nov17_AntUVphotonflux_NO2_respBand_umol_photos_cm2.transAdj =
+  caTools::trapz(lambda_nm_AntUV_prelim[lambda_nm_AntUV_prelim>=NO2_respBand_nm[1] & lambda_nm_AntUV_prelim<=NO2_respBand_nm[2]],PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[lambda_nm_AntUV_prelim>=NO2_respBand_nm[1] & lambda_nm_AntUV_prelim<=NO2_respBand_nm[2]])/10000
+
+##### Second, the Jaz data collected in the tank at same depth #####
+
+setwd(base.wd)
+setwd("data/raw/JAZ_UV_VIS/")
+
+PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2 = read.csv("JAZ_UV-VIS_full_spectra_20171114-20171115_PAL1718_uW_cm2.csv",
+                                                          stringsAsFactors = FALSE, header = FALSE)
+
+# read in wavelength metadata for this JAZ instrument
+
+JAZ_wavelengths = read.csv("/Users/jamesrco/Code/Optics_Photochem/JAZ_wavelengths.csv",
+                           header = FALSE)
+
+# assign column names
+
+colnames(PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2) = c("Date_raw_julian",
+                                                             "Inttime_microseconds",
+                                                             "Badscans_fullspectrum",
+                                                             "Badscans_UVB",
+                                                             JAZ_wavelengths$V1)
+
+# create timestamp
+
+# convert dates from messed up Excel format
+PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2$Timestamp_GMT = as.POSIXct(PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2$Date_raw_julian*60*60*24, tz = "GMT", origin = "0000-01-01")-1*60*60*24
+
+# now, compute some photon fluxes to compare with the actinometer results
+
+# calculation of total radiation received at each wavelength during the experiment
+# equivalent to the E_n,p,sigma defined in Equation 7 in the manuscript
+
+# integrated figures in units of photons/cm2/wavelength
+
+# extract subset of data for the experimental time interval
+PAL1718_JAZ_timeseries_uW_cm2.14Nov17.sub = 
+  PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2[
+    PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2$Timestamp_GMT>=
+      t_init_20171114 &  # 9:30 local time
+      PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2$Timestamp_GMT<=
+      t_final_20171114 # 17:50 local time
+    ,]
+
+# convert to units of photons/cm2, step by step
+PAL1718_JAZ_timeseries_W_m2.14Nov17.sub = 
+  PAL1718_JAZ_timeseries_uW_cm2.14Nov17.sub[,5:(ncol(PAL1718_JAZ_timeseries_2017114_20171115_hires_full_spectrum_uW_cm2)-1)
+]/100
+
+PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub =
+  matrix(NA, ncol = length(JAZ_wavelengths$V1), nrow = nrow(PAL1718_JAZ_timeseries_W_m2.14Nov17.sub))
+
+for (i in 1:ncol(PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub)) {
+  
+  PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub[,i] =
+    PAL1718_JAZ_timeseries_W_m2.14Nov17.sub[,i]*JAZ_wavelengths$V1[i]*0.836*(10^-2)
+  
+}
+
+# account for ocean surface reflectance
+# requires function calcPen and some other objects from UV_TS_analysis_PAL1314.R
+
+PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub.surfAdj = matrix(data = NA,
+  nrow = nrow(PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub),
+  ncol = ncol(PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub))
+  
+for (i in 1:nrow(PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub.surfAdj)) {
+  
+  for (j in 1:ncol(PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub.surfAdj)) {
+    
+    PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub.surfAdj[i,j] =
+      calcPen(PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub[i,j],
+              time = PAL1718_JAZ_timeseries_uW_cm2.14Nov17.sub$Timestamp_GMT[i],
+              lat = -64.774167,
+              long = -64.053056,
+              reflectance.model = nls.fit.surf_reflect)
+    
+  }
+  
+}
+
+# integrate over time, by wavelength
+
+# calculate vector of times in seconds, with t = 0 being timepoint at beginning of experiment
+
+timeint.s_Exp4.14Nov17.Jaz = as.numeric(rev(PAL1718_JAZ_timeseries_uW_cm2.14Nov17.sub$Timestamp_GMT[nrow(PAL1718_JAZ_timeseries_uW_cm2.14Nov17.sub)]-
+                                              PAL1718_JAZ_timeseries_uW_cm2.14Nov17.sub$Timestamp_GMT))
+
+# first, time integration at each wavelength
+
+# need package caTools, if not loaded already
+
+detach("package:RSEIS", unload=TRUE)
+library(caTools)
+
+# preallocate vector
+PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2 = vector(mode = "double",
+                                                           length = ncol(PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub))
+
+for (i in 1:length(PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2)) {
+  
+  PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2[i] =
+    caTools::trapz(timeint.s_Exp4.14Nov17.Jaz[1:length(timeint.s_Exp4.14Nov17.Jaz)],PAL1718_JAZ_timeseries_umol_photons_m2_s.14Nov17.sub.surfAdj[,i])
+  
+}
+
+# now, adjust these photon fluxes for transmissivity of quartz
+# requires object FracTrans, calculated in PAL1314_AQY_calc.R
+
+# preallocate vector
+
+PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj = vector(mode = "numeric",
+                                                                    length = length(PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2))
+
+for (i in 1:length(PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj)) {
+  
+  T_quartz = FracTrans$transmittance_quartz_pct[abs(FracTrans$lambda_nm-JAZ_wavelengths$V1[i])==min(abs(FracTrans$lambda_nm-JAZ_wavelengths$V1[i]))]
+  
+  if (length(T_quartz)>1) {
+    T_quartz = T_quartz[1]
+  }
+  
+  PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[i] =
+    PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2[i]*T_quartz
+  
+}
+
+# now, integrate over actinometer wavebands
+
+PAL1718.14Nov17_JAZphotonflux_NO3_respBand_umol_photos_cm2.transAdj =
+  caTools::trapz(JAZ_wavelengths$V1[JAZ_wavelengths$V1>=NO3_respBand_nm[1] & JAZ_wavelengths$V1<=NO3_respBand_nm[2]],PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[JAZ_wavelengths$V1>=NO3_respBand_nm[1] & JAZ_wavelengths$V1<=NO3_respBand_nm[2]])/10000
+
+PAL1718.14Nov17_JAZphotonflux_NO2_respBand_umol_photos_cm2.transAdj =
+  caTools::trapz(JAZ_wavelengths$V1[JAZ_wavelengths$V1>=NO2_respBand_nm[1] & JAZ_wavelengths$V1<=NO2_respBand_nm[2]],PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[JAZ_wavelengths$V1>=NO2_respBand_nm[1] & JAZ_wavelengths$V1<=NO2_respBand_nm[2]])/10000
