@@ -606,6 +606,28 @@ for (i in 1:ncol(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub)) {
   
 }
 
+# account for ocean surface reflectance
+# requires function calcPen and some other objects from UV_TS_analysis_PAL1314.R
+
+PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub.surfAdj = matrix(data = NA,
+                                                                      nrow = nrow(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub),
+                                                                      ncol = ncol(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub))
+
+for (i in 1:nrow(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub.surfAdj)) {
+  
+  for (j in 1:ncol(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub.surfAdj)) {
+    
+    PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub.surfAdj[i,j] =
+      calcPen(PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub[i,j],
+              time = PAL1718_NOAA_AntUV_spectra_uW_cm2_prelim.14Nov17.sub$Timestamp_GMT[i],
+              lat = -64.774167,
+              long = -64.053056,
+              reflectance.model = nls.fit.surf_reflect)
+    
+  }
+  
+}
+
 # integrate over time, by wavelength
 
 # calculate vector of times in seconds, with t = 0 being timepoint at beginning of experiment
@@ -627,7 +649,7 @@ PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2 = vector(mode = "double",
 for (i in 1:length(PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2)) {
   
   PAL1718.AntUV.14Nov17.E_n_p_sigma_umol_photons_m2[i] =
-    caTools::trapz(timeint.s_Exp4.14Nov17.AntUV[1:length(timeint.s_Exp4.14Nov17.AntUV)],PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub[,i])
+    caTools::trapz(timeint.s_Exp4.14Nov17.AntUV[1:length(timeint.s_Exp4.14Nov17.AntUV)],PAL1718_NOAA_AntUV_umol_photons_m2_s.14Nov17.sub.surfAdj[,i])
   
 }
 
@@ -792,3 +814,9 @@ PAL1718.14Nov17_JAZphotonflux_NO3_respBand_umol_photos_cm2.transAdj =
 
 PAL1718.14Nov17_JAZphotonflux_NO2_respBand_umol_photos_cm2.transAdj =
   caTools::trapz(JAZ_wavelengths$V1[JAZ_wavelengths$V1>=NO2_respBand_nm[1] & JAZ_wavelengths$V1<=NO2_respBand_nm[2]],PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[JAZ_wavelengths$V1>=NO2_respBand_nm[1] & JAZ_wavelengths$V1<=NO2_respBand_nm[2]])/10000
+
+PAL1718.14Nov17_JAZphotonflux_NO3_respBand_umol_photos_cm2.transAdj
+PAL1718.14Nov17_JAZphotonflux_NO2_respBand_umol_photos_cm2.transAdj
+
+PAL1718.14Nov17_AntUVphotonflux_NO3_respBand_umol_photos_cm2.transAdj
+PAL1718.14Nov17_AntUVphotonflux_NO2_respBand_umol_photos_cm2.transAdj
