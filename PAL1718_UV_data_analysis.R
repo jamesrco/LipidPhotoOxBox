@@ -499,8 +499,9 @@ library(RAtmosphere)
 # some metadata for Experiment 4 (conducted 14 Nov 2017)
 
 # incubation start/end times for actinometry (GMT)
+# 12:00 (local noon) was midpoint of actinometry
 t_init_20171114 = as.POSIXct('2017-11-14 13:42:00', tz = "GMT") # 10:42 local time
-t_final_20171114 = as.POSIXct('2017-11-14 20:50:00', tz = "GMT") # 17:50 local time
+t_final_20171114 = as.POSIXct('2017-11-14 16:18:00', tz = "GMT") # 13:18 local time
 
 # response bandwidths for the two actinometers
 NO3_respBand_nm = c(311,333)
