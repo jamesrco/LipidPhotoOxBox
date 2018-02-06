@@ -5,7 +5,7 @@ This repository contains code and data to support Collins et al., *The molecular
 
 Citations and references:
 
-* Code in this repository can now be cited as: [10.5281/zenodo.841930](https://doi.org/10.5281/zenodo.841930).
+* Code in this repository can now be cited as: [10.5281/zenodo.841929](https://doi.org/10.5281/zenodo.841929).
 
 * Quality-controlled data (water column lipid concentrations, UV radiation doses, and water column attenuation coefficients) are permanently archived to [10.1594/PANGAEA.879582](https://doi.org/10.1594/PANGAEA.879582).
 
