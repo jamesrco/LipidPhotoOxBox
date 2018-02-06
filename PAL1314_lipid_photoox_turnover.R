@@ -1627,6 +1627,7 @@ apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5]/1000
 apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,sd)[5]/1000
 
 # % of BP
+# range
 (apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5])/
   mean(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
 (apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5])/
@@ -1634,9 +1635,18 @@ apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,sd)[5]/1000
 (apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5])/
   mean(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
 
+# a mean value
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.hi_PUFA.PAL1314_LMG1401,2,mean)[5])/
+mean(unlist(c(PAL1314.BP.depthint.ugC_m2_d[,2:4])), na.rm=T)
+
+# range
 (apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5])/
   mean(PAL1314.BP.depthint.ugC_m2_d$B, na.rm = T)
 (apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5])/
   mean(PAL1314.BP.depthint.ugC_m2_d$E, na.rm = T)
 (apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5])/
   mean(PAL1314.BP.depthint.ugC_m2_d$SWI, na.rm = T)
+
+# a mean value
+(apply(C_xformed_ML_ug_C_m2_d.TUVR.mid_PUFA.PAL1314_LMG1401,2,mean)[5])/
+  mean(unlist(c(PAL1314.BP.depthint.ugC_m2_d[,2:4])), na.rm=T)
