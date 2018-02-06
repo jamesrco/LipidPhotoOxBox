@@ -816,8 +816,16 @@ PAL1718.14Nov17_JAZphotonflux_NO3_respBand_umol_photos_cm2.transAdj =
 PAL1718.14Nov17_JAZphotonflux_NO2_respBand_umol_photos_cm2.transAdj =
   caTools::trapz(JAZ_wavelengths$V1[JAZ_wavelengths$V1>=NO2_respBand_nm[1] & JAZ_wavelengths$V1<=NO2_respBand_nm[2]],PAL1718.JAZ_timeseries.14Nov17.E_n_p_sigma_umol_photons_m2.transAdj[JAZ_wavelengths$V1>=NO2_respBand_nm[1] & JAZ_wavelengths$V1<=NO2_respBand_nm[2]])/10000
 
+# report results 
+
 PAL1718.14Nov17_JAZphotonflux_NO3_respBand_umol_photos_cm2.transAdj
 PAL1718.14Nov17_JAZphotonflux_NO2_respBand_umol_photos_cm2.transAdj
 
 PAL1718.14Nov17_AntUVphotonflux_NO3_respBand_umol_photos_cm2.transAdj
 PAL1718.14Nov17_AntUVphotonflux_NO2_respBand_umol_photos_cm2.transAdj
+
+# SZA at the incubation midpoint
+
+SZA(as.POSIXct('2017-11-14 15:00:00', tz = "GMT"),
+    -64.774167,
+    -64.053056)
