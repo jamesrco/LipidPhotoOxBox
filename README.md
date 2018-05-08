@@ -1,7 +1,7 @@
 # LipidPhotoOxBox
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.841929.svg)](https://doi.org/10.5281/zenodo.841929)
 
-This repository contains code and data to support Collins et al., 2018, The molecular products and biogeochemical significance of lipid photooxidation in West Antarctic surface waters, *Geochimica et Cosmochimica Acta*; doi:[10.1016/j.gca.2018.04.030](https://doi.org/10.1016/j.gca.2018.04.030). A version of the manuscript also appeared as Chapter 4 of [my dissertation](http://dx.doi.org/10.1575/1912/8721). Additional code in this repository was used for Appendix B of my dissertation.
+This repository contains code and data to support Collins et al., 2018, The molecular products and biogeochemical significance of lipid photooxidation in West Antarctic surface waters, *Geochimica et Cosmochimica Acta*; doi:[10.1016/j.gca.2018.04.030](https://doi.org/10.1016/j.gca.2018.04.030). A version of the manuscript also appeared as Chapter 4 of [my dissertation](https://doi.org/10.1575/1912/8721). Additional code in this repository was used for Appendix B of my dissertation.
 
 Citations and references:
 
