@@ -3,7 +3,7 @@
 
 This repository contains code and data for:
 
-[Collins, J. R., H. F. Fredricks, J. S. Bowman, C. P. Ward, C. Moreno, K. Longnecker, A. Marchetti, C. M. Hansel, H. W. Ducklow, and B. A. S. Van Mooy. 2018. The molecular products and biogeochemical significance of lipid photooxidation in West Antarctic surface waters. *Geochimica et Cosmochimica Acta*; doi:10.1016/j.gca.2018.04.030](https://doi.org/10.1016/j.gca.2018.04.03)
+[Collins, J. R., H. F. Fredricks, J. S. Bowman, C. P. Ward, C. Moreno, K. Longnecker, A. Marchetti, C. M. Hansel, H. W. Ducklow, and B. A. S. Van Mooy. 2018. The molecular products and biogeochemical significance of lipid photooxidation in West Antarctic surface waters. *Geochimica et Cosmochimica Acta*; doi:10.1016/j.gca.2018.04.030](https://doi.org/10.1016/j.gca.2018.04.030)
 
 A much earlier version of the same work also appeared as Chapter 4 of [my dissertation](https://doi.org/10.1575/1912/8721). Additional code in this repository was used for Appendix B of my dissertation.
 
